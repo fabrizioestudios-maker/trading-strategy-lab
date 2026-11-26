@@ -19,7 +19,7 @@ from lab.metricas import cumple, resumen  # noqa: E402
 
 ap = argparse.ArgumentParser()
 ap.add_argument("instr")
-ap.add_argument("--evento", default="minimo", choices=["minimo", "rsi2", "control"])
+ap.add_argument("--evento", default="minimo", choices=["minimo", "rsi2", "control", "momentum252"])
 ap.add_argument("--largo", type=int, default=10)
 ap.add_argument("--umbral", type=float, default=25)
 ap.add_argument("--k", type=float, default=3.5)
@@ -35,6 +35,10 @@ def senal(v, evento, largo, umbral):
         return S.retroceso_minimo(v, largo, t)
     if evento == "rsi2":
         return S.retroceso_rsi(v, 2, umbral, 100 - umbral, t)
+    if evento == "momentum252":
+        return S.momentum(v, 252)
+    if evento == "siempre":
+        return np.ones(len(v["c"]), int)
     return t
 
 
@@ -61,6 +65,8 @@ base = correr(a.k, a.largo, a.umbral, a.evento)
 s_sel, s_val = partes(base)
 ctrl = correr(a.k, a.largo, a.umbral, "control")
 c_sel, c_val = partes(ctrl)
+azar = correr(a.k, a.largo, a.umbral, "siempre")
+z_sel, z_val = partes(azar)
 base["anio"] = pd.to_datetime(base.t, unit="ms", utc=True).year
 por_anio = base.groupby("anio").r.agg(n="count", wr=lambda x: (x > 0).mean(), r_total="sum")
 por_instr = base.assign(m=np.where(base.t < estrategia.CORTE, "selección", "validación")).groupby(["instr", "m"]).r.agg(n="count", wr=lambda x: (x > 0).mean(), expectancy="mean")
@@ -77,7 +83,8 @@ dds = []
 for _ in range(2000):
     c = np.cumsum(rng.permutation(r_all))
     dds.append(np.max(np.maximum.accumulate(np.concatenate([[0], c])) - np.concatenate([[0], c])))
-out = dict(config=vars(a), seleccion=s_sel, validacion=s_val, control_seleccion=c_sel, control_validacion=c_val, veredicto=cumple(s_sel, s_val),
+out = dict(config=vars(a), seleccion=s_sel, validacion=s_val, control_seleccion=c_sel, control_validacion=c_val, azar_seleccion=z_sel, azar_validacion=z_val,
+           wilson_supera_azar=bool(s_val.get("wr_lo", 0) > z_val.get("wr", 1)), veredicto=cumple(s_sel, s_val),
            dd_montecarlo_p50=float(np.percentile(dds, 50)), dd_montecarlo_p95=float(np.percentile(dds, 95)),
            anios_positivos=float((por_anio.r_total > 0).mean()))
 os.makedirs("resultados/E009", exist_ok=True)
@@ -90,6 +97,8 @@ f = lambda s: f"n={s['n']}, WR={s['wr']*100:.1f}% [{s['wr_lo']*100:.1f}–{s['wr
 print("CONFIG", vars(a))
 print("Selección :", f(s_sel)); print("Validación:", f(s_val))
 print("Control (cualquier vela en tendencia) sel:", f(c_sel)); print("Control val:", f(c_val))
+print("Azar (comprar siempre, mismo SL/TP) sel:", f(z_sel)); print("Azar val:", f(z_val))
+print("Límite inferior de Wilson de la validación supera al azar:", out["wilson_supera_azar"])
 print("VEREDICTO:", out["veredicto"], "| años positivos:", round(out["anios_positivos"] * 100), "% | DD Monte Carlo p50/p95:", round(out["dd_montecarlo_p50"], 1), round(out["dd_montecarlo_p95"], 1), "R")
 print(por_anio.assign(wr=(por_anio.wr * 100).round(1), r_total=por_anio.r_total.round(1)).to_string())
 print(por_instr.assign(wr=(por_instr.wr * 100).round(1), expectancy=por_instr.expectancy.round(2)).to_string())
