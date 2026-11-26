@@ -285,3 +285,27 @@ E010 (walk-forward, con costos):
 1. Terminar los índices (Nikkei, FTSE, CAC, ASX).
 2. Correr las dos familias candidatas en todo el universo de activos con deriva: retrocesos en tendencia (E006) y solo compras con stops anchos (E008).
 3. Elegir una configuración con la selección y validarla con E009.
+
+---
+
+## 2026-11-26 21:50 UTC — Entrada 8: regla de elección de candidatas (escrita antes de verlas)
+
+Se escribe antes de correr las dos familias en el universo completo y antes de mirar cualquier dato de validación.
+
+**Familias candidatas**
+- **A. Retrocesos en tendencia alcista:**
+  - Universo: los 7 índices (SPX500, NAS100, DAX, Nikkei, FTSE, CAC, ASX).
+  - Eventos: cierre en el mínimo de 10 días, cierre en el mínimo de 5 días o RSI2 < 25, dentro de la tendencia 200 (cierre sobre la SMA 200 y la SMA subiendo).
+  - k de 2,5 a 5 ATR.
+- **B. Solo compras con stops anchos en activos con deriva:**
+  - Universo: los 7 índices más el oro y la plata.
+  - Señal: tendencia 200 o momentum de 252 días positivo.
+  - k de 4 a 6 ATR.
+- En las dos: TP = 2,1·SL y una operación a la vez por instrumento.
+
+**Regla de elección (solo con la selección 2010–2021)**
+1. Cartera con al menos 100 operaciones en selección.
+2. WR ≥ 50 % y payoff ≥ 2 en selección.
+3. Meseta: los vecinos en k (±0,5 ATR) tienen WR ≥ 47 %.
+4. Entre las que cumplen, se elige la de mayor WR en selección. Una por familia, como máximo dos candidatas.
+5. Las elegidas se validan una sola vez con E009 (2022–2026). Si la validación falla, no se busca otra configuración mirando la validación: la familia queda descartada con ese enfoque.
