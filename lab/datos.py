@@ -110,3 +110,20 @@ def atr(v, n=14):
 
 def anio(t_ms):
     return pd.to_datetime(t_ms, unit="ms", utc=True).year.values
+
+
+def unir_historia(instr):
+    """Une data/<instr>_2010.npz (historia anterior) con data/<instr>.npz. Guarda el original como <instr>_2016.npz."""
+    viejo = os.path.join(RAIZ, f"{instr}_2010.npz")
+    actual = os.path.join(RAIZ, f"{instr}.npz")
+    respaldo = os.path.join(RAIZ, f"{instr}_2016.npz")
+    if not os.path.exists(viejo):
+        return None
+    if not os.path.exists(respaldo):
+        os.replace(actual, respaldo)
+    a, b = np.load(viejo), np.load(respaldo)
+    m = a["t"] < b["t"][0]
+    salto = (b["o"][0] / a["c"][m][-1] - 1) * 100
+    np.savez_compressed(actual, **{k: np.concatenate([a[k][m], b[k]]) for k in ("t", "o", "h", "l", "c")})
+    return dict(instr=instr, antes=int(m.sum()), despues=len(b["t"]), salto_pct=round(float(salto), 3),
+                desde=str(np.datetime64(int(a["t"][0]), "ms")), hasta=str(np.datetime64(int(b["t"][-1]), "ms")))
