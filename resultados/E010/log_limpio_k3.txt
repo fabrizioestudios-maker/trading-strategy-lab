@@ -7,3 +7,17 @@ AUDUSD muestras listas
 SPXUSD muestras listas
 NSXUSD muestras listas
 JPXJPY muestras listas
+UKXGBP muestras listas
+2013 entrenado con 9387 | tasa base 0.292
+2014 entrenado con 15440 | tasa base 0.318
+2015 entrenado con 21340 | tasa base 0.322
+2016 entrenado con 26610 | tasa base 0.316
+2017 entrenado con 32778 | tasa base 0.314
+2018 entrenado con 38386 | tasa base 0.312
+2019 entrenado con 44349 | tasa base 0.316
+2020 entrenado con 49806 | tasa base 0.317
+2021 entrenado con 55437 | tasa base 0.32
+umbral  n_operable  wr_operable  wr_lo  expectancy  payoff  n_superpuestas  wr_superpuestas  tasa_base_test
+   q80         451        0.324  0.282      -0.004   2.078           10054            0.314           0.324
+   q90         351        0.305  0.259      -0.062   2.080            4300            0.319           0.324
+   q95         207        0.357  0.295       0.101   2.078            1854            0.313           0.324

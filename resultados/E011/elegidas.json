@@ -1,0 +1,32 @@
+{
+ "universo_A": [
+  "SPXUSD",
+  "NSXUSD",
+  "JPXJPY",
+  "UKXGBP",
+  "FRXEUR",
+  "AUXAUD"
+ ],
+ "universo_B": [
+  "SPXUSD",
+  "NSXUSD",
+  "JPXJPY",
+  "UKXGBP",
+  "FRXEUR",
+  "AUXAUD",
+  "XAUUSD",
+  "XAGUSD"
+ ],
+ "elegidas": {
+  "A": null,
+  "B": {
+   "evento": "tendencia 200",
+   "k_atr": 6.0,
+   "n": 102,
+   "wr": 0.5098039215686274,
+   "wr_lo": 0.4142085151226479,
+   "pf": 2.1596697324450016,
+   "expectancy": 0.5739630063389789
+  }
+ }
+}
