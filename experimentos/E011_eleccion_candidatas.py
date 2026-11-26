@@ -13,7 +13,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from lab import datos, estrategia, senales as S  # noqa: E402
 from lab.metricas import resumen  # noqa: E402
 
-INDICES = ["SPXUSD", "NSXUSD", "GRXEUR", "JPXJPY", "UKXGBP", "FRXEUR", "AUXAUD"]
+# GRXEUR (DAX) excluido: HistData trae otra serie (Euro Stoxx 50) entre jun-2020 y dic-2023 (ver E000)
+INDICES = ["SPXUSD", "NSXUSD", "JPXJPY", "UKXGBP", "FRXEUR", "AUXAUD"]
 METALES = ["XAUUSD", "XAGUSD"]
 disp = lambda lst: [i for i in lst if os.path.exists(os.path.join(datos.RAIZ, i + ".npz"))]
 RR = 2.1

@@ -309,3 +309,33 @@ Se escribe antes de correr las dos familias en el universo completo y antes de m
 3. Meseta: los vecinos en k (±0,5 ATR) tienen WR ≥ 47 %.
 4. Entre las que cumplen, se elige la de mayor WR en selección. Una por familia, como máximo dos candidatas.
 5. Las elegidas se validan una sola vez con E009 (2022–2026). Si la validación falla, no se busca otra configuración mirando la validación: la familia queda descartada con ese enfoque.
+
+---
+
+## 2026-11-26 22:15 UTC — Entrada 9: control de calidad de datos (E000); se excluyen DAX y WTI
+
+**Qué se hizo**
+- E000 (`experimentos/E000_calidad_datos.py`) revisa en cada instrumento:
+  - saltos diarios mayores al 15 %;
+  - huecos;
+  - precios no positivos.
+- E012 calcula el Sharpe realizado por instrumento y el acierto que predice la teoría para comprar siempre con 1:2.
+
+**Qué se descubrió**
+- **DAX (GRXEUR) corrupto:** entre el 14/06/2020 y el 01/12/2023, HistData trae otra serie, que parece el Euro Stoxx 50 (3.178–4.424 cuando el DAX estaba en 12.000–16.600). Hay saltos de −132,9 % y +131,2 %.
+  - **Los resultados del DAX en E001, E004, E006 y E007 no valen** desde junio de 2020; los de 2010–2019 sí. El mal resultado del DAX en E006 puede deberse en parte a esto.
+  - Se excluye el DAX del universo.
+- **WTI:** tiene un hueco de 940 días y saltos de −50 %, +21 % y −32 % en marzo y abril de 2020, cuando el petróleo cotizó negativo. Se excluye; afecta un poco a E008 y E010, que lo incluían.
+- **Plata:** caídas de −30,8 % y −21,8 % a fines de enero y principios de febrero de 2026. No se pudieron verificar con otra fuente. Se mantiene y se anota.
+- El resto (oro, forex, SPX500, NAS100, Nikkei, FTSE) no tiene saltos imposibles.
+- Sharpe realizado por instrumento (E012) y acierto teórico de comprar siempre con 1:2 y stop de 5 σ diarios:
+
+| | SPX500 | NAS100 | Nikkei | Oro | EURUSD |
+| --- | --- | --- | --- | --- | --- |
+| Sharpe selección | 0,69 | 0,88 | 0,41 | 0,25 | −0,22 |
+| Sharpe validación | 0,52 | 0,45 | 0,63 | 0,71 | −0,08 |
+| Teoría con 5 σ, selección | 48,3 % | 52,5 % | 42,3 % | 38,7 % | 28,9 % |
+
+  Esto confirma que el 50 % con stops anchos solo lo da un activo con Sharpe cerca de 0,8 o más en ese período.
+
+**Próximos pasos:** E011 con los índices limpios (SPX500, NAS100, Nikkei, FTSE, CAC y ASX) más oro y plata.
