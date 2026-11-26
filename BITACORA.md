@@ -398,3 +398,59 @@ Se escribe antes de correr las dos familias en el universo completo y antes de m
 **Próximos pasos**
 1. Completar las familias que faltan del pedido original: divergencias (E014) y multi-temporalidad (H4 dentro de la tendencia D1).
 2. Conclusiones finales.
+
+---
+
+## 2026-11-26 23:55 UTC — Entrada 11: divergencias y multi-temporalidad (E014)
+
+**Qué se hizo**
+- E014, en 12 instrumentos limpios (4 de forex, 6 índices, oro y plata), solo selección, una operación a la vez, TP = 2,1·SL:
+  - Divergencias de RSI(14) en D1 y H4: pivotes 5/5, el segundo giro más extremo con el RSI en contra y como mucho 60 velas entre giros. SL en la estructura (giro ± 0,25 ATR) o a 2 ATR.
+  - Multi-temporalidad: tendencia diaria (SMA 200 con pendiente) y retroceso en H4 (RSI2 < 10 o mínimo de 10 velas). SL a 3, 4 o 6 ATR de H4. En ambos lados o solo compras en activos con deriva.
+
+**Resultados (cartera, selección)**
+- Divergencias:
+  - D1 con SL a 2 ATR: 37,8 % (n = 476).
+  - D1 con SL en la estructura: 30,0 %.
+  - H4: 30,3–31,8 %.
+- Multi-temporalidad:
+  - Ambos lados: 32,5–33,2 % (n de 760 a 3.066), expectancy ≈ 0.
+  - Solo compras en activos con deriva: 34,9–40,4 %. El mejor es mínimo de 10 velas H4 con 6 ATR: 40,4 %, n = 381, PF 1,41.
+
+**Qué se descubrió**
+- Ni las divergencias ni la combinación de temporalidades se acercan al 50 % con 1:2.
+- Operada en las dos direcciones, la combinación de temporalidades queda en el azar (33 %). Solo compras toma algo de deriva (40 %).
+- Con esto quedan probadas todas las familias que se pueden probar con estos datos: indicadores clásicos, price action, estructura, divergencias, multi-temporalidad, medias, momentum, retrocesos, reversión, sesiones, compresión y ruptura, y aprendizaje automático.
+- Volumen, volume profile y order flow no se pueden probar: HistData no trae volumen.
+
+**Próximos pasos:** conclusiones finales.
+
+---
+
+## 2026-11-27 00:05 UTC — Entrada 12: conclusiones finales
+
+**Qué se hizo:** se escribió `docs/conclusiones.md` con:
+- la estrategia definida;
+- los resultados de selección y validación;
+- el veredicto de robustez;
+- la tabla de todas las familias probadas;
+- la explicación teórica;
+- los límites del estudio y las recomendaciones.
+
+**Resultado de la misión**
+- **Se encontró una estrategia que cumple los criterios mínimos**: tendencia de largo plazo, solo compras, SL de 6 ATR y TP de 2,1·SL en 6 índices, oro y plata.
+  - Selección: 51,0 %, payoff 2,08, PF 2,16, n = 102.
+  - Validación: 55,6 %, payoff 2,06, PF 2,57, n = 45.
+- **No es robusta como ventaja:**
+  - es igual a comprar siempre con el mismo SL/TP (+90,6 R contra +92,3 R);
+  - es sensible al stop (4,8 ATR da 45,8 %);
+  - depende de la deriva alcista de 2010–2026;
+  - dura 6–8 meses por operación;
+  - en CFD pagaría financiación, que no se modeló.
+- **Con señales técnicas no aparece 50 % con 1:2**: 27–45 % en unas 1.400 configuraciones del laboratorio, más unas 1.600 anteriores.
+- La teoría lo explica: hace falta Sharpe_diario × stop (en σ diarios) ≥ 0,24. Eso es imposible con stops chicos, y con stops grandes solo lo da la deriva del activo.
+
+**Próximos pasos posibles (decisión de Fabrizio)**
+1. Aceptar otra métrica de éxito (expectancy y PF con 35–45 % de acierto), donde sí hay candidatas.
+2. Buscar fuentes de datos que no sean precio (COT, posicionamiento en opciones, fundamentales) para un estudio nuevo.
+3. Llevar la candidata B a demo, sabiendo que es "comprar índices y metales en tendencia con stops amplios".

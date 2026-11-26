@@ -1,0 +1,74 @@
+# Conclusiones (26/11/2026)
+
+**Respuesta corta.** Se encontró una estrategia que cumple los números mínimos de la misión (win rate ≥ 50 %, payoff real ≥ 2, expectancy positiva, más de 100 operaciones) en la muestra de selección y en la de validación. **No es robusta como "ventaja":** gana lo mismo que comprar siempre esos activos con el mismo stop y TP. Su resultado viene de la deriva alcista de índices y metales en 2010–2026, tomada con stops muy anchos y operaciones de 6 a 8 meses.
+
+Con señales técnicas de corto y mediano plazo **no apareció ninguna estrategia con 50 % de acierto y 1:2** en unas 1.400 configuraciones de este laboratorio, más las ~1.600 que ya se habían probado en el proyecto (LuxAlgo, SMC/ICT, Setup A+, scalping). La teoría y los datos explican por qué.
+
+## La estrategia que cumple los criterios mínimos
+
+**Nombre:** Tendencia de largo plazo con stop amplio, solo compras ("candidata B").
+
+| Regla | Definición |
+| --- | --- |
+| Universo | S&P 500, Nasdaq 100, Nikkei 225, FTSE 100, CAC 40, ASX 200, oro y plata (CFD) |
+| Señal (vela diaria, cierre 17:00 NY) | Cierre > SMA(200) **y** SMA(200) de hoy > SMA(200) de hace 20 velas |
+| Entrada | Compra en la apertura siguiente si no hay una posición abierta en ese activo |
+| Stop loss | Entrada − 6 × ATR(14) diario |
+| Take profit | Entrada + 2,1 × (distancia al stop) = 12,6 × ATR(14) |
+| Gestión | SL y TP fijos, sin break-even ni trailing. Una posición por activo (hasta 8 a la vez) |
+| Riesgo sugerido | 0,5–1 % del capital por operación (máximo 4–8 % abierto si están las 8) |
+
+Resultados con costos (`resultados/E009/`, `resultados/E013/curva_candidata_B.png`):
+
+| | Operaciones | Win rate [IC 95 %] | Payoff | PF | Expectancy | Max DD | Duración media |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Selección 2010–2021 | 102 | 51,0 % [41,4–60,5] | 2,08 | 2,16 | +0,57 R | 7,0 R | 250 días |
+| Validación 2022–2026 | 45 | 55,6 % [41,2–69,1] | 2,06 | 2,57 | +0,71 R | 6,2 R | 186 días |
+
+- Total: +90,6 R en 16 años, unos 5,6 R por año. Con 1 % de riesgo por operación son unos 5,6 % anuales sin componer, con drawdowns de 7–10 %. El percentil 95 del drawdown por Monte Carlo es 10,1 R.
+- Años positivos: 13 de 17.
+
+**Por qué no es robusta:**
+1. **No mejora al azar.** Comprar siempre esos activos con el mismo stop y TP da 49,5 % y 57,1 % (+92,3 R). El filtro de tendencia solo suaviza algo las caídas de 2020 y 2022.
+2. **Es sensible al stop.** Con un stop 20 % más chico (4,8 ATR), la selección baja a 45,8 %.
+3. **Depende del período.** Funciona porque las acciones (sobre todo de EE.UU. y Japón) y los metales subieron en 2010–2026. En un mercado bajista largo (acciones 2000–2009, oro 2011–2015) no hay evidencia de que funcione; el filtro la mantiene afuera, pero no gana.
+4. **Muestra chica en validación:** 45 operaciones, con un intervalo de confianza de 41 % a 69 %.
+5. Como inversión, rinde menos que tener un fondo indexado, porque la exposición promedio es baja.
+
+## Qué se probó y qué dio (selección, con costos, RR 1:2–1:2,1)
+
+| Familia | Experimento | Mejor win rate | Comentario |
+| --- | --- | --- | --- |
+| Entrada al azar (línea de base) | E001 | ~33 % sin deriva; hasta 55 % en oro largo con 3 ATR | Mide la deriva de cada activo, no es una señal |
+| Tendencia y momentum (medias, Donchian, momentum, cruces) | E002, E003, E008 | 35–40 % en ambos lados; 52,5 % solo compras con 5–6 ATR | Ventaja real (PF 1,2–1,4) con el acierto de un seguidor de tendencias |
+| Retrocesos dentro de la tendencia (RSI2, mínimos de 5/10 días, toque de EMA) | E004, E006, E011 | 45,5 % en 6 índices | Solo en EE.UU. llega a 50–59 %; no se generaliza |
+| Reversión de corto plazo y días extremos | E004 | < 50 % | — |
+| Régimen de volatilidad | E007 | sin mejora | Hipótesis rechazada |
+| Intradía: ORB de NY, rango asiático, NR7, inside bar, RSI y Bollinger H1 | E005 | 27–37 % | En el rango del azar |
+| Divergencias RSI(14) D1/H4 | E014 | 30–38 % | — |
+| Multi-temporalidad: H4 dentro de la tendencia D1 | E014 | 33 % en ambos lados; 40 % solo compras | — |
+| Aprendizaje automático (gradient boosting, 22 variables, walk-forward) | E010 | 30–36 % contra 32–33 % de base | No encuentra ventaja |
+| Antecedentes en noticias-bot: 1.584 modelos SMC/ICT de LuxAlgo, Setup A+ y scalping en oro | — | 44 %, 42 % y < 50 % | — |
+
+## Por qué es tan difícil (y no un problema de buscar más)
+
+En un precio que se mueve al azar, 1:2 da exactamente 33,3 % de acierto. Para llegar al 50 % hace falta que, al entrar, el precio tenga una deriva a favor fuerte comparada con su volatilidad. Con la fórmula del movimiento browniano con deriva, eso exige **Sharpe diario × (stop en desvíos diarios) ≥ 0,24**. Por ejemplo:
+
+- Con un stop de 1 desvío diario (lo típico intradía o swing corto) hace falta un Sharpe anual ≈ 3,8. Ninguna señal técnica lo tiene. Los mejores fondos sistemáticos andan en 0,5–1,5.
+- Con stops de 5–6 desvíos diarios alcanza un Sharpe ≈ 0,7–0,8. Eso lo tienen los índices de EE.UU. o el oro en sus buenos períodos, sin necesidad de señal. Es exactamente lo que encontró el laboratorio.
+
+Los datos confirman la teoría en todo el universo: forex se comporta como un paseo al azar (~33 %), y solo los activos con deriva llegan al 50 % con stops muy anchos (E001, E012).
+
+## Límites de este estudio
+
+- Datos de HistData y Dukascopy (precios bid, sin volumen). No se pudieron probar volumen, order flow ni volume profile.
+- Desde 2010: no incluye una década bajista completa de acciones.
+- Se excluyeron el DAX (HistData mezcla el Euro Stoxx 50 entre junio de 2020 y diciembre de 2023) y el WTI (hueco de 940 días). Ver E000.
+- Costos de broker minorista razonables (`docs/costos.md`); sin swaps ni financiación. **Las posiciones de 6–8 meses en CFD pagan financiación diaria, que reduciría bastante el resultado de la candidata B.**
+- Se probaron unas 1.400 configuraciones. Aunque la validación se miró una sola vez, el riesgo de sobreajuste en la elección del stop (6 ATR, el mayor probado) existe.
+
+## Recomendación
+
+1. **No usar la candidata B esperando una ventaja.** Si se quiere ese perfil (largo plazo, comprado en tendencia), es más simple y barato invertir en un ETF de índice con una regla de salida por tendencia (precio bajo la SMA 200).
+2. **Para trading activo, el criterio "50 % y 1:2" conviene reemplazarlo por expectancy y profit factor.** La tendencia en cartera da PF 1,2–1,4 con 35–40 % de acierto. El MSS Sweep Fib y el Setup A+ en M5 andan en 40–45 % con R:R real 1,3–2. Son perfiles realistas.
+3. **Si igual se busca 50 % con 1:2**, hace falta información que el precio solo no da: datos fundamentales, flujo de órdenes o posicionamiento (COT, opciones), en horizontes de semanas. Es otro proyecto, con otras fuentes de datos.

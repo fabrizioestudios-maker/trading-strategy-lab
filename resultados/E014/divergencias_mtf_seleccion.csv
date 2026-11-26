@@ -1,0 +1,17 @@
+familia,tf,stop,variante,n,wr,wr_lo,payoff,pf,expectancy
+D1 tendencia + H4 mínimo 10 velas,H4,6.0 ATR H4,solo compras (activos con deriva),381,40.4,35.6,2.07,1.41,0.244
+D1 tendencia + H4 RSI2<10,H4,6.0 ATR H4,solo compras (activos con deriva),395,38.5,33.8,2.07,1.29,0.183
+divergencia RSI14,D1,2 ATR,ambos lados,476,37.8,33.6,2.06,1.26,0.161
+D1 tendencia + H4 mínimo 10 velas,H4,4.0 ATR H4,solo compras (activos con deriva),846,37.0,33.8,2.06,1.21,0.133
+D1 tendencia + H4 RSI2<10,H4,4.0 ATR H4,solo compras (activos con deriva),852,36.7,33.6,2.05,1.19,0.124
+D1 tendencia + H4 RSI2<10,H4,3.0 ATR H4,solo compras (activos con deriva),1419,35.0,32.6,2.04,1.1,0.065
+D1 tendencia + H4 mínimo 10 velas,H4,3.0 ATR H4,solo compras (activos con deriva),1470,34.9,32.5,2.04,1.09,0.061
+D1 tendencia + H4 mínimo 10 velas,H4,4.0 ATR H4,ambos lados,1757,33.2,31.1,2.06,1.03,0.017
+D1 tendencia + H4 mínimo 10 velas,H4,6.0 ATR H4,ambos lados,760,33.2,29.9,2.08,1.03,0.02
+D1 tendencia + H4 RSI2<10,H4,3.0 ATR H4,ambos lados,2901,33.1,31.4,2.04,1.01,0.009
+D1 tendencia + H4 mínimo 10 velas,H4,3.0 ATR H4,ambos lados,3066,33.1,31.4,2.04,1.01,0.007
+D1 tendencia + H4 RSI2<10,H4,4.0 ATR H4,ambos lados,1751,32.6,30.5,2.06,1.0,-0.002
+D1 tendencia + H4 RSI2<10,H4,6.0 ATR H4,ambos lados,760,32.5,29.3,2.08,1.0,-0.001
+divergencia RSI14,H4,2 ATR,ambos lados,2811,31.8,30.1,2.01,0.93,-0.047
+divergencia RSI14,H4,estructura,ambos lados,2317,30.3,28.4,1.99,0.87,-0.098
+divergencia RSI14,D1,estructura,ambos lados,360,30.0,25.5,2.07,0.89,-0.081
