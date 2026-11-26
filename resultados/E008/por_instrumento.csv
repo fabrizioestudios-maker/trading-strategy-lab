@@ -1,0 +1,166 @@
+instr,filtro,k_atr,variante,n,wr,expectancy
+XAUUSD,momentum 126d,3.0,"ambos lados, todo el universo",81,0.3950617283950617,0.22001413604387657
+XAUUSD,momentum 126d,3.0,"solo compras, activos con deriva",54,0.42592592592592593,0.31680601097964206
+XAUUSD,momentum 126d,4.0,"ambos lados, todo el universo",31,0.3870967741935484,0.1976597488854549
+XAUUSD,momentum 126d,4.0,"solo compras, activos con deriva",30,0.4,0.2375083922072011
+XAUUSD,momentum 126d,5.0,"ambos lados, todo el universo",8,0.625,0.9360031340251214
+XAUUSD,momentum 126d,5.0,"solo compras, activos con deriva",21,0.42857142857142855,0.326694181386805
+XAUUSD,momentum 252d,3.0,"ambos lados, todo el universo",75,0.36,0.11123156757255866
+XAUUSD,momentum 252d,3.0,"solo compras, activos con deriva",45,0.35555555555555557,0.09872140571526056
+XAUUSD,momentum 252d,4.0,"ambos lados, todo el universo",32,0.3125,-0.03381181066127552
+XAUUSD,momentum 252d,4.0,"solo compras, activos con deriva",25,0.4,0.23121045425176548
+XAUUSD,momentum 252d,5.0,"ambos lados, todo el universo",11,0.45454545454545453,0.4075158636061922
+XAUUSD,momentum 252d,5.0,"solo compras, activos con deriva",18,0.4444444444444444,0.375951215168441
+XAUUSD,pendiente SMA100,3.0,"ambos lados, todo el universo",74,0.4189189189189189,0.29315619607520127
+XAUUSD,pendiente SMA100,3.0,"solo compras, activos con deriva",52,0.40384615384615385,0.2485562007366798
+XAUUSD,pendiente SMA100,4.0,"ambos lados, todo el universo",32,0.375,0.1601202251090331
+XAUUSD,pendiente SMA100,4.0,"solo compras, activos con deriva",28,0.42857142857142855,0.32603711251885914
+XAUUSD,pendiente SMA100,5.0,"ambos lados, todo el universo",12,0.4166666666666667,0.29007603380796015
+XAUUSD,pendiente SMA100,5.0,"solo compras, activos con deriva",20,0.45,0.39296176462541854
+XAUUSD,Donchian 100 (estado),3.0,"ambos lados, todo el universo",75,0.37333333333333335,0.1518525461452697
+XAUUSD,Donchian 100 (estado),3.0,"solo compras, activos con deriva",44,0.4090909090909091,0.26467976873220955
+XAUUSD,Donchian 100 (estado),4.0,"ambos lados, todo el universo",32,0.375,0.16012544179813817
+XAUUSD,Donchian 100 (estado),4.0,"solo compras, activos con deriva",25,0.44,0.36145860529760826
+XAUUSD,Donchian 100 (estado),5.0,"ambos lados, todo el universo",8,0.625,0.9360007894738855
+XAUUSD,Donchian 100 (estado),5.0,"solo compras, activos con deriva",21,0.38095238095238093,0.17899240354817753
+XAUUSD,tendencia 200 (cierre y pendiente),3.0,"ambos lados, todo el universo",67,0.34328358208955223,0.059234597917013194
+XAUUSD,tendencia 200 (cierre y pendiente),3.0,"solo compras, activos con deriva",37,0.43243243243243246,0.33703894261782535
+XAUUSD,tendencia 200 (cierre y pendiente),4.0,"ambos lados, todo el universo",31,0.3548387096774194,0.09748490759063097
+XAUUSD,tendencia 200 (cierre y pendiente),4.0,"solo compras, activos con deriva",23,0.43478260869565216,0.3451560356803606
+XAUUSD,tendencia 200 (cierre y pendiente),5.0,"ambos lados, todo el universo",10,0.6,0.8582329332257222
+XAUUSD,tendencia 200 (cierre y pendiente),5.0,"solo compras, activos con deriva",16,0.5,0.5482376058908205
+XAGUSD,momentum 126d,3.0,"ambos lados, todo el universo",57,0.40350877192982454,0.2357364458666509
+XAGUSD,momentum 126d,3.0,"solo compras, activos con deriva",45,0.35555555555555557,0.08653689098322817
+XAGUSD,momentum 126d,4.0,"ambos lados, todo el universo",28,0.39285714285714285,0.20705000048964622
+XAGUSD,momentum 126d,4.0,"solo compras, activos con deriva",28,0.39285714285714285,0.20556994783772656
+XAGUSD,momentum 126d,5.0,"ambos lados, todo el universo",7,0.5714285714285714,0.7645596106531354
+XAGUSD,momentum 126d,5.0,"solo compras, activos con deriva",24,0.3333333333333333,0.02462269495405206
+XAGUSD,momentum 252d,3.0,"ambos lados, todo el universo",44,0.38636363636363635,0.18282782027078393
+XAGUSD,momentum 252d,3.0,"solo compras, activos con deriva",32,0.375,0.14809225245215035
+XAGUSD,momentum 252d,4.0,"ambos lados, todo el universo",23,0.30434782608695654,-0.06716683486817585
+XAGUSD,momentum 252d,4.0,"solo compras, activos con deriva",20,0.4,0.2291385904076549
+XAGUSD,momentum 252d,5.0,"ambos lados, todo el universo",19,0.3157894736842105,-0.02871674303028989
+XAGUSD,momentum 252d,5.0,"solo compras, activos con deriva",14,0.35714285714285715,0.0998469553351833
+XAGUSD,pendiente SMA100,3.0,"ambos lados, todo el universo",51,0.37254901960784315,0.13942072051834614
+XAGUSD,pendiente SMA100,3.0,"solo compras, activos con deriva",39,0.358974358974359,0.09737642105859795
+XAGUSD,pendiente SMA100,4.0,"ambos lados, todo el universo",26,0.38461538461538464,0.1814754237063114
+XAGUSD,pendiente SMA100,4.0,"solo compras, activos con deriva",30,0.4,0.2287328183872179
+XAGUSD,pendiente SMA100,5.0,"ambos lados, todo el universo",21,0.38095238095238093,0.172991392670944
+XAGUSD,pendiente SMA100,5.0,"solo compras, activos con deriva",24,0.3333333333333333,0.02434006494938834
+XAGUSD,Donchian 100 (estado),3.0,"ambos lados, todo el universo",56,0.375,0.14746142350558245
+XAGUSD,Donchian 100 (estado),3.0,"solo compras, activos con deriva",42,0.2857142857142857,-0.1330477415063409
+XAGUSD,Donchian 100 (estado),4.0,"ambos lados, todo el universo",31,0.3548387096774194,0.08852613683578023
+XAGUSD,Donchian 100 (estado),4.0,"solo compras, activos con deriva",25,0.36,0.10437845304650872
+XAGUSD,Donchian 100 (estado),5.0,"ambos lados, todo el universo",19,0.3684210526315789,0.13364144450052168
+XAGUSD,Donchian 100 (estado),5.0,"solo compras, activos con deriva",18,0.3888888888888889,0.1970835437115441
+XAGUSD,tendencia 200 (cierre y pendiente),3.0,"ambos lados, todo el universo",52,0.36538461538461536,0.11654776902975929
+XAGUSD,tendencia 200 (cierre y pendiente),3.0,"solo compras, activos con deriva",31,0.3870967741935484,0.18451239138435385
+XAGUSD,tendencia 200 (cierre y pendiente),4.0,"ambos lados, todo el universo",28,0.32142857142857145,-0.013900278671733721
+XAGUSD,tendencia 200 (cierre y pendiente),4.0,"solo compras, activos con deriva",24,0.4583333333333333,0.4098254571014139
+XAGUSD,tendencia 200 (cierre y pendiente),5.0,"ambos lados, todo el universo",22,0.36363636363636365,0.11849281659872886
+XAGUSD,tendencia 200 (cierre y pendiente),5.0,"solo compras, activos con deriva",17,0.4117647058823529,0.26712420613759963
+EURUSD,momentum 126d,3.0,"ambos lados, todo el universo",64,0.34375,0.05968437080870123
+EURUSD,momentum 126d,4.0,"ambos lados, todo el universo",45,0.3333333333333333,0.03044974690150678
+EURUSD,momentum 126d,5.0,"ambos lados, todo el universo",24,0.25,-0.22745437793942794
+EURUSD,momentum 252d,3.0,"ambos lados, todo el universo",74,0.32432432432432434,0.0002787238911760056
+EURUSD,momentum 252d,4.0,"ambos lados, todo el universo",42,0.2857142857142857,-0.11738656765412057
+EURUSD,momentum 252d,5.0,"ambos lados, todo el universo",20,0.25,-0.22747336954684946
+EURUSD,pendiente SMA100,3.0,"ambos lados, todo el universo",58,0.43103448275862066,0.3301111481651278
+EURUSD,pendiente SMA100,4.0,"ambos lados, todo el universo",48,0.3541666666666667,0.09489523659312278
+EURUSD,pendiente SMA100,5.0,"ambos lados, todo el universo",20,0.35,0.08290963220049
+EURUSD,Donchian 100 (estado),3.0,"ambos lados, todo el universo",68,0.35294117647058826,0.08867006603389926
+EURUSD,Donchian 100 (estado),4.0,"ambos lados, todo el universo",42,0.35714285714285715,0.10155823362891729
+EURUSD,Donchian 100 (estado),5.0,"ambos lados, todo el universo",19,0.3157894736842105,-0.02310661753951902
+EURUSD,tendencia 200 (cierre y pendiente),3.0,"ambos lados, todo el universo",58,0.43103448275862066,0.33184513779481395
+EURUSD,tendencia 200 (cierre y pendiente),4.0,"ambos lados, todo el universo",29,0.3793103448275862,0.17293687615281428
+EURUSD,tendencia 200 (cierre y pendiente),5.0,"ambos lados, todo el universo",18,0.3888888888888889,0.2028818751933672
+GBPUSD,momentum 126d,3.0,"ambos lados, todo el universo",53,0.2830188679245283,-0.12736525551581446
+GBPUSD,momentum 126d,4.0,"ambos lados, todo el universo",19,0.3157894736842105,-0.025903884985379023
+GBPUSD,momentum 126d,5.0,"ambos lados, todo el universo",16,0.3125,-0.04500627584520056
+GBPUSD,momentum 252d,3.0,"ambos lados, todo el universo",52,0.23076923076923078,-0.289419376633395
+GBPUSD,momentum 252d,4.0,"ambos lados, todo el universo",24,0.2916666666666667,-0.09917056102246491
+GBPUSD,momentum 252d,5.0,"ambos lados, todo el universo",20,0.25,-0.23116456606449504
+GBPUSD,pendiente SMA100,3.0,"ambos lados, todo el universo",70,0.3,-0.07462692786858509
+GBPUSD,pendiente SMA100,4.0,"ambos lados, todo el universo",34,0.20588235294117646,-0.36479233747576945
+GBPUSD,pendiente SMA100,5.0,"ambos lados, todo el universo",25,0.28,-0.14402963604453717
+GBPUSD,Donchian 100 (estado),3.0,"ambos lados, todo el universo",47,0.3829787234042553,0.18253488072994709
+GBPUSD,Donchian 100 (estado),4.0,"ambos lados, todo el universo",12,0.4166666666666667,0.2886688088180038
+GBPUSD,Donchian 100 (estado),5.0,"ambos lados, todo el universo",13,0.38461538461538464,0.17580220757774578
+GBPUSD,tendencia 200 (cierre y pendiente),3.0,"ambos lados, todo el universo",41,0.2926829268292683,-0.09709113116237719
+GBPUSD,tendencia 200 (cierre y pendiente),4.0,"ambos lados, todo el universo",14,0.35714285714285715,0.10351683092318975
+GBPUSD,tendencia 200 (cierre y pendiente),5.0,"ambos lados, todo el universo",11,0.2727272727272727,-0.15709492074747056
+SPXUSD,momentum 126d,3.0,"ambos lados, todo el universo",81,0.3950617283950617,0.21969519130009374
+SPXUSD,momentum 126d,3.0,"solo compras, activos con deriva",76,0.39473684210526316,0.21721200297942495
+SPXUSD,momentum 126d,4.0,"ambos lados, todo el universo",48,0.3958333333333333,0.2228945519590064
+SPXUSD,momentum 126d,4.0,"solo compras, activos con deriva",41,0.4634146341463415,0.42718551710123975
+SPXUSD,momentum 126d,5.0,"ambos lados, todo el universo",37,0.32432432432432434,0.002436441790502976
+SPXUSD,momentum 126d,5.0,"solo compras, activos con deriva",24,0.5,0.5468584901323497
+SPXUSD,momentum 252d,3.0,"ambos lados, todo el universo",85,0.3411764705882353,0.051746869278851464
+SPXUSD,momentum 252d,3.0,"solo compras, activos con deriva",67,0.43283582089552236,0.3334081879183432
+SPXUSD,momentum 252d,4.0,"ambos lados, todo el universo",36,0.4722222222222222,0.45997368351855594
+SPXUSD,momentum 252d,4.0,"solo compras, activos con deriva",32,0.53125,0.6425898757098916
+SPXUSD,momentum 252d,5.0,"ambos lados, todo el universo",26,0.5,0.5470301682138713
+SPXUSD,momentum 252d,5.0,"solo compras, activos con deriva",23,0.5652173913043478,0.7469824869150079
+SPXUSD,pendiente SMA100,3.0,"ambos lados, todo el universo",75,0.41333333333333333,0.27432641804107427
+SPXUSD,pendiente SMA100,3.0,"solo compras, activos con deriva",70,0.44285714285714284,0.3659264586263277
+SPXUSD,pendiente SMA100,4.0,"ambos lados, todo el universo",44,0.4318181818181818,0.3348332843124588
+SPXUSD,pendiente SMA100,4.0,"solo compras, activos con deriva",41,0.4878048780487805,0.5082665758732534
+SPXUSD,pendiente SMA100,5.0,"ambos lados, todo el universo",33,0.3939393939393939,0.21831199039288834
+SPXUSD,pendiente SMA100,5.0,"solo compras, activos con deriva",26,0.5384615384615384,0.6642504919405133
+SPXUSD,Donchian 100 (estado),3.0,"ambos lados, todo el universo",77,0.37662337662337664,0.16171640470805126
+SPXUSD,Donchian 100 (estado),3.0,"solo compras, activos con deriva",65,0.4307692307692308,0.32772728077454955
+SPXUSD,Donchian 100 (estado),4.0,"ambos lados, todo el universo",48,0.3958333333333333,0.22237034080132734
+SPXUSD,Donchian 100 (estado),4.0,"solo compras, activos con deriva",34,0.5294117647058824,0.6371489284363083
+SPXUSD,Donchian 100 (estado),5.0,"ambos lados, todo el universo",35,0.3142857142857143,-0.02869796646534267
+SPXUSD,Donchian 100 (estado),5.0,"solo compras, activos con deriva",27,0.48148148148148145,0.487601747614629
+SPXUSD,tendencia 200 (cierre y pendiente),3.0,"ambos lados, todo el universo",70,0.44285714285714284,0.3678503089711516
+SPXUSD,tendencia 200 (cierre y pendiente),3.0,"solo compras, activos con deriva",61,0.47540983606557374,0.46831459690754823
+SPXUSD,tendencia 200 (cierre y pendiente),4.0,"ambos lados, todo el universo",50,0.44,0.35858994555774054
+SPXUSD,tendencia 200 (cierre y pendiente),4.0,"solo compras, activos con deriva",40,0.5,0.543728011274349
+SPXUSD,tendencia 200 (cierre y pendiente),5.0,"ambos lados, todo el universo",29,0.41379310344827586,0.2798393505581222
+SPXUSD,tendencia 200 (cierre y pendiente),5.0,"solo compras, activos con deriva",24,0.5416666666666666,0.6759985554334103
+NSXUSD,momentum 126d,3.0,"ambos lados, todo el universo",83,0.42168674698795183,0.30008039023293326
+NSXUSD,momentum 126d,3.0,"solo compras, activos con deriva",76,0.4473684210526316,0.37916590671237915
+NSXUSD,momentum 126d,4.0,"ambos lados, todo el universo",47,0.425531914893617,0.3167378078161605
+NSXUSD,momentum 126d,4.0,"solo compras, activos con deriva",45,0.4888888888888889,0.5131549094952846
+NSXUSD,momentum 126d,5.0,"ambos lados, todo el universo",30,0.4666666666666667,0.44201033213968693
+NSXUSD,momentum 126d,5.0,"solo compras, activos con deriva",29,0.5172413793103449,0.6011993661284287
+NSXUSD,momentum 252d,3.0,"ambos lados, todo el universo",78,0.4358974358974359,0.34786558944122004
+NSXUSD,momentum 252d,3.0,"solo compras, activos con deriva",73,0.4794520547945205,0.48271376309809894
+NSXUSD,momentum 252d,4.0,"ambos lados, todo el universo",42,0.5,0.5455171001386678
+NSXUSD,momentum 252d,4.0,"solo compras, activos con deriva",45,0.5111111111111111,0.5736203841167347
+NSXUSD,momentum 252d,5.0,"ambos lados, todo el universo",29,0.5517241379310345,0.7055073015873519
+NSXUSD,momentum 252d,5.0,"solo compras, activos con deriva",27,0.5925925925925926,0.8326940629192939
+NSXUSD,pendiente SMA100,3.0,"ambos lados, todo el universo",86,0.4418604651162791,0.36628548628555335
+NSXUSD,pendiente SMA100,3.0,"solo compras, activos con deriva",79,0.45569620253164556,0.4089326422163359
+NSXUSD,pendiente SMA100,4.0,"ambos lados, todo el universo",43,0.4883720930232558,0.5113344293957081
+NSXUSD,pendiente SMA100,4.0,"solo compras, activos con deriva",43,0.5116279069767442,0.5834089768712055
+NSXUSD,pendiente SMA100,5.0,"ambos lados, todo el universo",28,0.5714285714285714,0.7694025846893441
+NSXUSD,pendiente SMA100,5.0,"solo compras, activos con deriva",28,0.5714285714285714,0.7694025846893441
+NSXUSD,Donchian 100 (estado),3.0,"ambos lados, todo el universo",84,0.4166666666666667,0.2882433344223304
+NSXUSD,Donchian 100 (estado),3.0,"solo compras, activos con deriva",72,0.4583333333333333,0.4171779434825845
+NSXUSD,Donchian 100 (estado),4.0,"ambos lados, todo el universo",56,0.35714285714285715,0.10298437273720717
+NSXUSD,Donchian 100 (estado),4.0,"solo compras, activos con deriva",44,0.4772727272727273,0.4746402808860179
+NSXUSD,Donchian 100 (estado),5.0,"ambos lados, todo el universo",29,0.4827586206896552,0.4917454141702425
+NSXUSD,Donchian 100 (estado),5.0,"solo compras, activos con deriva",30,0.5,0.5459028033509852
+NSXUSD,tendencia 200 (cierre y pendiente),3.0,"ambos lados, todo el universo",76,0.42105263157894735,0.301282240400408
+NSXUSD,tendencia 200 (cierre y pendiente),3.0,"solo compras, activos con deriva",67,0.47761194029850745,0.47637376434969575
+NSXUSD,tendencia 200 (cierre y pendiente),4.0,"ambos lados, todo el universo",51,0.4117647058823529,0.2659511349235391
+NSXUSD,tendencia 200 (cierre y pendiente),4.0,"solo compras, activos con deriva",48,0.4583333333333333,0.4096773935251716
+NSXUSD,tendencia 200 (cierre y pendiente),5.0,"ambos lados, todo el universo",31,0.4838709677419355,0.49800941321291
+NSXUSD,tendencia 200 (cierre y pendiente),5.0,"solo compras, activos con deriva",23,0.6086956521739131,0.8849817661866367
+WTIUSD,momentum 126d,3.0,"ambos lados, todo el universo",75,0.3466666666666667,0.0647739745244598
+WTIUSD,momentum 126d,4.0,"ambos lados, todo el universo",47,0.3404255319148936,0.04818879249489492
+WTIUSD,momentum 126d,5.0,"ambos lados, todo el universo",32,0.375,0.15741920829657152
+WTIUSD,momentum 252d,3.0,"ambos lados, todo el universo",70,0.38571428571428573,0.18663147095032354
+WTIUSD,momentum 252d,4.0,"ambos lados, todo el universo",45,0.35555555555555557,0.09565944903523516
+WTIUSD,momentum 252d,5.0,"ambos lados, todo el universo",35,0.37142857142857144,0.14584857762412812
+WTIUSD,pendiente SMA100,3.0,"ambos lados, todo el universo",80,0.2875,-0.11859490108778181
+WTIUSD,pendiente SMA100,4.0,"ambos lados, todo el universo",41,0.36585365853658536,0.12652928015004358
+WTIUSD,pendiente SMA100,5.0,"ambos lados, todo el universo",35,0.3142857142857143,-0.030916261665354532
+WTIUSD,Donchian 100 (estado),3.0,"ambos lados, todo el universo",78,0.32051282051282054,-0.01609704512383156
+WTIUSD,Donchian 100 (estado),4.0,"ambos lados, todo el universo",43,0.3488372093023256,0.07456357832550119
+WTIUSD,Donchian 100 (estado),5.0,"ambos lados, todo el universo",35,0.2857142857142857,-0.1195490671246315
+WTIUSD,tendencia 200 (cierre y pendiente),3.0,"ambos lados, todo el universo",67,0.3283582089552239,0.008847785825126917
+WTIUSD,tendencia 200 (cierre y pendiente),4.0,"ambos lados, todo el universo",36,0.3888888888888889,0.19821691282361673
+WTIUSD,tendencia 200 (cierre y pendiente),5.0,"ambos lados, todo el universo",27,0.3333333333333333,0.027628609429670384

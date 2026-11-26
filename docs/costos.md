@@ -15,5 +15,11 @@ Los datos de HistData son precios bid. SL y TP se evalúan sobre esos precios y 
 | SPX500 | 0,015 % del precio (~0,9 puntos a 6000) | CFD típico: spread 0,5 punto + deslizamiento |
 | NAS100 | 0,012 % del precio (~2,5 puntos a 21000) | CFD típico: spread 1–1,5 punto + deslizamiento |
 | DAX (GER40) | 0,012 % del precio (~2,8 puntos a 23000) | CFD típico: spread 1–1,5 punto + deslizamiento |
+| XAGUSD (plata) | 0,10 % del precio (~0,03 USD a 30) | spread típico 0,02–0,03 |
+| WTIUSD (petróleo) | 0,07 % del precio (~0,05 USD a 70) | spread típico 0,03–0,05 |
+| Nikkei 225 (JPXJPY) | 0,03 % del precio (~12 puntos a 40000) | CFD típico 7–10 puntos |
+| FTSE 100 (UKXGBP) | 0,02 % del precio (~1,8 puntos a 9000) | CFD típico 1–1,5 punto |
+| CAC 40 (FRXEUR) | 0,02 % del precio (~1,6 puntos a 8000) | CFD típico 1–1,5 punto |
+| ASX 200 (AUXAUD) | 0,03 % del precio (~2,6 puntos a 8500) | CFD típico 1–2 puntos |
 
 Son costos de broker minorista razonables, algo conservadores. Las estrategias con stops chicos dependen mucho de este número: se reporta siempre también el resultado sin costos.

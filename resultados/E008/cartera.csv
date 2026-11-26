@@ -1,0 +1,31 @@
+variante,filtro,k_atr,n,wr,wr_lo,payoff,pf,expectancy,max_dd
+"ambos lados, todo el universo",tendencia 200 (cierre y pendiente),5.0,148,40.5,33.0,2.09,1.42,0.253,10.1
+"ambos lados, todo el universo",momentum 252d,5.0,160,39.4,32.1,2.09,1.35,0.216,18.3
+"ambos lados, todo el universo",tendencia 200 (cierre y pendiente),4.0,239,38.9,33.0,2.08,1.32,0.2,13.7
+"ambos lados, todo el universo",pendiente SMA100,5.0,174,38.5,31.6,2.08,1.31,0.189,11.1
+"ambos lados, todo el universo",pendiente SMA100,3.0,494,38.1,33.9,2.08,1.28,0.173,18.5
+"ambos lados, todo el universo",tendencia 200 (cierre y pendiente),3.0,431,38.1,33.6,2.08,1.28,0.173,12.1
+"ambos lados, todo el universo",momentum 126d,5.0,154,37.7,30.4,2.08,1.26,0.163,14.6
+"ambos lados, todo el universo",pendiente SMA100,4.0,268,37.7,32.1,2.09,1.26,0.164,18.7
+"ambos lados, todo el universo",momentum 126d,3.0,494,37.4,33.3,2.08,1.24,0.154,16.8
+"ambos lados, todo el universo",momentum 126d,4.0,265,37.4,31.8,2.09,1.24,0.153,10.4
+"ambos lados, todo el universo",Donchian 100 (estado),3.0,485,37.1,32.9,2.08,1.23,0.144,16.1
+"ambos lados, todo el universo",momentum 252d,4.0,244,36.9,31.1,2.09,1.22,0.139,22.7
+"ambos lados, todo el universo",Donchian 100 (estado),4.0,264,36.7,31.2,2.08,1.21,0.134,12.1
+"ambos lados, todo el universo",Donchian 100 (estado),5.0,158,36.7,29.6,2.08,1.21,0.133,11.1
+"ambos lados, todo el universo",momentum 252d,3.0,478,35.6,31.4,2.08,1.15,0.096,27.5
+"solo compras, activos con deriva",tendencia 200 (cierre y pendiente),5.0,80,52.5,41.7,2.09,2.31,0.624,5.0
+"solo compras, activos con deriva",momentum 252d,5.0,82,51.2,40.6,2.08,2.19,0.583,5.0
+"solo compras, activos con deriva",pendiente SMA100,5.0,98,48.0,38.3,2.09,1.92,0.482,10.0
+"solo compras, activos con deriva",momentum 252d,4.0,122,47.5,38.9,2.07,1.88,0.465,8.0
+"solo compras, activos con deriva",tendencia 200 (cierre y pendiente),4.0,135,46.7,38.5,2.07,1.81,0.438,6.9
+"solo compras, activos con deriva",pendiente SMA100,4.0,142,46.5,38.5,2.09,1.81,0.436,10.0
+"solo compras, activos con deriva",Donchian 100 (estado),4.0,128,46.1,37.7,2.08,1.78,0.423,10.1
+"solo compras, activos con deriva",tendencia 200 (cierre y pendiente),3.0,196,45.4,38.6,2.08,1.73,0.401,7.9
+"solo compras, activos con deriva",momentum 126d,5.0,98,44.9,35.4,2.09,1.7,0.388,10.0
+"solo compras, activos con deriva",Donchian 100 (estado),5.0,96,44.8,35.2,2.08,1.69,0.384,8.0
+"solo compras, activos con deriva",momentum 126d,4.0,144,44.4,36.6,2.08,1.66,0.371,10.0
+"solo compras, activos con deriva",pendiente SMA100,3.0,240,42.5,36.4,2.08,1.54,0.311,13.8
+"solo compras, activos con deriva",momentum 252d,3.0,217,42.4,36.0,2.08,1.53,0.308,9.6
+"solo compras, activos con deriva",momentum 126d,3.0,251,41.0,35.1,2.08,1.44,0.264,16.0
+"solo compras, activos con deriva",Donchian 100 (estado),3.0,223,40.8,34.6,2.08,1.43,0.257,19.2

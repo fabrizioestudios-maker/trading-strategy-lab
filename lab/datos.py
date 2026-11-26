@@ -25,6 +25,12 @@ COSTOS = {
     "SPXUSD": ("pct", 0.00015),
     "NSXUSD": ("pct", 0.00012),
     "GRXEUR": ("pct", 0.00012),
+    "XAGUSD": ("pct", 0.0010),
+    "WTIUSD": ("pct", 0.0007),
+    "JPXJPY": ("pct", 0.0003),
+    "UKXGBP": ("pct", 0.0002),
+    "FRXEUR": ("pct", 0.0002),
+    "AUXAUD": ("pct", 0.0003),
 }
 
 
