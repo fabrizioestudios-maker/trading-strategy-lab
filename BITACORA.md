@@ -242,3 +242,46 @@ E007 (cartera, cierre en mínimo de 10 días):
 1. Terminar de bajar el DAX 2010–2015, Nikkei, FTSE, CAC y ASX.
 2. Correr E006 en los 7 índices, sumando k = 4 y 5. La teoría dice que el acierto sube con el stop.
 3. Elegir **una** configuración con la selección y recién entonces mirar la validación 2022–2026.
+
+---
+
+## 2026-11-26 21:40 UTC — Entrada 7: cartera de tendencia (E008) y aprendizaje automático (E010)
+
+**Qué se hizo**
+- Se bajaron XAGUSD y WTIUSD 2010–2026 y el DAX, USDJPY y AUDUSD 2010–2015 (ya unidos). Se agregaron sus costos en `docs/costos.md`.
+- E008: cartera de tendencia con reglas idénticas en todos los instrumentos.
+  - Filtros: momentum 126 y 252 días, pendiente de la SMA100, Donchian 100 y tendencia 200.
+  - k de 3, 4 y 5, TP = 2,1·SL.
+  - Dos variantes: ambos lados en todo el universo, y solo compras en activos con deriva de largo plazo (oro, plata, índices).
+  - Selección 2010–2021 en XAUUSD, XAGUSD, EURUSD, GBPUSD, SPX500, NAS100 y WTIUSD.
+- E010: gradient boosting (scikit-learn), walk-forward 2013–2021.
+  - Predice P(TP antes que SL) con 1:2,1 a partir de 22 variables técnicas ajustadas por dirección: retornos de 1 a 252 días, distancias y pendientes de medias, RSI, posición en rangos, volatilidad, calendario y clase de activo.
+  - Sin filtración: cada año se entrena solo con operaciones ya cerradas, y el umbral sale de las predicciones de entrenamiento.
+  - Se operan los mejores 20 %, 10 % y 5 %, una operación a la vez.
+
+**Resultados**
+
+E008 (selección, cartera):
+- Ambos lados: WR 35,6–40,5 %, expectancy +0,10 a +0,25 R, PF 1,15–1,42 en las 15 configuraciones.
+- Solo compras en activos con deriva:
+  - k = 3: 40,8–45,4 %.
+  - k = 4: 44,4–47,5 %.
+  - k = 5: 44,8–**52,5 %**. El 52,5 % es tendencia 200 con 80 operaciones, límite inferior del 95 % en 41,7 %.
+
+E010 (walk-forward, con costos):
+
+| Stop | Mejores 20 % | Mejores 10 % | Mejores 5 % | Tasa base |
+| --- | --- | --- | --- | --- |
+| 2 ATR | 29,0 % (677) | 33,9 % (416) | 34,0 % (238) | 33,2 % |
+| 3 ATR | 36,3 % (333) | 32,2 % (239) | 31,6 % (158) | 33,5 % |
+
+**Qué se descubrió**
+- **La tendencia operada en las dos direcciones da 35–40 % con 1:2.** Tiene ventaja (expectancy positiva y PF de 1,2 a 1,4), pero con el acierto típico de un seguidor de tendencias.
+- **El 50 % solo aparece al combinar solo compras, activos con deriva y stops de 5 ATR**, con pocas operaciones (80 en 11 años de selección). Vuelve a ser la deriva más los stops anchos, como predice la teoría.
+- **El modelo de aprendizaje automático no supera la tasa base.** Entre 22 variables técnicas no aparece nada que mejore de forma estable la probabilidad de 1:2 a un día vista. Es la evidencia más fuerte de que no hay una combinación de indicadores escondida que las reglas simples no hayan visto.
+- Configuraciones probadas hasta ahora en este laboratorio: unas 1.700 (E002–E010). Más los 1.584 de LuxAlgo y los 43 de Setup A+ en noticias-bot.
+
+**Próximos pasos**
+1. Terminar los índices (Nikkei, FTSE, CAC, ASX).
+2. Correr las dos familias candidatas en todo el universo de activos con deriva: retrocesos en tendencia (E006) y solo compras con stops anchos (E008).
+3. Elegir una configuración con la selección y validarla con E009.
