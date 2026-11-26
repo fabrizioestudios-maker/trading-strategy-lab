@@ -67,7 +67,7 @@ ctrl = correr(a.k, a.largo, a.umbral, "control")
 c_sel, c_val = partes(ctrl)
 azar = correr(a.k, a.largo, a.umbral, "siempre")
 z_sel, z_val = partes(azar)
-base["anio"] = pd.to_datetime(base.t, unit="ms", utc=True).year
+base["anio"] = pd.to_datetime(base.t, unit="ms", utc=True).dt.year
 por_anio = base.groupby("anio").r.agg(n="count", wr=lambda x: (x > 0).mean(), r_total="sum")
 por_instr = base.assign(m=np.where(base.t < estrategia.CORTE, "selección", "validación")).groupby(["instr", "m"]).r.agg(n="count", wr=lambda x: (x > 0).mean(), expectancy="mean")
 vecinos = []

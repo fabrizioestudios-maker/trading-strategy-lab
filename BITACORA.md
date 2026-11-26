@@ -339,3 +339,62 @@ Se escribe antes de correr las dos familias en el universo completo y antes de m
   Esto confirma que el 50 % con stops anchos solo lo da un activo con Sharpe cerca de 0,8 o más en ese período.
 
 **Próximos pasos:** E011 con los índices limpios (SPX500, NAS100, Nikkei, FTSE, CAC y ASX) más oro y plata.
+
+---
+
+## 2026-11-26 23:00 UTC — Entrada 10: elección (E011) y validación de la única candidata (E009, E013)
+
+**Qué se hizo**
+- Se bajaron Nikkei, FTSE, CAC y ASX 2010–2026 (pasan el control de calidad).
+- E010 se repitió con el universo limpio, sin WTI ni DAX: mejores 5–20 % con 30,5–35,7 % contra una tasa base de 32,4 %. El aprendizaje automático sigue sin ventaja.
+- E011 aplicó la regla de la entrada 8 a las dos familias con la selección 2010–2021:
+  - Universo A: 6 índices (SPX500, NAS100, Nikkei, FTSE, CAC, ASX).
+  - Universo B: esos 6 más oro y plata.
+- E009 validó **una sola vez** la candidata elegida (2022–2026).
+- E013 graficó la curva de la candidata contra comprar siempre.
+
+**Resultados de la elección (selección 2010–2021)**
+- **Familia A, retrocesos en índices: ninguna elegible.** Da 37,9–45,5 % en las 18 configuraciones.
+  - El efecto existe solo en EE.UU.: SPX500 50,7–59,4 % y NAS100 45,5–53,8 %.
+  - En Nikkei, FTSE, CAC y ASX da 25–47 %. No se generaliza: **se descarta.**
+- **Familia B, solo compras en tendencia con stops anchos: una elegible.**
+  - Señal: tendencia 200. Stop de 6 ATR (el mayor probado), TP = 2,1·SL.
+  - 51,0 %, n = 102, PF 2,16. El vecino de 5,5 ATR da 49,2 %.
+  - Con momentum 252 d y 6 ATR: 50,5 %, pero n = 99 (menos de 100).
+
+**Validación de la candidata B (E009)** — tendencia 200, solo compras, SL 6 ATR(14) diario, TP 2,1·SL, una operación a la vez en 8 activos:
+
+| | n | WR [IC 95 %] | Payoff | PF | Expectancy | Max DD | Duración media |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Selección 2010–21 | 102 | 51,0 % [41,4–60,5] | 2,08 | 2,16 | +0,57 R | 7,0 R | 250 días |
+| Validación 2022–26 | 45 | 55,6 % [41,2–69,1] | 2,06 | 2,57 | +0,71 R | 6,2 R | 186 días |
+| Comprar siempre, mismo SL/TP (selección) | 103 | 49,5 % | 2,09 | 2,05 | +0,53 R | 10,0 R | |
+| Comprar siempre, mismo SL/TP (validación) | 49 | 57,1 % | 2,09 | 2,79 | +0,77 R | 6,0 R | |
+
+- Años positivos: 13 de 17 (76 %). Drawdown por Monte Carlo: mediana 6,2 R, percentil 95 de 10,1 R.
+- Por activo en validación:
+  - Ganan: Nikkei 57 %, NAS100 57 %, SPX500 50 %, oro 75 %, plata 71 %.
+  - Pierden: CAC 25 %, FTSE 40 %, ASX 0 de 1.
+- Vecinos (±20 % en k):
+  - 4,8 ATR: selección 45,8 %, validación 50,7 %.
+  - 7,2 ATR: selección 47,8 %, validación 63,9 %.
+
+**Veredicto sobre los criterios (`docs/criterios.md`)**
+- Criterios mínimos de la misión: **CUMPLE.** WR ≥ 50 % y payoff ≥ 2 en las dos muestras, expectancy positiva y 147 operaciones (45 en validación).
+- Robustez:
+  - ✅ años positivos ≥ 70 %;
+  - ✅ funciona en más de un instrumento de la clase;
+  - ❌ **vecinos:** con 4,8 ATR la selección baja a 45,8 % (se pedía 47 % o más);
+  - ❌ **contra el azar:** el límite inferior de Wilson de la validación (41,2 %) no supera el 57,1 % de comprar siempre con el mismo SL/TP.
+
+**Qué se descubrió**
+1. **La única estrategia que cumple los números de la misión no tiene una ventaja propia.**
+   - Gana lo mismo que comprar siempre esos activos con stops de 6 ATR y TP de 12,6 ATR: +90,6 R contra +92,3 R en 16 años (gráfico `resultados/E013/curva_candidata_B.png`).
+   - El filtro de tendencia solo suaviza las caídas (2020, 2022).
+   - Lo que paga es la deriva alcista de los índices y los metales en 2010–2026, tomada con stops tan anchos que cada operación dura 6–8 meses.
+2. Es lo que anticipaba la teoría de la entrada 2. Con un Sharpe de 0,5–0,9 por activo, el 50 % con 1:2 solo aparece con stops de 5–6 σ diarios. Así la "estrategia" se parece más a una inversión con stop que a un sistema de trading.
+3. **Riesgo principal:** depende de que esos activos sigan subiendo. Fuera de 2010–2026 (por ejemplo, las acciones en 2000–2009 o el oro en 2011–2015) no hay evidencia; en el oro 2011–2015 el filtro de tendencia la habría tenido casi siempre afuera.
+
+**Próximos pasos**
+1. Completar las familias que faltan del pedido original: divergencias (E014) y multi-temporalidad (H4 dentro de la tendencia D1).
+2. Conclusiones finales.
