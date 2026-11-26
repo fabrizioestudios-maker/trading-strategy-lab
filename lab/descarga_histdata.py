@@ -57,7 +57,7 @@ def leer_zip(z):
     return t, v[:, 0], v[:, 1], v[:, 2], v[:, 3]
 
 
-def instrumento(par, desde, hasta, anio_actual, mes_actual):
+def instrumento(par, desde, hasta, anio_actual, mes_actual, sufijo=""):
     os.makedirs(CRUDO, exist_ok=True)
     op = _abridor()
     partes = []
@@ -90,7 +90,7 @@ def instrumento(par, desde, hasta, anio_actual, mes_actual):
     t = t[orden]
     unico = np.concatenate([[True], np.diff(t) > 0])
     cols = [np.concatenate([p[k] for p in partes])[orden][unico] for k in range(1, 5)]
-    salida = os.path.join(RAIZ, f"{par}.npz")
+    salida = os.path.join(RAIZ, f"{par}{sufijo}.npz")
     np.savez_compressed(salida, t=t[unico], o=cols[0], h=cols[1], l=cols[2], c=cols[3])
     return salida, int(unico.sum())
 
@@ -102,7 +102,8 @@ if __name__ == "__main__":
     ap.add_argument("--hasta", type=int, default=2026)
     ap.add_argument("--anio-actual", type=int, default=2026)
     ap.add_argument("--mes-actual", type=int, default=10)
+    ap.add_argument("--sufijo", default="", help="agrega un sufijo al archivo de salida (por ejemplo _2010 para no pisar uno existente)")
     a = ap.parse_args()
     for par in a.pares:
-        r = instrumento(par.upper(), a.desde, a.hasta, a.anio_actual, a.mes_actual)
+        r = instrumento(par.upper(), a.desde, a.hasta, a.anio_actual, a.mes_actual, a.sufijo)
         print(par, "->", r, flush=True)
