@@ -454,3 +454,24 @@ Se escribe antes de correr las dos familias en el universo completo y antes de m
 1. Aceptar otra métrica de éxito (expectancy y PF con 35–45 % de acierto), donde sí hay candidatas.
 2. Buscar fuentes de datos que no sean precio (COT, posicionamiento en opciones, fundamentales) para un estudio nuevo.
 3. Llevar la candidata B a demo, sabiendo que es "comprar índices y metales en tendencia con stops amplios".
+
+---
+
+## 2026-11-27 00:20 UTC — Entrada 13: fase 2, hipótesis nuevas y un criterio más (escrito antes de probar)
+
+**Contexto:** Fabrizio pidió continuar. La única candidata (B) cumple los números, pero no le gana a comprar siempre con el mismo SL/TP. La fase 2 busca señales que **agreguen algo sobre la deriva**.
+
+**Criterio adicional desde ahora (aprendido con la candidata B)**
+- En la muestra de selección, la estrategia tiene que superar a "comprar siempre" (mismos activos, mismo SL/TP, una operación a la vez) por **al menos 3 puntos de WR y con mayor expectancy**.
+- En validación, el límite inferior de Wilson de su WR tiene que superar el WR de comprar siempre (ya estaba en `docs/criterios.md`, ahora es excluyente).
+
+**Hipótesis de precio (E015), con economía detrás**
+1. **Máximos de 52 semanas:** comprar cuando el cierre marca máximo de 252 días. La literatura muestra que los activos en máximos anuales siguen rindiendo más (anclaje de los inversores).
+2. **Momentum de corte transversal:** cada mes se compran solo los 2–3 activos con mejor retorno de 6 o 12 meses (y retorno positivo) entre los 8 con deriva. Concentra la exposición donde la deriva es mayor.
+3. **Estacionalidad:** solo operar compras en noviembre–abril, el "efecto Halloween" de los índices.
+
+Para las tres: TP = 2,1·SL, k de 3 a 6 ATR, la misma regla de elección de la entrada 8 más el criterio nuevo, y la validación se mira una sola vez.
+
+**Hipótesis con datos que no son precio (E016)**
+- **Posicionamiento del COT (CFTC):** extremos del posicionamiento neto de los especuladores como señal contraria o de continuación en oro, índices y forex, en horizontes de semanas.
+- Necesita habilitar `publicreporting.cftc.gov` en el entorno. Es la misma fuente oficial que ya usa el bot del calendario.
