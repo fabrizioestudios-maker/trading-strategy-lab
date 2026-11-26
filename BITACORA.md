@@ -129,3 +129,46 @@ E003 (operable):
 1. E001 a E003 en el universo completo, con la selección 2010–2021.
 2. E004: entradas en retroceso dentro de la tendencia, reversión de corto plazo y combinaciones, para ver si mejoran el momento de entrada.
 3. E005: barrido intradía (ORB, rango asiático, NR7/inside bar, RSI) para documentar lo que no sirve con números.
+
+---
+
+## 2026-11-26 19:55 UTC — Entrada 4: retrocesos en tendencia y reversión (E004)
+
+**Qué se hizo**
+- Se agregaron eventos a `lab/senales.py`:
+  - RSI(2) bajo o alto dentro de la tendencia;
+  - cierre en el mínimo de 5 o 10 días dentro de la tendencia;
+  - toque de la EMA 20/50 dentro de la tendencia;
+  - reversión con RSI(2) en < 5 o > 95;
+  - día extremo (más de 2 ATR) operado en contra.
+- La tendencia se define como cierre sobre la SMA 200 con la SMA subiendo en 20 días.
+- E004 en XAUUSD, SPX500, NAS100, EURUSD y GBPUSD (D1, solo selección): SL de 1 a 3 ATR, TP = 2,1·SL, como evento superpuesto y como estrategia operable (una a la vez).
+
+**Resultados (operables, selección, con 20 o más operaciones)**
+
+| Instrumento | Evento | k | Operaciones | WR | Expectancy |
+| --- | --- | --- | --- | --- | --- |
+| SPX500 | cierre en mínimo de 10 días en tendencia, compra | 3 | 32 | 59,4 % | +0,83 R |
+| NAS100 | cierre en mínimo de 10 días en tendencia, compra | 3 | 35 | 57,1 % | +0,77 R |
+| SPX500 | RSI2 < 25 en tendencia, compra | 3 | 33 | 54,5 % | +0,68 R |
+| NAS100 | RSI2 < 25 en tendencia, compra | 3 | 35 | 54,3 % | +0,68 R |
+| SPX500 | tendencia 200, todas las velas, compra | 3 | 37 | 48,6 % | +0,50 R |
+| XAUUSD (2010–21) | RSI2 < 10 en tendencia, compra | 3 | 20 | 45,0 % | +0,39 R |
+| EURUSD | mejor caso | 1,5 | 34 | 47,1 % | +0,45 R |
+
+- Las ventas en tendencia bajista no aparecen arriba: quedaron todas por debajo de 45 %.
+
+**Qué se descubrió**
+- La única familia que supera el 50 % en selección es **comprar retrocesos de índices de acciones dentro de una tendencia alcista**, con stops anchos (3 ATR).
+  - Mejora la entrada respecto de entrar en cualquier vela de tendencia: 54–59 % contra 46–49 %.
+  - Tiene una explicación económica conocida: la prima de riesgo de las acciones más la reversión de corto plazo de los índices.
+- En oro y forex los retrocesos no llegan al 50 %.
+- **Hay que desconfiar:**
+  - la selección de los índices (2016–2021) fue mayormente alcista;
+  - son 32–35 operaciones por índice, y con n = 32 el intervalo de 95 % de un 59 % va de 42 % a 74 %.
+  - Hace falta más historia (2010–2015) y más índices (DAX, Nikkei, FTSE, CAC, ASX) antes de mirar la validación.
+
+**Próximos pasos**
+1. Descargas encoladas: GRXEUR, USDJPY y AUDUSD 2010–2015; JPXJPY, UKXGBP, FRXEUR y AUXAUD 2010–2026.
+2. E006: la familia de retrocesos en índices con selección 2010–2021 en 7 índices y reglas idénticas en todos, sin elegir parámetros por índice.
+3. E005, en paralelo: barrido intradía para documentar.
