@@ -31,6 +31,7 @@ COSTOS = {
     "UKXGBP": ("pct", 0.0002),
     "FRXEUR": ("pct", 0.0002),
     "AUXAUD": ("pct", 0.0003),
+    "HKXHKD": ("pct", 0.0004),
 }
 
 

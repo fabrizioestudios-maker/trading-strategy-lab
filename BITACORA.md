@@ -520,3 +520,19 @@ Para las tres: TP = 2,1·SL, k de 3 a 6 ATR, la misma regla de elección de la e
 **Próximos pasos**
 1. Sumar el Hang Seng (9 activos con deriva) para que el momentum transversal tenga más operaciones.
 2. Si una configuración pasa la regla con 100 o más operaciones y le gana a comprar siempre, validarla una sola vez.
+
+---
+
+## 2026-11-27 01:45 UTC — Entrada 15: Hang Seng sumado (E015c) e hipótesis combinada (registrada antes de probar)
+
+**E015c (9 activos con deriva, con el Hang Seng)**
+- El Hang Seng pasa el control de calidad. El −16,2 % del 06/04/2025 corresponde a la caída por aranceles.
+- Momentum transversal:
+  - top 2 de 252 días con k = 6: 50,7 % (n = 69);
+  - top 3 con k = 6: 52,4 % (n = 82).
+- Ninguna llega a 100 operaciones y ninguna es elegible. Con un activo más el resultado baja: **depende de qué activos entran en el universo**, una señal más de fragilidad.
+
+**Hipótesis E017 (escrita antes de probar):** los dos efectos parciales que aparecieron se combinan.
+- Los efectos: retrocesos en tendencia (+3–5 puntos en EE.UU.) y momentum transversal (+3–7 puntos).
+- La regla: comprar el retroceso (cierre en el mínimo de 10 días o RSI2 < 25) **solo en los 3 activos con mejor momentum de 252 días** entre los 9 con deriva.
+- SL de 3 a 6 ATR, TP 2,1·SL, misma regla de elección (n ≥ 100, WR ≥ 50 %, vecinos ≥ 47 %, +3 puntos y más expectancy que comprar siempre).

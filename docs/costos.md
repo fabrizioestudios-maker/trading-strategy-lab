@@ -21,5 +21,6 @@ Los datos de HistData son precios bid. SL y TP se evalúan sobre esos precios y 
 | FTSE 100 (UKXGBP) | 0,02 % del precio (~1,8 puntos a 9000) | CFD típico 1–1,5 punto |
 | CAC 40 (FRXEUR) | 0,02 % del precio (~1,6 puntos a 8000) | CFD típico 1–1,5 punto |
 | ASX 200 (AUXAUD) | 0,03 % del precio (~2,6 puntos a 8500) | CFD típico 1–2 puntos |
+| Hang Seng (HKXHKD) | 0,04 % del precio (~10 puntos a 25000) | CFD típico 6–10 puntos |
 
 Son costos de broker minorista razonables, algo conservadores. Las estrategias con stops chicos dependen mucho de este número: se reporta siempre también el resultado sin costos.
