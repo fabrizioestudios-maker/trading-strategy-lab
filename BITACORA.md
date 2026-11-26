@@ -84,3 +84,48 @@ Oro D1, largo, k = 3: 1.022 entradas en selección (expectancy +0,59 R) y 1.261 
 1. Bajar XAUUSD 2010–2017 (archivo aparte), XAGUSD y WTIUSD 2016–2026.
 2. Correr E001 en todos los instrumentos.
 3. E002: filtros de tendencia y momentum (pendiente de la SMA 200, momentum de 3–12 meses, Donchian) con stops anchos, por instrumento y en cartera, solo con la muestra de selección.
+
+---
+
+## 2026-11-26 19:35 UTC — Entrada 3: filtros de tendencia (E002) y estrategias operables (E003)
+
+**Qué se hizo**
+- `lab/senales.py`:
+  - posición del cierre respecto de la SMA 50/100/200;
+  - pendiente de la SMA;
+  - momentum de 21, 63, 126 y 252 días;
+  - cruces 20/100 y 50/200;
+  - Donchian 20/55/100 (estado y ruptura);
+  - combinaciones.
+- E002: acierto condicionado al filtro (entradas superpuestas, D1, SL de 2 a 5 ATR, TP 2×). Oro, EURUSD y SPX500, solo selección.
+- `lab/estrategia.py` + E003: estrategias operables, con una operación a la vez, reglas idénticas en compra y venta (y variante solo compras) y modos "estado" (entra mientras dure la tendencia) y "cambio" (solo al cambiar).
+- Se bajó XAUUSD 2010–2017 de HistData y se unió con 2018–2026: empalme sin hueco, 5,9 millones de minutos. La muestra de selección del oro pasa a ser **2010–2021**, que incluye la caída de 2011–2015.
+
+**Resultados**
+
+E002, oro, selección 2018–2021, entradas superpuestas:
+- Compra con estado Donchian 100: 68,9 % con k = 3 (línea de base 53,3 %).
+- Compra con pendiente de la SMA100: 63–69 % con k = 3–4.
+- Venta: 3–34 % con todos los filtros.
+
+E002, otros instrumentos, selección:
+- SPX500 compra: 50–64 %; la línea de base ya daba 54 % con k = 3.
+- EURUSD: solo la venta con pendiente de la SMA100 y k = 4 supera el 50 % (56,4 %); la compra se queda en 27–45 %.
+
+E003 (operable):
+- Oro 2018–2021: 51–67 %, pero con solo 3 a 43 operaciones.
+- **Oro 2010–2021 (con la caída):**
+  - Ambos lados: máximo **42,5 %** (pendiente SMA100 o momentum 126d, k = 4, 40 operaciones, +0,27 R).
+  - Solo compras: momentum 126d con k = 2 da 45,7 % (92 operaciones, +0,36 R, max DD 10 R).
+- EURUSD y SPX500 dan entre 4 y 33 operaciones por configuración: muy pocas para concluir.
+
+**Qué se descubrió**
+1. **Los 57–69 % del oro 2018–2021 eran la tendencia alcista del período.** Con 2010–2021 las mismas reglas caen a 40–46 %. La tendencia sigue dando expectancy positiva (+0,2 a +0,36 R, PF 1,4–1,7), pero con un acierto de seguidor de tendencias, no de 50 %.
+2. Es lo que predice la teoría de la entrada 2: estas señales tienen un Sharpe por activo de ~0,4–0,6. Con stops de 3–5 σ diarios eso da 40–45 % con 1:2.
+3. **Payoff real con TP = 2·SL: 1,98–1,99.** Los costos lo bajan un poco del 2,0 que piden los criterios. Para las candidatas finales el TP va a ser 2,1·SL. No es un cambio de criterio, es cumplirlo.
+4. Con una operación a la vez y stops anchos en diario, cada instrumento da muy pocas operaciones (4–40 en 4–6 años). Para llegar a más de 100 hacen falta muchos instrumentos y más historia. Se bajan 2010–2015 de todos, más XAGUSD y WTIUSD.
+
+**Próximos pasos**
+1. E001 a E003 en el universo completo, con la selección 2010–2021.
+2. E004: entradas en retroceso dentro de la tendencia, reversión de corto plazo y combinaciones, para ver si mejoran el momento de entrada.
+3. E005: barrido intradía (ORB, rango asiático, NR7/inside bar, RSI) para documentar lo que no sirve con números.
