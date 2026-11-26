@@ -200,3 +200,45 @@ E003 (operable):
 - Se descarta la búsqueda intradía como camino hacia el objetivo. Queda documentada.
 
 **Próximos pasos:** E006, retrocesos en índices con más historia y más índices.
+
+---
+
+## 2026-11-26 20:50 UTC — Entrada 6: retrocesos en índices con más historia (E006) y régimen de volatilidad (E007)
+
+**Qué se hizo**
+- Se bajó 2010–2015 de EURUSD, GBPUSD, SPX500 y NAS100 y se unió con 2016–2026 (`lab.datos.unir_historia`).
+  - Saltos en el empalme: 0,003–0,14 %, por el feriado de año nuevo.
+  - SPX500 y NAS100 arrancan en noviembre de 2010, como HistData.
+- E006: compra de retrocesos en índices con reglas idénticas para todos.
+  - Tendencia: cierre sobre la SMA 200 y la SMA subiendo.
+  - Eventos: cierre en el mínimo de 10 o 5 días, RSI2 < 25, RSI2 < 10 y un control que entra en cualquier vela en tendencia.
+  - k de 2 a 3,5 y TP = 2,1·SL.
+  - Una operación a la vez por índice. SPX500, NAS100 y DAX, selección 2010–2021.
+- E007: los mismos retrocesos separados por régimen de volatilidad (ATR(20)/precio contra su mediana de un año).
+
+**Resultados (selección)**
+
+| | k | SPX500 | NAS100 | DAX | Cartera (n) | Cartera WR | Límite inferior 95 % |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Cierre en mínimo de 10 días | 3,0 | 54,7 % | 47,4 % | 33,3 % | 128 | 48,4 % | 40,0 % |
+| Cierre en mínimo de 10 días | 3,5 | 52,5 % | 53,3 % | 38,5 % | 98 | **51,0 %** (PF 2,16, +0,57 R, 90 % de años positivos) | 41,3 % |
+| RSI2 < 25 | 3,5 | 50,0 % | 55,1 % | 31,2 % | 109 | 49,5 % | 40,3 % |
+| Control: cualquier vela en tendencia | 3,0 | 47,5 % | 47,8 % | 34,8 % | 151 | 45,7 % | 38,0 % |
+
+E007 (cartera, cierre en mínimo de 10 días):
+
+| k | Volatilidad baja | Volatilidad alta | Todos |
+| --- | --- | --- | --- |
+| 3 | 46,2 % (93) | 54,1 % (61) | 48,4 % |
+| 3,5 | 45,6 % | 51,1 % | 51,0 % |
+
+**Qué se descubrió**
+- Con 2010–2021, el SPX500 bajó de 59,4 % (2016–21) a 54,7 %. **El DAX no sigue el patrón (26–38 %).** El efecto parece de los índices de EE.UU. Y SPX500 y NAS100 están muy correlacionados: no son dos pruebas independientes.
+- Esperar el retroceso suma 3–5 puntos sobre comprar cualquier vela en tendencia (48,4 % contra 45,7 % con k = 3).
+- **El 51,0 % de la cartera es el mejor de 20 configuraciones.** Con prueba múltiple y un límite inferior de 41 %, no alcanza para declarar nada.
+- **Hipótesis rechazada:** "la volatilidad baja mejora los retrocesos". Da igual o peor. La alta da algo más, pero dentro del ruido (n = 61).
+
+**Próximos pasos**
+1. Terminar de bajar el DAX 2010–2015, Nikkei, FTSE, CAC y ASX.
+2. Correr E006 en los 7 índices, sumando k = 4 y 5. La teoría dice que el acierto sube con el stop.
+3. Elegir **una** configuración con la selección y recién entonces mirar la validación 2022–2026.

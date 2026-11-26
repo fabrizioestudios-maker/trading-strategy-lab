@@ -113,3 +113,11 @@ def dia_extremo(v, mult=2.0, atr_v=None):
     prev = np.concatenate([[np.nan], a[:-1]])
     mov = v["c"] - v["o"]
     return np.where(mov < -mult * prev, 1, np.where(mov > mult * prev, -1, 0))
+
+
+def volatilidad_baja(v, n_atr=20, ventana=252):
+    """+1 si el ATR(n)/precio está por debajo de su mediana de `ventana` velas (régimen tranquilo)."""
+    from lab.datos import atr as _atr
+    rel = _atr(v, n_atr) / v["c"]
+    med = pd.Series(rel).rolling(ventana, min_periods=ventana // 2).median().values
+    return np.where(np.isnan(med), 0, np.where(rel < med, 1, 0))
