@@ -1,0 +1,6 @@
+# Datos crudos y derivados (pesados): se bajan con lab/descarga_histdata.py
+data/*
+!data/README.md
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
