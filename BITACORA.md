@@ -172,3 +172,31 @@ E003 (operable):
 1. Descargas encoladas: GRXEUR, USDJPY y AUDUSD 2010–2015; JPXJPY, UKXGBP, FRXEUR y AUXAUD 2010–2026.
 2. E006: la familia de retrocesos en índices con selección 2010–2021 en 7 índices y reglas idénticas en todos, sin elegir parámetros por índice.
 3. E005, en paralelo: barrido intradía para documentar.
+
+---
+
+## 2026-11-26 20:20 UTC — Entrada 5: barrido intradía (E005), sin candidatas
+
+**Qué se hizo**
+- E005 en XAUUSD (2010–2021), EURUSD y SPX500 (2016–2021), solo selección, una operación a la vez, TP = 2,1·SL, con y sin costos:
+  - A: ruptura del rango de apertura de Nueva York (09:30–10:00, ruptura por cierre de M5 hasta las 12:00).
+  - B: ruptura del rango asiático durante Londres.
+  - C: ruptura al día siguiente de una vela NR7 o un inside bar diario, con SL en el otro lado de la vela.
+  - D: RSI(14) H1 < 30 o > 70, operado en contra.
+  - E: cierre fuera de Bollinger(20,2) H1, operado en contra.
+
+**Resultados (WR con costos, n entre 159 y 3.903 por combinación)**
+
+| | A | B | C NR7 | C inside | D | E |
+| --- | --- | --- | --- | --- | --- | --- |
+| XAUUSD | 33,6 % | 34,7 % | 33,3 % | 29,4 % | 30,4 % | 31,4 % |
+| EURUSD | 30,7 % | 31,1 % | 28,0 % | 27,4 % | 31,2 % | 31,0 % |
+| SPX500 | 32,3 % | 32,4 % | **37,1 %** (+0,08 R) | 32,8 % | 31,5 % | 32,8 % |
+
+**Qué se descubrió**
+- Todas las familias intradía quedan en el rango del azar (27–37 %, contra 32 % de una entrada a ciegas con 1:2,1).
+- La mejor, la ruptura tras NR7 en el SPX500 (37,1 %, +0,08 R), está lejos del 50 %.
+- Esto coincide con los 1.584 modelos SMC/ICT probados antes y con la teoría: con stops intradía (fracciones de un σ diario) haría falta un Sharpe imposible para llegar al 50 % con 1:2.
+- Se descarta la búsqueda intradía como camino hacia el objetivo. Queda documentada.
+
+**Próximos pasos:** E006, retrocesos en índices con más historia y más índices.
