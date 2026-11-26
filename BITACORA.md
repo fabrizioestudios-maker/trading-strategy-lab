@@ -536,3 +536,27 @@ Para las tres: TP = 2,1·SL, k de 3 a 6 ATR, la misma regla de elección de la e
 - Los efectos: retrocesos en tendencia (+3–5 puntos en EE.UU.) y momentum transversal (+3–7 puntos).
 - La regla: comprar el retroceso (cierre en el mínimo de 10 días o RSI2 < 25) **solo en los 3 activos con mejor momentum de 252 días** entre los 9 con deriva.
 - SL de 3 a 6 ATR, TP 2,1·SL, misma regla de elección (n ≥ 100, WR ≥ 50 %, vecinos ≥ 47 %, +3 puntos y más expectancy que comprar siempre).
+
+---
+
+## 2026-11-27 02:05 UTC — Entrada 16: retroceso en los líderes (E017) y cierre de la fase 2
+
+**Resultados E017 (selección, 9 activos con deriva; comprar siempre = 39,6 / 42,9 / 44,4 / 47,0 % con k = 3 / 4 / 5 / 6)**
+
+| Señal | Top | k | n | WR | Sobre comprar siempre | Vecinos |
+| --- | --- | --- | --- | --- | --- | --- |
+| Líder + mínimo 10d | 3 | 5 | 100 | **50,0 %** | +5,6 | k = 4: 44,2 % ❌ |
+| Líder + RSI2 < 25 | 4 | 6 | 101 | **52,5 %** | +5,5 | k = 5: 46,7 % ❌ |
+| Líder + RSI2 < 25 | 3 | 6 | 82 | 54,9 % | +7,9 | n < 100 ❌ |
+| Líder, cualquier vela | 3 | 6 | 82 | 52,4 % | +5,4 | n < 100 ❌ |
+
+**Ninguna es elegible:** siempre falla el tamaño de la muestra o la estabilidad con los parámetros vecinos. **No se miró la validación** de estas casi-candidatas. La regla lo impide y así la muestra 2022–2026 queda limpia para estudios futuros.
+
+**Conclusión de la fase 2**
+1. Hay una señal real que **le gana a la deriva**: elegir los activos con mejor momentum de 6–12 meses (y comprar sus retrocesos) suma 2–9 puntos de acierto sobre comprar siempre, de forma bastante consistente.
+2. Aun así, **50 % con 1:2 aparece solo con los stops más anchos (5–6 ATR)**, con unas 80–100 operaciones en 11 años y con parámetros vecinos que caen a 44–47 %. No pasa la regla de robustez fijada de antemano.
+3. El COT (posicionamiento de los especuladores) no aporta una ventaja usable: máximo 41,7 %.
+4. Máximos de 52 semanas y estacionalidad: rechazados.
+5. Configuraciones probadas en el laboratorio: unas 1.560 (unas 165 en la fase 2).
+
+**Veredicto general (sin cambios respecto de la entrada 12, con más evidencia):** la candidata B sigue siendo la única que cumple los criterios mínimos, sin ventaja propia. Lo más cerca de una ventaja real es el momentum de corte transversal con stops anchos, que no alcanza la robustez exigida con estos datos (2010–2026, 9 activos).

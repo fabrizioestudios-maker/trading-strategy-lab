@@ -59,13 +59,27 @@ En un precio que se mueve al azar, 1:2 da exactamente 33,3 % de acierto. Para ll
 
 Los datos confirman la teoría en todo el universo: forex se comporta como un paseo al azar (~33 %), y solo los activos con deriva llegan al 50 % con stops muy anchos (E001, E012).
 
+## Fase 2 (27/11/2026): lo más cerca de una ventaja real
+
+Después de la primera conclusión se probaron señales que tenían que **ganarle a comprar siempre** (E015–E017):
+
+| Señal (9 activos con deriva, selección) | Mejor resultado | ¿Le gana a comprar siempre? | ¿Elegible? |
+| --- | --- | --- | --- |
+| Máximos de 52 y 26 semanas | 49,5 % (k = 6) | No (−0 a −5 puntos) | No |
+| Estacionalidad noviembre–abril | 49,4 % | No | No |
+| Momentum de corte transversal (top 2–3 por 6–12 meses) | 52,4–56,2 % (k = 6, n = 64–82) | **Sí (+2 a +9 puntos)** | No: menos de 100 operaciones |
+| Retroceso solo en los líderes de momentum | 50,0 % (n = 100) y 52,5 % (n = 101) | **Sí (+5,5 puntos)** | No: los vecinos caen a 44–47 % |
+| COT (posicionamiento de especuladores, 9 mercados) | 41,7 % | Algo (+6 puntos) | No |
+
+El momentum de corte transversal (comprar los activos más fuertes y sus retrocesos) es la única señal que suma algo sobre la deriva de forma consistente. **Llega a 50 % con 1:2 solo con stops de 5–6 ATR, con ~100 operaciones en 11 años y sin estabilidad en los parámetros vecinos.** Con más historia, más activos o datos de calidad institucional podría confirmarse. Con estos datos no alcanza la robustez exigida. No se miró su validación para no gastar la muestra 2022–2026.
+
 ## Límites de este estudio
 
 - Datos de HistData y Dukascopy (precios bid, sin volumen). No se pudieron probar volumen, order flow ni volume profile.
 - Desde 2010: no incluye una década bajista completa de acciones.
 - Se excluyeron el DAX (HistData mezcla el Euro Stoxx 50 entre junio de 2020 y diciembre de 2023) y el WTI (hueco de 940 días). Ver E000.
 - Costos de broker minorista razonables (`docs/costos.md`); sin swaps ni financiación. **Las posiciones de 6–8 meses en CFD pagan financiación diaria, que reduciría bastante el resultado de la candidata B.**
-- Se probaron unas 1.400 configuraciones. Aunque la validación se miró una sola vez, el riesgo de sobreajuste en la elección del stop (6 ATR, el mayor probado) existe.
+- Se probaron unas 1.560 configuraciones (unas 165 en la fase 2). Aunque la validación se miró una sola vez, el riesgo de sobreajuste en la elección del stop (6 ATR, el mayor probado) existe.
 
 ## Recomendación
 
