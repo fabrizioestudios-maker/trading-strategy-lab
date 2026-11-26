@@ -475,3 +475,48 @@ Para las tres: TP = 2,1·SL, k de 3 a 6 ATR, la misma regla de elección de la e
 **Hipótesis con datos que no son precio (E016)**
 - **Posicionamiento del COT (CFTC):** extremos del posicionamiento neto de los especuladores como señal contraria o de continuación en oro, índices y forex, en horizontes de semanas.
 - Necesita habilitar `publicreporting.cftc.gov` en el entorno. Es la misma fuente oficial que ya usa el bot del calendario.
+
+---
+
+## 2026-11-27 01:20 UTC — Entrada 14: fase 2, máximos, momentum transversal, estacionalidad (E015) y COT (E016)
+
+**Qué se hizo**
+- E015 (8 activos con deriva, solo selección, solo compras, SL de 3 a 6 ATR, TP 2,1·SL). Se compararon con "comprar siempre" (mismo universo, mismo SL/TP) estas señales:
+  - máximo de 252 y 126 días;
+  - momentum de corte transversal (los 2 o 3 mejores de 126 o 252 días con retorno positivo, elegidos a fin de mes);
+  - estacionalidad noviembre–abril, con y sin tendencia.
+- E015b: momentum de corte transversal en los 12 instrumentos limpios (sumando forex), quedándose con los 2, 3 o 4 mejores, y una variante que además vende los peores.
+- Se habilitó `publicreporting.cftc.gov` (aprobado) y se escribió `lab/cot.py`:
+  - historial semanal 2006–2026 de 9 mercados;
+  - TFF "leveraged money" para forex e índices, Disaggregated "managed money" para oro y plata;
+  - el reporte rige desde el cierre del viernes de publicación.
+- E016: 4 hipótesis del COT registradas antes de ver resultados.
+- **Error detectado y corregido antes de concluir:** la conversión de fechas del COT a velas diarias asumía nanosegundos (pandas 3 usa otra unidad) y todas las velas tomaban el último valor. Se corrigió y se verificó con un caso puntual: el lunes 23/03/2020 rige el reporte del 17/03. La primera corrida de E016 se descartó.
+- Euro Stoxx 50 (ETXEUR): HistData no tiene datos desde 2020, no sirve. Hang Seng (HKXHKD) se bajó completo.
+
+**Resultados (selección)**
+- Comprar siempre en los 8 activos con deriva: 40,0 / 44,2 / 45,8 / 49,5 % con k = 3 / 4 / 5 / 6.
+- Máximos de 52 y 26 semanas: **peores** que comprar siempre (−0 a −5,5 puntos). Rechazada.
+- Estacionalidad noviembre–abril: sin mejora (−5,4 a +1,1 puntos). Rechazada.
+- **Momentum de corte transversal, top 2 de 252 días:**
+  - k = 5: 51,2 % (n = 86), +5,4 puntos sobre comprar siempre;
+  - k = 6: 56,2 % (n = 64), +6,7 puntos.
+  - Top 3, k = 6: 51,9 % (n = 77).
+  - Ninguna llega a 100 operaciones, así que ninguna es elegible.
+- Momentum de corte transversal en 12 instrumentos: le gana a comprar siempre por 2 a 8,6 puntos en casi todas las variantes de solo compras, pero el máximo es 48,9 % (n = 88). Vender los peores empeora (33–44 %).
+- COT (9 mercados, comprar siempre = 35–39 %):
+
+| Hipótesis | k | n | WR | Expectancy |
+| --- | --- | --- | --- | --- |
+| H1 extremos en contra | 2–4 | 158–381 | 31,4–32,8 % | −0,03 a +0,01 R |
+| H2 flujo de 4 semanas a favor | 2–4 | 363–1.464 | 31,7–35,4 % | −0,02 a +0,09 R |
+| H3 tendencia + poco cargados | 2 | 192 | **41,7 %** | +0,28 R |
+| H4 tendencia + muy cargados | 2–4 | 202–618 | 33,2–35,1 % | +0,02 a +0,08 R |
+
+**Qué se descubrió**
+1. **El momentum de corte transversal es la primera señal que le gana a la deriva** de forma consistente (+2 a +9 puntos en casi todas las variantes). Cumple lo que dice la literatura: elegir los activos con más impulso concentra la exposición donde la deriva es mayor. Pasa del 50 % solo en el universo de 8 activos con deriva y stops de 5–6 ATR, con menos de 100 operaciones.
+2. **El COT no da una ventaja usable.** La mejor combinación (tendencia + especuladores poco cargados) sube a 41,7 %, lejos del 50 %.
+
+**Próximos pasos**
+1. Sumar el Hang Seng (9 activos con deriva) para que el momentum transversal tenga más operaciones.
+2. Si una configuración pasa la regla con 100 o más operaciones y le gana a comprar siempre, validarla una sola vez.
