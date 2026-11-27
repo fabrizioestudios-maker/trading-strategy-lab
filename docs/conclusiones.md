@@ -1,10 +1,26 @@
-# Conclusiones (26/11/2026; fase 2 agregada el 27/11/2026)
+# Conclusiones (26/11/2026; fase 2 y búsqueda de los últimos 5 años agregadas el 27/11/2026)
 
 **Respuesta corta.** Se encontró una estrategia que cumple los números mínimos de la misión (win rate ≥ 50 %, payoff real ≥ 2, expectancy positiva, más de 100 operaciones) en la muestra de selección y en la de validación. **No es robusta como "ventaja":** gana lo mismo que comprar siempre esos activos con el mismo stop y TP. Su resultado viene de la deriva alcista de índices y metales en 2010–2026, tomada con stops muy anchos y operaciones de 6 a 8 meses.
 
 Con señales técnicas de corto y mediano plazo **no apareció ninguna estrategia con 50 % de acierto y 1:2** en unas 1.560 configuraciones de este laboratorio (fases 1 y 2), más las ~1.600 que ya se habían probado en el proyecto (LuxAlgo, SMC/ICT, Setup A+, scalping). La teoría y los datos explican por qué.
 
-## La estrategia que cumple los criterios mínimos
+## Actualización (27/11/2026): estrategia para los últimos 5 años
+
+A pedido de Fabrizio se buscó una estrategia para los **últimos 5 años**: 185.367 combinaciones (E019–E022, `BITACORA.md` entradas 18 y 19).
+- **11 cumplen** win rate ≥ 50 % con RR 1:2 en la elección (2021–2024) y en la confirmación (2024–2026).
+- **10 de esas 11 caen al nivel del azar (31–35 %) en 2011–2021.** Dependen de las subas recientes del oro y del USDJPY.
+
+**Estrategia recomendada.** Oro D1, ruptura de Bollinger (20, 2) a favor de la SMA 200, ambas direcciones. Entra en la apertura siguiente con SL = 0,5 × ATR(14) y TP = 2 × SL. El código está en `pine/oro_d1_bollinger_sma200.pine`.
+
+| Período | Operaciones | Win rate [IC 95 %] | PF | Expectancy |
+| --- | --- | --- | --- | --- |
+| Últimos 5 años | 58 | 55,2 % [42,5–67,3] | 2,38 | +0,63 R |
+| 2011–2021 | 110 | 43,6 % [34,7–53,0] | 1,50 | +0,29 R |
+| 15 años | 168 | 47,6 % [40,2–55,1] | 1,76 | +0,41 R |
+
+Cumple el objetivo en los últimos 5 años y es la única finalista que también ganó en los 10 años anteriores, aunque con menos de 50 % de acierto. Funciona solo en oro. Lo esperable a futuro está más cerca de 45–50 % con expectancy positiva que del 55 % reciente.
+
+## La estrategia que cumple los criterios mínimos en 2010–2026 (fase 1)
 
 **Nombre:** Tendencia de largo plazo con stop amplio, solo compras ("candidata B").
 

@@ -1,0 +1,63 @@
+//@version=6
+// trading-strategy-lab · E019 #2 / E022: la única de las 11 finalistas que conserva ventaja en 2011–2021.
+// Oro (XAUUSD) en velas diarias que cierran a las 17:00 de Nueva York (por ejemplo OANDA:XAUUSD, temporalidad 1D).
+// Reglas iguales a las del laboratorio:
+//   - Compra: primera vela diaria que cierra sobre la banda superior de Bollinger (20, 2) con el cierre sobre la SMA 200.
+//   - Venta: primera vela diaria que cierra bajo la banda inferior con el cierre bajo la SMA 200.
+//   - Entrada a mercado en la apertura de la vela siguiente. Una operación a la vez: las señales con una abierta se ignoran.
+//   - SL = 0,5 × ATR(14) de la vela de la señal, medido desde el precio de entrada. TP = 2 × SL (RR 1:2). Sin break-even ni trailing.
+//   - Costo: 0,0125 % ida y vuelta (0,00625 % por orden), igual que en el laboratorio.
+strategy("Oro D1 · Ruptura de Bollinger a favor de la SMA 200 (RR 1:2)", shorttitle = "Oro BB-SMA200 RR2", overlay = true,
+     initial_capital = 10000, currency = currency.USD, pyramiding = 0,
+     commission_type = strategy.commission.percent, commission_value = 0.00625,
+     margin_long = 0, margin_short = 0)
+
+grpS = "Señal"
+bbLen = input.int(20, "Bollinger: largo", minval = 2, group = grpS)
+bbMult = input.float(2.0, "Bollinger: desvíos", minval = 0.1, step = 0.1, group = grpS)
+smaLen = input.int(200, "Filtro de tendencia: SMA", minval = 1, group = grpS)
+direccion = input.string("Ambas", "Dirección", options = ["Ambas", "Solo compras", "Solo ventas"], group = grpS)
+
+grpR = "Salida y riesgo"
+atrLen = input.int(14, "ATR: largo", minval = 1, group = grpR)
+kSL = input.float(0.5, "SL = k × ATR", minval = 0.05, step = 0.05, group = grpR)
+rr = input.float(2.0, "TP = RR × SL", minval = 0.1, step = 0.1, group = grpR)
+riesgoPct = input.float(1.0, "Riesgo por operación (% del capital)", minval = 0.01, step = 0.25, group = grpR)
+
+grpF = "Período del backtest"
+desde = input.time(timestamp("2021-11-15T00:00:00+00:00"), "Desde", group = grpF)
+hasta = input.time(timestamp("2026-11-27T00:00:00+00:00"), "Hasta", group = grpF)
+
+// Cálculos al cierre de la vela
+base = ta.sma(close, bbLen)
+desvio = ta.stdev(close, bbLen)  // desvío poblacional, igual que ta.bb
+bandaSup = base + bbMult * desvio
+bandaInf = base - bbMult * desvio
+tendencia = ta.sma(close, smaLen)
+atrValor = ta.atr(atrLen)
+
+rompeArriba = close > bandaSup and not (close[1] > bandaSup[1])
+rompeAbajo = close < bandaInf and not (close[1] < bandaInf[1])
+senalCompra = rompeArriba and close > tendencia and direccion != "Solo ventas"
+senalVenta = rompeAbajo and close < tendencia and direccion != "Solo compras"
+
+enPeriodo = time >= desde and time < hasta
+sinPosicion = strategy.position_size == 0
+distancia = kSL * atrValor
+
+if enPeriodo and sinPosicion and not na(distancia) and distancia > 0 and (senalCompra or senalVenta)
+    cantidad = strategy.equity * riesgoPct / 100 / (distancia * syminfo.pointvalue)
+    ticksSL = distancia / syminfo.mintick
+    ticksTP = rr * distancia / syminfo.mintick
+    if senalCompra
+        strategy.entry("Compra", strategy.long, qty = cantidad)
+        strategy.exit("Salida compra", "Compra", loss = ticksSL, profit = ticksTP)
+    else
+        strategy.entry("Venta", strategy.short, qty = cantidad)
+        strategy.exit("Salida venta", "Venta", loss = ticksSL, profit = ticksTP)
+
+plot(bandaSup, "Banda superior", color = color.new(color.gray, 30))
+plot(bandaInf, "Banda inferior", color = color.new(color.gray, 30))
+plot(tendencia, "SMA 200", color = color.new(color.orange, 0), linewidth = 2)
+plotshape(senalCompra and sinPosicion and enPeriodo, "Señal de compra", shape.triangleup, location.belowbar, color.new(color.teal, 0), size = size.small)
+plotshape(senalVenta and sinPosicion and enPeriodo, "Señal de venta", shape.triangledown, location.abovebar, color.new(color.red, 0), size = size.small)

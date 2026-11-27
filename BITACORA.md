@@ -662,3 +662,65 @@ Para las tres: TP = 2,1·SL, k de 3 a 6 ATR, la misma regla de elección de la e
 **Advertencia registrada de antemano.** Con decenas de miles de combinaciones, algunas pasan la elección por azar. Además, el oro y los índices subieron mucho en este período, lo que favorece a las compras. Por eso se exige la confirmación en 2 años que no se usaron para elegir, la comparación con comprar siempre y la prueba de las finalistas en 2010–2021.
 
 **Entregables:** parámetros para configurar el probador de estrategias y la estrategia en Pine Script (TradingView).
+
+---
+
+## 2026-11-27 00:32 UTC — Entrada 19: resultados de la búsqueda exhaustiva (E019–E022) y estrategia recomendada
+
+**Grilla (E019).** Se probaron 185.367 combinaciones: 171.850 simuladas y 13.517 descartadas porque tenían menos de 45 entradas posibles. Tardó 3 minutos con 4 procesos.
+- **Paso 1** (elección, 15/11/2021–14/11/2024): pasan 98. Por temporalidad: 62 en H4, 21 en H1 y 15 en D1. 80 son solo compras.
+- **Paso 2** (confirmación, 15/11/2024 en adelante): pasan 11. Son 9 en oro (8 de compras y 1 de ambas direcciones) y 2 en USDJPY (compras). Ningún control "comprar siempre" pasa.
+
+**Prueba en 2011–2021 (E020).** Son diez años que no se usaron para nada.
+
+| # | Combinación | Últimos 5 años | 2011–2021 |
+| --- | --- | --- | --- |
+| 1 | USDJPY H4, momentum 60 al cambiar, compras, k = 3 | 58,2 % (55) | 31,0 % (142), −0,09 R |
+| 2 | **Oro D1, ruptura de Bollinger (20, 2) a favor de la SMA 200, ambas, k = 0,5** | **55,2 % (58)** | **43,6 % (110), +0,29 R** |
+| 3 | Oro H4, cierre en el mínimo de 5 velas, filtro diario, compras, k = 4 | 55,6 % (54) | 33,3 % (69), −0,01 R |
+| 4 | USDJPY H4, momentum 60 al cambiar, compras, k = 4 | 56,2 % (48) | 32,0 % (100), −0,05 R |
+| 5 | Oro H4, mínimo de 5 velas, compras, k = 4 | 54,2 % (59) | 33,0 % (97), −0,02 R |
+| 6 | Oro D1, sobre la SMA 100, compras, k = 1,5 | 51,7 % (87) | 34,6 % (127), +0,03 R |
+| 7 | Oro D1, estado de Donchian 55, compras, k = 1,5 | 51,7 % (87) | 31,3 % (115), −0,07 R |
+| 8 | Oro H1, mínimo de 10 velas, filtro diario, compras, k = 6 | 51,7 % (87) | 33,3 % (108), −0,01 R |
+| 9 | Oro H4, tres cierres en contra, compras, k = 4 | 55,1 % (49) | 30,6 % (98), −0,09 R |
+| 10 | Oro H4, mínimo de 10 velas, filtro diario, compras, k = 4 | 54,2 % (48) | 34,4 % (61), +0,03 R |
+| 11 | Oro H1, tres cierres en contra, filtro diario, compras, k = 6 | 50,7 % (75) | 31,8 % (110), −0,06 R |
+
+**10 de las 11 caen al nivel del azar (31–35 %) en 2011–2021.** Su resultado de los últimos 5 años viene de las subas del oro (2023–2025) y del USDJPY (2021–2024), no de una ventaja que se repita. Con costos dobles y con TP 2,1 casi no cambian (resultados/E020/finalistas.csv). **La única que conserva ventaja en 2011–2021 es la #2.**
+
+**Sensibilidad de la #2 (E021).**
+- En oro, la misma regla da 53–69 % en los 5 años con k de 0,5 a 2. En 2011–2021 da 40–44 % con k de 0,5 a 1; con k más grande se acerca al azar.
+- Con otras bandas: (20; 1,5), (15; 2) y (30; 2) son más débiles; (20; 2,5) da algo parecido con menos operaciones.
+- **En los otros 12 instrumentos no funciona:** 21–48 % en los 5 años. Es un comportamiento del oro (las rupturas de volatilidad a favor de la tendencia siguen), no una regla general.
+
+**Estrategia recomendada (E022, `pine/oro_d1_bollinger_sma200.pine`).**
+- **Mercado y velas:** oro (XAUUSD), velas diarias que cierran a las 17:00 de Nueva York.
+- **Compra:** primera vela diaria que cierra sobre la banda superior de Bollinger (20, 2), con el cierre sobre la SMA 200.
+- **Venta:** primera vela que cierra bajo la banda inferior, con el cierre bajo la SMA 200.
+- **Entrada:** a mercado en la apertura siguiente. Una operación a la vez.
+- **Salida:** SL = 0,5 × ATR(14) de la vela de la señal; TP = 2 × SL = 1 × ATR. Sin break-even ni trailing.
+
+| Período | Operaciones | Win rate [IC 95 %] | Payoff | PF | Expectancy | Max DD |
+| --- | --- | --- | --- | --- | --- | --- |
+| Últimos 5 años (15/11/2021–26/11/2026) | 58 | **55,2 %** [42,5–67,3] | 1,93 | 2,38 | +0,63 R | 5,1 R |
+| · elección / confirmación | 32 / 26 | 56,2 % / 53,8 % | | | | |
+| 2011–2021 | 110 | 43,6 % [34,7–53,0] | 1,94 | 1,50 | +0,29 R | 9,5 R |
+| 15 años seguidos | 168 | 47,6 % [40,2–55,1] | 1,94 | 1,76 | +0,41 R | 9,5 R |
+
+- Son 11–12 operaciones por año, con una duración media de 1,6 días.
+- Hubo 12 de 14 años completos positivos y una racha máxima de 6 SL seguidos.
+- Con costos dobles da +0,62 R por operación en los 5 años.
+- Con 1 % de riesgo compuesto, 10.000 pasan a unos 14.300 en los 5 años.
+- Comprar siempre en oro D1 con el mismo SL y TP da 39,5 % en los 5 años.
+
+**Lectura honesta**
+- **Cumple el objetivo en los últimos 5 años:** win rate ≥ 50 % con RR 1:2, expectancy positiva, y en las dos mitades por separado.
+- En los 10 años anteriores también ganó, pero con 43,6 % de acierto. El 55 % reciente se apoya en un período muy bueno para el oro. Si el patrón sigue, lo esperable está más cerca de 45–50 % de acierto con expectancy positiva.
+- La muestra es chica: 58 operaciones en 5 años, con un intervalo de 42 % a 67 %.
+- Se probaron 185.367 combinaciones. La confirmación y la prueba en 2011–2021 bajan el riesgo de que sea suerte, pero no lo eliminan.
+
+**Próximos pasos**
+- Correr la estrategia en el probador de TradingView (OANDA:XAUUSD, 1D) y comparar operación por operación con `resultados/E022/operaciones_5a.csv`.
+- Si se usa MT5, escribir el EA.
+- Seguirla en demo antes de usar dinero real.
