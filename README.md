@@ -2,6 +2,7 @@
 
 Laboratorio para buscar una estrategia con **win rate ≥ 50 % y RR real ≥ 1:2**, con expectancy positiva y robustez. Si no aparece, el objetivo es documentar con números por qué.
 
+- **Resumen para otras IAs:** `CONTEXTO_PARA_IAS.md`.
 - **Historia completa:** `BITACORA.md`, con entradas fechadas, resultados y decisiones.
 - **Reglas que no se cambian:** `docs/criterios.md`.
 - **Plan y fundamento teórico:** `docs/plan.md`.
