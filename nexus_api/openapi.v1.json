@@ -1,0 +1,1983 @@
+{
+ "components": {
+  "schemas": {
+   "CalculoRiesgo": {
+    "additionalProperties": false,
+    "properties": {
+     "avisos": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Avisos",
+      "type": "array"
+     },
+     "contrato": {
+      "default": "nexus.v1",
+      "title": "Contrato",
+      "type": "string"
+     },
+     "costo_en_r": {
+      "title": "Costo En R",
+      "type": "number"
+     },
+     "costo_ida_vuelta_moneda": {
+      "title": "Costo Ida Vuelta Moneda",
+      "type": "number"
+     },
+     "distancia_stop": {
+      "title": "Distancia Stop",
+      "type": "number"
+     },
+     "ganancia_objetivo_moneda": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ganancia Objetivo Moneda"
+     },
+     "lado": {
+      "enum": [
+       "compra",
+       "venta"
+      ],
+      "title": "Lado",
+      "type": "string"
+     },
+     "lotes": {
+      "description": "Redondeado hacia abajo al paso de lote",
+      "title": "Lotes",
+      "type": "number"
+     },
+     "riesgo_moneda": {
+      "description": "Capital × riesgo %",
+      "title": "Riesgo Moneda",
+      "type": "number"
+     },
+     "riesgo_real_moneda": {
+      "description": "Pérdida si toca el stop con los lotes redondeados, sin costos",
+      "title": "Riesgo Real Moneda",
+      "type": "number"
+     },
+     "rr": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Rr"
+     },
+     "supuestos": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Supuestos",
+      "type": "array"
+     }
+    },
+    "required": [
+     "lado",
+     "riesgo_moneda",
+     "distancia_stop",
+     "lotes",
+     "riesgo_real_moneda",
+     "costo_ida_vuelta_moneda",
+     "costo_en_r",
+     "supuestos",
+     "avisos"
+    ],
+    "title": "CalculoRiesgo",
+    "type": "object"
+   },
+   "ChequeoCalidad": {
+    "additionalProperties": false,
+    "properties": {
+     "detalle": {
+      "title": "Detalle",
+      "type": "string"
+     },
+     "nombre": {
+      "title": "Nombre",
+      "type": "string"
+     },
+     "resultado": {
+      "enum": [
+       "ok",
+       "aviso",
+       "error"
+      ],
+      "title": "Resultado",
+      "type": "string"
+     },
+     "valor": {
+      "title": "Valor",
+      "type": "number"
+     }
+    },
+    "required": [
+     "nombre",
+     "resultado",
+     "valor",
+     "detalle"
+    ],
+    "title": "ChequeoCalidad",
+    "type": "object"
+   },
+   "Condicion": {
+    "additionalProperties": false,
+    "properties": {
+     "clave": {
+      "title": "Clave",
+      "type": "string"
+     },
+     "cumple": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "None = no se puede evaluar con los datos revelados",
+      "title": "Cumple"
+     },
+     "texto": {
+      "title": "Texto",
+      "type": "string"
+     },
+     "valor": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Valor"
+     }
+    },
+    "required": [
+     "clave",
+     "texto",
+     "cumple"
+    ],
+    "title": "Condicion",
+    "type": "object"
+   },
+   "ConfigCorrida": {
+    "additionalProperties": false,
+    "properties": {
+     "confirmacion_desde": {
+      "default": "2021-11-15",
+      "title": "Confirmacion Desde",
+      "type": "string"
+     },
+     "confirmacion_hasta": {
+      "default": "2026-11-14",
+      "title": "Confirmacion Hasta",
+      "type": "string"
+     },
+     "eleccion_desde": {
+      "default": "2011-11-15",
+      "title": "Eleccion Desde",
+      "type": "string"
+     },
+     "eleccion_hasta": {
+      "default": "2021-11-15",
+      "title": "Eleccion Hasta",
+      "type": "string"
+     },
+     "entrada": {
+      "default": "18:15",
+      "enum": [
+       "reapertura",
+       "18:15"
+      ],
+      "title": "Entrada",
+      "type": "string"
+     },
+     "estrategia": {
+      "const": "e022",
+      "title": "Estrategia",
+      "type": "string"
+     },
+     "perfil_costos": {
+      "default": "base",
+      "enum": [
+       "costos_md",
+       "sin_costos",
+       "optimista",
+       "base",
+       "conservador",
+       "estres"
+      ],
+      "title": "Perfil Costos",
+      "type": "string"
+     },
+     "version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Version",
+      "type": "string"
+     }
+    },
+    "required": [
+     "estrategia"
+    ],
+    "title": "ConfigCorrida",
+    "type": "object"
+   },
+   "CuadroReplay": {
+    "additionalProperties": false,
+    "properties": {
+     "al_final_de_los_datos": {
+      "title": "Al Final De Los Datos",
+      "type": "boolean"
+     },
+     "contrato": {
+      "default": "nexus.v1",
+      "title": "Contrato",
+      "type": "string"
+     },
+     "decision": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/PanelDecision"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "eventos": {
+      "items": {
+       "$ref": "#/components/schemas/Evento"
+      },
+      "title": "Eventos",
+      "type": "array"
+     },
+     "hay_mas_atras": {
+      "title": "Hay Mas Atras",
+      "type": "boolean"
+     },
+     "limite": {
+      "$ref": "#/components/schemas/LimiteReplay"
+     },
+     "sesiones": {
+      "items": {
+       "$ref": "#/components/schemas/VentanaSesion"
+      },
+      "title": "Sesiones",
+      "type": "array"
+     },
+     "simbolo": {
+      "title": "Simbolo",
+      "type": "string"
+     },
+     "temporalidad": {
+      "description": "Minutos por vela",
+      "title": "Temporalidad",
+      "type": "integer"
+     },
+     "velas": {
+      "items": {
+       "$ref": "#/components/schemas/Vela"
+      },
+      "title": "Velas",
+      "type": "array"
+     }
+    },
+    "required": [
+     "simbolo",
+     "temporalidad",
+     "limite",
+     "velas",
+     "sesiones",
+     "eventos",
+     "hay_mas_atras",
+     "al_final_de_los_datos"
+    ],
+    "title": "CuadroReplay",
+    "type": "object"
+   },
+   "Estrategia": {
+    "additionalProperties": false,
+    "properties": {
+     "ejecutable": {
+      "description": "Se puede correr desde NEXUS",
+      "title": "Ejecutable",
+      "type": "boolean"
+     },
+     "evidencia": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Evidencia",
+      "type": "array"
+     },
+     "fuentes": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Fuentes",
+      "type": "array"
+     },
+     "hipotesis": {
+      "title": "Hipotesis",
+      "type": "string"
+     },
+     "id": {
+      "title": "Id",
+      "type": "string"
+     },
+     "limitaciones": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Limitaciones",
+      "type": "array"
+     },
+     "nivel": {
+      "title": "Nivel",
+      "type": "string"
+     },
+     "nivel_texto": {
+      "title": "Nivel Texto",
+      "type": "string"
+     },
+     "nombre": {
+      "title": "Nombre",
+      "type": "string"
+     },
+     "parametros": {
+      "items": {
+       "$ref": "#/components/schemas/Parametro"
+      },
+      "title": "Parametros",
+      "type": "array"
+     },
+     "reglas": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Reglas",
+      "type": "array"
+     },
+     "temporalidad": {
+      "title": "Temporalidad",
+      "type": "string"
+     },
+     "version": {
+      "title": "Version",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "version",
+     "nombre",
+     "hipotesis",
+     "temporalidad",
+     "parametros",
+     "reglas",
+     "nivel",
+     "nivel_texto",
+     "evidencia",
+     "limitaciones",
+     "fuentes",
+     "ejecutable"
+    ],
+    "title": "Estrategia",
+    "type": "object"
+   },
+   "Evento": {
+    "additionalProperties": false,
+    "properties": {
+     "detalle": {
+      "title": "Detalle",
+      "type": "string"
+     },
+     "lado": {
+      "anyOf": [
+       {
+        "enum": [
+         "compra",
+         "venta"
+        ],
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Lado"
+     },
+     "t": {
+      "title": "T",
+      "type": "integer"
+     },
+     "tipo": {
+      "enum": [
+       "senal",
+       "sesion",
+       "aviso",
+       "orden"
+      ],
+      "title": "Tipo",
+      "type": "string"
+     },
+     "titulo": {
+      "title": "Titulo",
+      "type": "string"
+     }
+    },
+    "required": [
+     "t",
+     "tipo",
+     "titulo",
+     "detalle"
+    ],
+    "title": "Evento",
+    "type": "object"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "title": "Detail",
+      "type": "array"
+     }
+    },
+    "title": "HTTPValidationError",
+    "type": "object"
+   },
+   "Hipotesis": {
+    "additionalProperties": false,
+    "properties": {
+     "estado": {
+      "enum": [
+       "pasa",
+       "falla",
+       "informativo",
+       "pendiente",
+       "registrado"
+      ],
+      "title": "Estado",
+      "type": "string"
+     },
+     "fecha": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Fecha"
+     },
+     "fuente": {
+      "title": "Fuente",
+      "type": "string"
+     },
+     "id": {
+      "title": "Id",
+      "type": "string"
+     },
+     "resumen": {
+      "title": "Resumen",
+      "type": "string"
+     },
+     "titulo": {
+      "title": "Titulo",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "titulo",
+     "fecha",
+     "estado",
+     "resumen",
+     "fuente"
+    ],
+    "title": "Hipotesis",
+    "type": "object"
+   },
+   "InformeCalidad": {
+    "additionalProperties": false,
+    "properties": {
+     "calculado_en_ms": {
+      "title": "Calculado En Ms",
+      "type": "integer"
+     },
+     "chequeos": {
+      "items": {
+       "$ref": "#/components/schemas/ChequeoCalidad"
+      },
+      "title": "Chequeos",
+      "type": "array"
+     },
+     "cobertura_anual": {
+      "items": {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      "title": "Cobertura Anual",
+      "type": "array"
+     },
+     "contrato": {
+      "default": "nexus.v1",
+      "title": "Contrato",
+      "type": "string"
+     },
+     "desde": {
+      "title": "Desde",
+      "type": "string"
+     },
+     "hasta": {
+      "title": "Hasta",
+      "type": "string"
+     },
+     "simbolo": {
+      "title": "Simbolo",
+      "type": "string"
+     },
+     "velas_m1": {
+      "title": "Velas M1",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "simbolo",
+     "velas_m1",
+     "desde",
+     "hasta",
+     "chequeos",
+     "cobertura_anual",
+     "calculado_en_ms"
+    ],
+    "title": "InformeCalidad",
+    "type": "object"
+   },
+   "Instrumento": {
+    "additionalProperties": false,
+    "properties": {
+     "clase": {
+      "enum": [
+       "metal",
+       "forex",
+       "indice",
+       "otro"
+      ],
+      "title": "Clase",
+      "type": "string"
+     },
+     "cobertura_desde": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Cobertura Desde"
+     },
+     "cobertura_hasta": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Cobertura Hasta"
+     },
+     "costo_referencia": {
+      "description": "Costo ida y vuelta de docs/costos.md, en texto",
+      "title": "Costo Referencia",
+      "type": "string"
+     },
+     "decimales": {
+      "title": "Decimales",
+      "type": "integer"
+     },
+     "disponible": {
+      "description": "Hay datos locales cargables en este servidor",
+      "title": "Disponible",
+      "type": "boolean"
+     },
+     "fuente": {
+      "description": "Origen de los datos",
+      "title": "Fuente",
+      "type": "string"
+     },
+     "huella_sha256": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "SHA-256 del archivo de datos (data/MANIFIESTO.csv)",
+      "title": "Huella Sha256"
+     },
+     "moneda_cotizacion": {
+      "title": "Moneda Cotizacion",
+      "type": "string"
+     },
+     "nombre": {
+      "title": "Nombre",
+      "type": "string"
+     },
+     "simbolo": {
+      "description": "Código del laboratorio, p. ej. XAUUSD",
+      "title": "Simbolo",
+      "type": "string"
+     },
+     "tamano_contrato": {
+      "description": "Unidades por lote (onzas para el oro)",
+      "title": "Tamano Contrato",
+      "type": "number"
+     },
+     "velas_m1": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Velas M1"
+     }
+    },
+    "required": [
+     "simbolo",
+     "nombre",
+     "clase",
+     "moneda_cotizacion",
+     "decimales",
+     "tamano_contrato",
+     "costo_referencia",
+     "disponible",
+     "fuente"
+    ],
+    "title": "Instrumento",
+    "type": "object"
+   },
+   "LimiteReplay": {
+    "additionalProperties": false,
+    "properties": {
+     "limite_iso": {
+      "title": "Limite Iso",
+      "type": "string"
+     },
+     "limite_ms": {
+      "description": "Apertura del último minuto revelado",
+      "title": "Limite Ms",
+      "type": "integer"
+     },
+     "limite_ny": {
+      "description": "Mismo instante en hora de Nueva York",
+      "title": "Limite Ny",
+      "type": "string"
+     },
+     "sesion": {
+      "title": "Sesion",
+      "type": "string"
+     }
+    },
+    "required": [
+     "limite_ms",
+     "limite_iso",
+     "limite_ny",
+     "sesion"
+    ],
+    "title": "LimiteReplay",
+    "type": "object"
+   },
+   "Metrica": {
+    "additionalProperties": false,
+    "properties": {
+     "clave": {
+      "title": "Clave",
+      "type": "string"
+     },
+     "definicion": {
+      "title": "Definicion",
+      "type": "string"
+     },
+     "n": {
+      "title": "N",
+      "type": "integer"
+     },
+     "nombre": {
+      "title": "Nombre",
+      "type": "string"
+     },
+     "perfil_costos": {
+      "title": "Perfil Costos",
+      "type": "string"
+     },
+     "periodo": {
+      "title": "Periodo",
+      "type": "string"
+     },
+     "unidad": {
+      "title": "Unidad",
+      "type": "string"
+     },
+     "valor": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Valor"
+     }
+    },
+    "required": [
+     "clave",
+     "nombre",
+     "valor",
+     "unidad",
+     "definicion",
+     "n",
+     "periodo",
+     "perfil_costos"
+    ],
+    "title": "Metrica",
+    "type": "object"
+   },
+   "Operacion": {
+    "additionalProperties": false,
+    "properties": {
+     "entrada_ms": {
+      "title": "Entrada Ms",
+      "type": "integer"
+     },
+     "lado": {
+      "enum": [
+       "compra",
+       "venta"
+      ],
+      "title": "Lado",
+      "type": "string"
+     },
+     "motivo": {
+      "enum": [
+       "TP",
+       "SL",
+       "tiempo",
+       "fin"
+      ],
+      "title": "Motivo",
+      "type": "string"
+     },
+     "muestra": {
+      "enum": [
+       "eleccion",
+       "confirmacion",
+       "fuera"
+      ],
+      "title": "Muestra",
+      "type": "string"
+     },
+     "precio_entrada": {
+      "title": "Precio Entrada",
+      "type": "number"
+     },
+     "precio_salida": {
+      "title": "Precio Salida",
+      "type": "number"
+     },
+     "r": {
+      "title": "R",
+      "type": "number"
+     },
+     "salida_ms": {
+      "title": "Salida Ms",
+      "type": "integer"
+     },
+     "sl": {
+      "title": "Sl",
+      "type": "number"
+     }
+    },
+    "required": [
+     "entrada_ms",
+     "salida_ms",
+     "lado",
+     "precio_entrada",
+     "precio_salida",
+     "sl",
+     "motivo",
+     "r",
+     "muestra"
+    ],
+    "title": "Operacion",
+    "type": "object"
+   },
+   "PanelDecision": {
+    "additionalProperties": false,
+    "properties": {
+     "condiciones": {
+      "items": {
+       "$ref": "#/components/schemas/Condicion"
+      },
+      "title": "Condiciones",
+      "type": "array"
+     },
+     "decision": {
+      "enum": [
+       "compra",
+       "venta",
+       "espera",
+       "sin_datos"
+      ],
+      "title": "Decision",
+      "type": "string"
+     },
+     "entrada_prevista": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Cuándo entraría la regla (hora de Nueva York)",
+      "title": "Entrada Prevista"
+     },
+     "estrategia": {
+      "title": "Estrategia",
+      "type": "string"
+     },
+     "explicacion": {
+      "title": "Explicacion",
+      "type": "string"
+     },
+     "nivel": {
+      "description": "Nivel de evidencia documentado (docs/fichas.md)",
+      "title": "Nivel",
+      "type": "string"
+     },
+     "objetivo_distancia": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Objetivo Distancia"
+     },
+     "stop_distancia": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Stop Distancia"
+     },
+     "vela_diaria_ms": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Apertura de la última vela diaria cerrada antes del límite",
+      "title": "Vela Diaria Ms"
+     },
+     "version": {
+      "title": "Version",
+      "type": "string"
+     }
+    },
+    "required": [
+     "estrategia",
+     "version",
+     "vela_diaria_ms",
+     "condiciones",
+     "decision",
+     "explicacion",
+     "nivel"
+    ],
+    "title": "PanelDecision",
+    "type": "object"
+   },
+   "Parametro": {
+    "additionalProperties": false,
+    "properties": {
+     "clave": {
+      "title": "Clave",
+      "type": "string"
+     },
+     "definicion": {
+      "title": "Definicion",
+      "type": "string"
+     },
+     "nombre": {
+      "title": "Nombre",
+      "type": "string"
+     },
+     "unidad": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Unidad"
+     },
+     "valor": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "integer"
+       },
+       {
+        "type": "string"
+       }
+      ],
+      "title": "Valor"
+     }
+    },
+    "required": [
+     "clave",
+     "nombre",
+     "valor",
+     "definicion"
+    ],
+    "title": "Parametro",
+    "type": "object"
+   },
+   "Paso": {
+    "additionalProperties": false,
+    "properties": {
+     "al_final_de_los_datos": {
+      "title": "Al Final De Los Datos",
+      "type": "boolean"
+     },
+     "avanzo_minutos": {
+      "title": "Avanzo Minutos",
+      "type": "integer"
+     },
+     "limite_ms": {
+      "title": "Limite Ms",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "limite_ms",
+     "avanzo_minutos",
+     "al_final_de_los_datos"
+    ],
+    "title": "Paso",
+    "type": "object"
+   },
+   "PedidoRiesgo": {
+    "additionalProperties": false,
+    "properties": {
+     "capital": {
+      "exclusiveMinimum": 0.0,
+      "title": "Capital",
+      "type": "number"
+     },
+     "entrada": {
+      "exclusiveMinimum": 0.0,
+      "title": "Entrada",
+      "type": "number"
+     },
+     "objetivo": {
+      "anyOf": [
+       {
+        "exclusiveMinimum": 0.0,
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Objetivo"
+     },
+     "paso_lote": {
+      "default": 0.01,
+      "exclusiveMinimum": 0.0,
+      "title": "Paso Lote",
+      "type": "number"
+     },
+     "riesgo_pct": {
+      "exclusiveMinimum": 0.0,
+      "maximum": 10.0,
+      "title": "Riesgo Pct",
+      "type": "number"
+     },
+     "simbolo": {
+      "default": "XAUUSD",
+      "title": "Simbolo",
+      "type": "string"
+     },
+     "stop": {
+      "exclusiveMinimum": 0.0,
+      "title": "Stop",
+      "type": "number"
+     }
+    },
+    "required": [
+     "capital",
+     "riesgo_pct",
+     "entrada",
+     "stop"
+    ],
+    "title": "PedidoRiesgo",
+    "type": "object"
+   },
+   "ResultadoCorrida": {
+    "additionalProperties": false,
+    "properties": {
+     "avisos": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Avisos",
+      "type": "array"
+     },
+     "metricas": {
+      "additionalProperties": {
+       "items": {
+        "$ref": "#/components/schemas/Metrica"
+       },
+       "type": "array"
+      },
+      "description": "Por muestra: eleccion, confirmacion, total",
+      "title": "Metricas",
+      "type": "object"
+     },
+     "operaciones": {
+      "items": {
+       "$ref": "#/components/schemas/Operacion"
+      },
+      "title": "Operaciones",
+      "type": "array"
+     },
+     "por_anio": {
+      "items": {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      "title": "Por Anio",
+      "type": "array"
+     },
+     "sensibilidad_costos": {
+      "items": {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      "title": "Sensibilidad Costos",
+      "type": "array"
+     }
+    },
+    "required": [
+     "metricas",
+     "por_anio",
+     "sensibilidad_costos",
+     "operaciones",
+     "avisos"
+    ],
+    "title": "ResultadoCorrida",
+    "type": "object"
+   },
+   "Salud": {
+    "additionalProperties": false,
+    "properties": {
+     "contrato": {
+      "default": "nexus.v1",
+      "title": "Contrato",
+      "type": "string"
+     },
+     "datos": {
+      "additionalProperties": true,
+      "title": "Datos",
+      "type": "object"
+     },
+     "hora_servidor_ms": {
+      "title": "Hora Servidor Ms",
+      "type": "integer"
+     },
+     "pruebas": {
+      "title": "Pruebas",
+      "type": "string"
+     },
+     "version": {
+      "title": "Version",
+      "type": "string"
+     }
+    },
+    "required": [
+     "version",
+     "datos",
+     "pruebas",
+     "hora_servidor_ms"
+    ],
+    "title": "Salud",
+    "type": "object"
+   },
+   "Trabajo": {
+    "additionalProperties": false,
+    "properties": {
+     "actualizado_ms": {
+      "title": "Actualizado Ms",
+      "type": "integer"
+     },
+     "config": {
+      "$ref": "#/components/schemas/ConfigCorrida"
+     },
+     "contrato": {
+      "default": "nexus.v1",
+      "title": "Contrato",
+      "type": "string"
+     },
+     "creado_ms": {
+      "title": "Creado Ms",
+      "type": "integer"
+     },
+     "error": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Error"
+     },
+     "estado": {
+      "enum": [
+       "enviado",
+       "en_cola",
+       "corriendo",
+       "terminado",
+       "fallido",
+       "cancelado"
+      ],
+      "title": "Estado",
+      "type": "string"
+     },
+     "etapa": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Etapa"
+     },
+     "huella_config": {
+      "title": "Huella Config",
+      "type": "string"
+     },
+     "id": {
+      "title": "Id",
+      "type": "string"
+     },
+     "procedencia": {
+      "additionalProperties": true,
+      "description": "Commit, huellas del código y de los datos",
+      "title": "Procedencia",
+      "type": "object"
+     },
+     "registro": {
+      "description": "Eventos con hora: etapas reales del trabajo",
+      "items": {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      "title": "Registro",
+      "type": "array"
+     },
+     "resultado": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/ResultadoCorrida"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "tipo": {
+      "const": "investigacion",
+      "title": "Tipo",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "tipo",
+     "estado",
+     "config",
+     "huella_config",
+     "creado_ms",
+     "actualizado_ms"
+    ],
+    "title": "Trabajo",
+    "type": "object"
+   },
+   "ValidationError": {
+    "properties": {
+     "ctx": {
+      "title": "Context",
+      "type": "object"
+     },
+     "input": {
+      "title": "Input"
+     },
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "title": "Location",
+      "type": "array"
+     },
+     "msg": {
+      "title": "Message",
+      "type": "string"
+     },
+     "type": {
+      "title": "Error Type",
+      "type": "string"
+     }
+    },
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError",
+    "type": "object"
+   },
+   "Vela": {
+    "additionalProperties": false,
+    "properties": {
+     "c": {
+      "title": "C",
+      "type": "number"
+     },
+     "h": {
+      "title": "H",
+      "type": "number"
+     },
+     "l": {
+      "title": "L",
+      "type": "number"
+     },
+     "o": {
+      "title": "O",
+      "type": "number"
+     },
+     "parcial": {
+      "default": false,
+      "description": "Vela en formación: armada solo con minutos ya revelados",
+      "title": "Parcial",
+      "type": "boolean"
+     },
+     "t": {
+      "description": "Apertura de la vela, ms UTC",
+      "title": "T",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "t",
+     "o",
+     "h",
+     "l",
+     "c"
+    ],
+    "title": "Vela",
+    "type": "object"
+   },
+   "VentanaSesion": {
+    "additionalProperties": false,
+    "properties": {
+     "aviso": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Aviso"
+     },
+     "desde_ms": {
+      "title": "Desde Ms",
+      "type": "integer"
+     },
+     "hasta_ms": {
+      "title": "Hasta Ms",
+      "type": "integer"
+     },
+     "nombre": {
+      "enum": [
+       "Asia",
+       "Londres",
+       "Nueva York",
+       "Cierre",
+       "Reapertura"
+      ],
+      "title": "Nombre",
+      "type": "string"
+     }
+    },
+    "required": [
+     "nombre",
+     "desde_ms",
+     "hasta_ms"
+    ],
+    "title": "VentanaSesion",
+    "type": "object"
+   }
+  }
+ },
+ "info": {
+  "description": "Contrato nexus.v1. Terminal de investigación XAUUSD.",
+  "title": "NEXUS API",
+  "version": "0.1.0"
+ },
+ "openapi": "3.1.0",
+ "paths": {
+  "/api/v1/datos/{simbolo}/calidad": {
+   "get": {
+    "operationId": "calidad_api_v1_datos__simbolo__calidad_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "simbolo",
+      "required": true,
+      "schema": {
+       "title": "Simbolo",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/InformeCalidad"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Calidad"
+   }
+  },
+  "/api/v1/estrategias": {
+   "get": {
+    "operationId": "estrategias_api_v1_estrategias_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/Estrategia"
+         },
+         "title": "Response Estrategias Api V1 Estrategias Get",
+         "type": "array"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Estrategias"
+   }
+  },
+  "/api/v1/hipotesis": {
+   "get": {
+    "operationId": "hipotesis_api_v1_hipotesis_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/Hipotesis"
+         },
+         "title": "Response Hipotesis Api V1 Hipotesis Get",
+         "type": "array"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Hipotesis"
+   }
+  },
+  "/api/v1/instrumentos": {
+   "get": {
+    "operationId": "instrumentos_api_v1_instrumentos_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/Instrumento"
+         },
+         "title": "Response Instrumentos Api V1 Instrumentos Get",
+         "type": "array"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Instrumentos"
+   }
+  },
+  "/api/v1/investigacion/contexto": {
+   "get": {
+    "operationId": "contexto_api_v1_investigacion_contexto_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Contexto"
+   }
+  },
+  "/api/v1/replay/cuadro": {
+   "get": {
+    "operationId": "replay_cuadro_api_v1_replay_cuadro_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "simbolo",
+      "required": false,
+      "schema": {
+       "default": "XAUUSD",
+       "title": "Simbolo",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "tf",
+      "required": false,
+      "schema": {
+       "default": 15,
+       "title": "Tf",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limite_ms",
+      "required": true,
+      "schema": {
+       "title": "Limite Ms",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "cantidad",
+      "required": false,
+      "schema": {
+       "default": 300,
+       "title": "Cantidad",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CuadroReplay"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Replay Cuadro"
+   }
+  },
+  "/api/v1/replay/fecha": {
+   "get": {
+    "operationId": "replay_fecha_api_v1_replay_fecha_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "simbolo",
+      "required": false,
+      "schema": {
+       "default": "XAUUSD",
+       "title": "Simbolo",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "fecha_ms",
+      "required": true,
+      "schema": {
+       "title": "Fecha Ms",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Paso"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Replay Fecha"
+   }
+  },
+  "/api/v1/replay/inicio": {
+   "get": {
+    "description": "Límite inicial reproducible: 7 días antes del final de los datos (o el comienzo si hay menos).",
+    "operationId": "replay_inicio_api_v1_replay_inicio_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "simbolo",
+      "required": false,
+      "schema": {
+       "default": "XAUUSD",
+       "title": "Simbolo",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Paso"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Replay Inicio"
+   }
+  },
+  "/api/v1/replay/paso": {
+   "get": {
+    "operationId": "replay_paso_api_v1_replay_paso_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "simbolo",
+      "required": false,
+      "schema": {
+       "default": "XAUUSD",
+       "title": "Simbolo",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "tf",
+      "required": false,
+      "schema": {
+       "default": 15,
+       "title": "Tf",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limite_ms",
+      "required": true,
+      "schema": {
+       "title": "Limite Ms",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "n",
+      "required": false,
+      "schema": {
+       "default": 1,
+       "title": "N",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "unidad",
+      "required": false,
+      "schema": {
+       "default": "velas",
+       "title": "Unidad",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Paso"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Replay Paso"
+   }
+  },
+  "/api/v1/resumen": {
+   "get": {
+    "description": "Datos para Overview: última vela disponible (histórica), estado de la candidata y actividad reciente.",
+    "operationId": "resumen_api_v1_resumen_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "simbolo",
+      "required": false,
+      "schema": {
+       "default": "XAUUSD",
+       "title": "Simbolo",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Resumen"
+   }
+  },
+  "/api/v1/riesgo": {
+   "post": {
+    "operationId": "calcular_riesgo_api_v1_riesgo_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PedidoRiesgo"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CalculoRiesgo"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Calcular Riesgo"
+   }
+  },
+  "/api/v1/salud": {
+   "get": {
+    "operationId": "salud_api_v1_salud_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Salud"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Salud"
+   }
+  },
+  "/api/v1/trabajos": {
+   "get": {
+    "operationId": "listar_api_v1_trabajos_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/Trabajo"
+         },
+         "title": "Response Listar Api V1 Trabajos Get",
+         "type": "array"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Listar"
+   },
+   "post": {
+    "operationId": "enviar_api_v1_trabajos_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ConfigCorrida"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Trabajo"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Enviar"
+   }
+  },
+  "/api/v1/trabajos/{id}": {
+   "get": {
+    "operationId": "obtener_api_v1_trabajos__id__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "id",
+      "required": true,
+      "schema": {
+       "title": "Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Trabajo"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Obtener"
+   }
+  },
+  "/api/v1/trabajos/{id}/cancelar": {
+   "post": {
+    "operationId": "cancelar_api_v1_trabajos__id__cancelar_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "id",
+      "required": true,
+      "schema": {
+       "title": "Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Trabajo"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Cancelar"
+   }
+  }
+ }
+}
