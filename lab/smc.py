@@ -167,7 +167,7 @@ def detectar(o, h, l, c, ref_lo, ref_hi, ph, pl, W, recupera):
 
 
 @njit(cache=True)
-def simular_ordenes(o, h, l, c, crea, vence, d, entrada, sl, tp, costo, mercado, rr):
+def simular_ordenes(o, h, l, c, crea, vence, d, entrada, sl, tp, costo, mercado, rr, realista=False):
     """
     Una orden (o posición) a la vez. Para cada orden: estado 1 TP, -1 SL, 2 cancelada por tocar el TP antes,
     3 vencida, 4 abierta al final de los datos, 5 descartada (riesgo inválido), 0 ignorada (había otra activa).
@@ -232,6 +232,9 @@ def simular_ordenes(o, h, l, c, crea, vence, d, entrada, sl, tp, costo, mercado,
         if (dd == 1 and l[j] <= sl[k]) or (dd == -1 and h[j] >= sl[k]):
             res = -1
             px = sl[k]
+            # realista=True: si el llenado ya quedó más allá del stop (hueco), el stop salta enseguida al precio del llenado
+            if realista and (px_in - sl[k]) * dd <= 0:
+                px = px_in
         else:
             j += 1
             while j < N:

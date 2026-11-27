@@ -418,7 +418,7 @@ def s5_sesgo_mayor(o, h, l, c, atr, sesgo, ph3, pl3, kz, kzfin, mascara, N, V, m
 
 
 @njit(cache=True)
-def simular(o, h, l, c, dia, mdia, crea, vence, d, ent, sl, tp, costo, max_dia, max_perd, hora_cierre):
+def simular(o, h, l, c, dia, mdia, crea, vence, d, ent, sl, tp, costo, max_dia, max_perd, hora_cierre, realista=False):
     """
     Órdenes límite con las reglas globales: una orden o posición a la vez; como máximo max_dia operaciones por día (fecha
     de NY) y ninguna más tras max_perd pérdidas seguidas en el día; cierre forzoso en el primer minuto con hora NY >=
@@ -486,6 +486,9 @@ def simular(o, h, l, c, dia, mdia, crea, vence, d, ent, sl, tp, costo, max_dia, 
         if (dd == 1 and l[j] <= sl[k]) or (dd == -1 and h[j] >= sl[k]):
             res = -1
             px = sl[k]
+            # realista=True: si el llenado ya quedó más allá del stop (hueco), el stop salta enseguida al precio del llenado
+            if realista and (px_in - sl[k]) * dd <= 0:
+                px = px_in
         else:
             j += 1
             while j < N:
