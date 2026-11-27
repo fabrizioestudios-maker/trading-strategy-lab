@@ -1258,3 +1258,29 @@ E031 no agrega configuraciones.
 - tocar los resultados de E000–E027;
 - ordenar con la confirmación;
 - agregar filtros después de mirar.
+
+---
+
+## 2026-11-27 09:55 UTC — Entrada 28: agregado al registro · E038, historia nunca usada de los dos setups intradía del oro (registrado antes de correr)
+
+**Por qué.** E023 (SMC) y E025 (ICT) cargaron datos desde 2021: ninguna operación de esas estrategias en 2010–2021 se miró nunca. Es un período limpio para las dos candidatas intradía del oro, como E037 lo es para E022.
+
+**Configuraciones (fijas, las del reproductor y de F001):**
+- **ICT setup 5 en oro 15M (E025):**
+  - sesgo de estructura de 4H, killzone de NY;
+  - N = 10, V = 10, FVG mínimo 0,25 ATR, entrada al 50 % del FVG;
+  - sin cierre forzado; máximo 2 por día y corte tras 2 pérdidas.
+  - Referencia 2021–2026: 82 operaciones, 45,1 %, +0,304 R.
+- **SMC en oro 4H–15M (E024):**
+  - pivote de 5 y barrido de swing con cierre de vuelta;
+  - cambio de estructura en 12 velas, sesgo de estructura de 4H;
+  - entrada a mercado, liquidez de 4H, todas las sesiones.
+  - Referencia: 302 operaciones, 43,4 %, +0,259 R.
+
+**Datos y tramo:** XAUUSD M1 desde 2010 (para calentar los indicadores); operaciones con entrada entre el 15/11/2010 y el 14/11/2021.
+
+**Pasa (cuenta como "período nunca usado" del nivel C):** al menos 30 operaciones, expectancy > 0 y p < 0,10 (t de una cola), con llenado histórico (`realista=False`, el de la referencia). También se informan el llenado realista y el resultado por año.
+
+**Decisión:**
+- Si falla, la estrategia queda en R o A, según su expectancy en la confirmación.
+- Si pasa, sigue en B hasta cumplir el resto del nivel C.
