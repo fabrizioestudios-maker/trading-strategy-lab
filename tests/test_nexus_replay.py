@@ -184,3 +184,46 @@ def test_rupturas_alternan_bos_y_choch_con_el_estado():
         if estado is not None:
             assert (x["tipo"] == "CHOCH") == (estado != nuevo)
         estado = nuevo
+
+
+def test_ordenes_limite_sin_futuro_y_como_el_laboratorio(svc):
+    from lab import smc
+    from nexus_api import simulacion as SIM
+
+    j0 = 6000
+    t0 = int(M1["t"][j0])
+    ref = float(M1["c"][j0])
+    ordenes = [dict(id="lc", lado="compra", tipo="limite", entrada=ref - 1.5, creada_limite_ms=t0, sl=ref - 5, tp=ref + 6, vence_minutos=600),
+               dict(id="lv", lado="venta", tipo="limite", entrada=ref + 1.5, creada_limite_ms=t0, sl=ref + 5, tp=ref - 6, vence_minutos=600)]
+    vistos = set()
+    for j in (j0 + 1, j0 + 20, j0 + 200, j0 + 900, j0 + 3000):
+        lim = int(M1["t"][j])
+        a = SIM.estados(svc, "XAUUSD", lim, ordenes)
+        corto = ServicioDatos(m1_inyectado={"XAUUSD": truncar(M1, j)})
+        assert a == SIM.estados(corto, "XAUUSD", lim, ordenes)  # no depende de minutos posteriores al límite
+        for o in a:
+            vistos.add(o["estado"])
+            assert o["entrada_ms"] is None or o["entrada_ms"] <= lim
+            assert o["salida_ms"] is None or o["salida_ms"] <= lim
+    assert vistos & {"abierta", "cerrada", "cancelada", "vencida"}
+    # con todos los datos, el resultado es el del simulador del laboratorio
+    fin = SIM.estados(svc, "XAUUSD", int(M1["t"][-1]), ordenes[:1])[0]
+    est, r, _, _ = smc.simular_ordenes(M1["o"], M1["h"], M1["l"], M1["c"], np.array([j0 + 1]), np.array([j0 + 600]), np.array([1]),
+                                       np.array([ref - 1.5]), np.array([ref - 5]), np.array([ref + 6]),
+                                       np.array([float(LD.costo("XAUUSD", ref - 1.5))]), False, 2.0)
+    esperado = {1: "cerrada", -1: "cerrada", 2: "cancelada", 3: "vencida", 4: "abierta"}[int(est[0])]
+    assert fin["estado"] == esperado
+    if fin["r"] is not None:
+        assert fin["r"] == pytest.approx(round(float(r[0]), 4))
+
+
+def test_orden_limite_del_lado_equivocado_se_rechaza_con_422():
+    from fastapi.testclient import TestClient
+
+    from nexus_api.app import crear_app
+
+    c = TestClient(crear_app(ServicioDatos(m1_inyectado={"XAUUSD": M1})))
+    t = int(M1["t"][5000])
+    mala = dict(id="x", lado="compra", tipo="limite", entrada=2000, creada_limite_ms=t, sl=2010, tp=2020)
+    r = c.post("/api/v1/replay/ordenes/estado", json=dict(limite_ms=t, ordenes=[mala]))
+    assert r.status_code == 422 and "stop va debajo" in r.json()["detalle"]

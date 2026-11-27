@@ -24,7 +24,8 @@ from . import investigacion
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CARPETA = os.path.join(RAIZ, "registro", "nexus", "corridas")
 CODIGO = ["lab/motor.py", "lab/datos.py", "lab/ejecucion.py", "lab/ficha.py", "lab/senales.py",
-          "nexus_api/estrategias.py", "nexus_api/investigacion.py"]
+          "nexus_api/estrategias.py", "nexus_api/investigacion.py", "nexus_api/robustez.py", "lab/benchmarks.py",
+          "lab/montecarlo.py", "lab/walkforward.py"]
 
 
 def _ahora() -> int:

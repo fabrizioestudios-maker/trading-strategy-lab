@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cambiarVelocidad, contarEstados, leerEstadoCompartible, nuevoId, ordenesVigentes, validarOrden, velaQueContiene } from './replay';
+import { cambiarVelocidad, contarEstados, validarOrdenLimite, leerEstadoCompartible, nuevoId, ordenesVigentes, validarOrden, velaQueContiene } from './replay';
 
 describe('reglas del replay en la interfaz', () => {
   it('encuentra la vela que contiene un instante', () => {
@@ -15,6 +15,13 @@ describe('reglas del replay en la interfaz', () => {
     expect(validarOrden('venta', 100, 101, 98)).toBeNull();
     expect(validarOrden('venta', 100, 99, 98)).toMatch(/stop va arriba/);
     expect(validarOrden('compra', 100, 0, 102)).toMatch(/mayores que cero/);
+  });
+  it('valida las órdenes límite', () => {
+    expect(validarOrdenLimite('compra', 100, 99, 98, 101)).toBeNull();
+    expect(validarOrdenLimite('compra', 100, 100.5, 98, 103)).toMatch(/debajo del precio actual/);
+    expect(validarOrdenLimite('venta', 100, 101, 102, 99)).toBeNull();
+    expect(validarOrdenLimite('venta', 100, 99.5, 102, 97)).toMatch(/arriba del precio actual/);
+    expect(validarOrdenLimite('compra', 100, 99, 99.5, 101)).toMatch(/de la entrada/);
   });
   it('la velocidad queda dentro de los valores permitidos', () => {
     expect(cambiarVelocidad(16, 1)).toBe(16);

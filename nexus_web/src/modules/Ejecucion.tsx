@@ -173,9 +173,9 @@ export default function Ejecucion() {
                 </span>
               </li>
               <li>
-                <Insignia>Planificado</Insignia>
+                <Insignia tono="activo">Disponible</Insignia>
                 <span>
-                  <strong>Límite</strong>lab/smc.py ya resuelve órdenes límite en M1 (se llenan al tocar, vencen); falta el adaptador del replay.
+                  <strong>Límite</strong>en el replay, con lab/smc.py: se llena al tocar la entrada, se cancela si antes llega al objetivo y vence a los N minutos.
                 </span>
               </li>
               <li>

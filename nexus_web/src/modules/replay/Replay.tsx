@@ -117,6 +117,7 @@ export default function Replay({ params }: { params: Record<string, string> }) {
         const o = r.ordenes.find((x) => x.id === e.id);
         if (!o) continue;
         if (e.precio_entrada) l.push({ id: o.id, precio: e.precio_entrada, titulo: o.lado === 'compra' ? 'Compra' : 'Venta', tipo: 'entrada' });
+        else if (o.tipo === 'limite' && o.entrada) l.push({ id: o.id, precio: o.entrada, titulo: o.lado === 'compra' ? 'Compra límite' : 'Venta límite', tipo: 'entrada' });
         l.push({ id: o.id, precio: o.sl, titulo: 'SL', tipo: 'sl' });
         l.push({ id: o.id, precio: o.tp, titulo: 'TP', tipo: 'tp' });
       }

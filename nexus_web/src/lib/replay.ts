@@ -35,6 +35,16 @@ export function validarOrden(lado: 'compra' | 'venta', referencia: number, sl: n
   return null;
 }
 
+/** Orden límite: stop y objetivo del lado correcto de la entrada, y la entrada del lado que no se llena enseguida. */
+export function validarOrdenLimite(lado: 'compra' | 'venta', referencia: number, entrada: number, sl: number, tp: number): string | null {
+  if (!(entrada > 0)) return 'La entrada tiene que ser un precio mayor que cero.';
+  const base = validarOrden(lado, entrada, sl, tp);
+  if (base) return base.replace('del precio', 'de la entrada');
+  if (lado === 'compra' && entrada >= referencia) return 'Una compra límite va debajo del precio actual (si no, usá a mercado).';
+  if (lado === 'venta' && entrada <= referencia) return 'Una venta límite va arriba del precio actual (si no, usá a mercado).';
+  return null;
+}
+
 export function nuevoId(ahora = Date.now(), azar = Math.random()): string {
   return `o-${ahora.toString(36)}-${Math.floor(azar * 36 ** 4)
     .toString(36)
@@ -44,7 +54,7 @@ export function nuevoId(ahora = Date.now(), azar = Math.random()): string {
 export type ConteoEstados = Record<EstadoOrdenSimulada['estado'], number>;
 
 export function contarEstados(estados: EstadoOrdenSimulada[]): ConteoEstados {
-  const c: ConteoEstados = { posterior_al_limite: 0, esperando_llenado: 0, rechazada: 0, abierta: 0, cerrada: 0 };
+  const c: ConteoEstados = { posterior_al_limite: 0, esperando_llenado: 0, rechazada: 0, abierta: 0, cerrada: 0, cancelada: 0, vencida: 0 };
   for (const e of estados) c[e.estado] += 1;
   return c;
 }

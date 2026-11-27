@@ -7,7 +7,7 @@ import { useGlobales } from '../../app/globales';
 import { Icono } from '../../components/iconos';
 import { Boton, BotonIcono, Campo, Insignia, Segmentado, Vacio, type Tono } from '../../components/ui';
 import { conSigno, fechaHora, numero, precio, tono, type Zona } from '../../lib/formato';
-import { nuevoId, validarOrden } from '../../lib/replay';
+import { nuevoId, validarOrden, validarOrdenLimite } from '../../lib/replay';
 
 /* ------------------------------------------------------------------------------------------------ decisión */
 export function PanelDecision({ cuadro }: { cuadro: CuadroReplay }) {
@@ -72,6 +72,8 @@ const NOMBRE_ESTADO: Record<EstadoOrdenSimulada['estado'], { texto: string; tono
   rechazada: { texto: 'Rechazada', tono: 'aviso' },
   abierta: { texto: 'Abierta', tono: 'activo' },
   cerrada: { texto: 'Cerrada', tono: 'neutro' },
+  cancelada: { texto: 'Cancelada', tono: 'neutro' },
+  vencida: { texto: 'Vencida', tono: 'neutro' },
 };
 
 export function PanelOrdenes({
@@ -96,6 +98,9 @@ export function PanelOrdenes({
   const dec = instr?.decimales ?? 2;
   const referencia = cuadro.velas[cuadro.velas.length - 1]?.c ?? 0;
   const [lado, setLado] = useState<'compra' | 'venta'>('compra');
+  const [tipo, setTipo] = useState<'mercado' | 'limite'>('mercado');
+  const [entradaLim, setEntradaLim] = useState('');
+  const [vence, setVence] = useState(240);
   const distancia = useMemo(() => Number((referencia * 0.0025).toFixed(dec)), [referencia, dec]);
   const [sl, setSl] = useState('');
   const [tp, setTp] = useState('');
@@ -104,10 +109,13 @@ export function PanelOrdenes({
 
   // mientras el usuario no edite el stop o el objetivo, la propuesta sigue al precio de referencia
   const [editado, setEditado] = useState(false);
-  const proponer = (l: 'compra' | 'venta') => {
+  const proponer = (l: 'compra' | 'venta', t: 'mercado' | 'limite' = tipo) => {
     const d = l === 'compra' ? 1 : -1;
-    setSl((referencia - d * distancia).toFixed(dec));
-    setTp((referencia + d * 2 * distancia).toFixed(dec));
+    // límite: la entrada se propone a media distancia del stop, del lado que exige una orden límite
+    const base = t === 'limite' ? referencia - d * 0.5 * distancia : referencia;
+    if (t === 'limite') setEntradaLim(base.toFixed(dec));
+    setSl((base - d * distancia).toFixed(dec));
+    setTp((base + d * 2 * distancia).toFixed(dec));
     setEditado(false);
   };
   useEffect(() => {
@@ -124,7 +132,12 @@ export function PanelOrdenes({
 
   const nSl = Number(sl.replace(',', '.'));
   const nTp = Number(tp.replace(',', '.'));
-  const problema = referencia ? validarOrden(lado, referencia, nSl, nTp) : 'Sin precio de referencia';
+  const nEnt = tipo === 'limite' ? Number(entradaLim.replace(',', '.')) : referencia;
+  const problema = !referencia
+    ? 'Sin precio de referencia'
+    : tipo === 'limite'
+      ? validarOrdenLimite(lado, referencia, nEnt, nSl, nTp)
+      : validarOrden(lado, referencia, nSl, nTp);
 
   useEffect(() => {
     if (problema) {
@@ -134,7 +147,7 @@ export function PanelOrdenes({
     const ctl = new AbortController();
     const t = setTimeout(() => {
       api
-        .riesgo({ simbolo: cuadro.simbolo, capital: estado.prefs.capital, riesgo_pct: estado.prefs.riesgoPct, entrada: referencia, stop: nSl, objetivo: nTp, paso_lote: estado.prefs.pasoLote }, ctl.signal)
+        .riesgo({ simbolo: cuadro.simbolo, capital: estado.prefs.capital, riesgo_pct: estado.prefs.riesgoPct, entrada: nEnt, stop: nSl, objetivo: nTp, paso_lote: estado.prefs.pasoLote }, ctl.signal)
         .then((c) => {
           setCalculo(c);
           setErrorCalc(null);
@@ -145,13 +158,21 @@ export function PanelOrdenes({
       clearTimeout(t);
       ctl.abort();
     };
-  }, [problema, referencia, nSl, nTp, cuadro.simbolo, estado.prefs.capital, estado.prefs.riesgoPct, estado.prefs.pasoLote]);
+  }, [problema, nEnt, nSl, nTp, cuadro.simbolo, estado.prefs.capital, estado.prefs.riesgoPct, estado.prefs.pasoLote]);
 
   const crear = () => {
     if (problema) return;
-    const o: OrdenGuardada = { id: nuevoId(), lado, creada_limite_ms: limite, sl: nSl, tp: nTp, simbolo: cuadro.simbolo };
+    const o: OrdenGuardada =
+      tipo === 'limite'
+        ? { id: nuevoId(), lado, tipo, entrada: nEnt, vence_minutos: vence, creada_limite_ms: limite, sl: nSl, tp: nTp, simbolo: cuadro.simbolo }
+        : { id: nuevoId(), lado, creada_limite_ms: limite, sl: nSl, tp: nTp, simbolo: cuadro.simbolo };
     despachar({ tipo: 'ordenes', ordenes: [...estado.replay.ordenes, o] });
-    avisar({ texto: `Orden simulada de ${lado} creada. Se llena en la apertura del próximo minuto.` });
+    avisar({
+      texto:
+        tipo === 'limite'
+          ? `Orden límite de ${lado} en ${precio(nEnt, dec)} creada. Vence a los ${vence} minutos de mercado.`
+          : `Orden simulada de ${lado} creada. Se llena en la apertura del próximo minuto.`,
+    });
   };
 
   const borrar = (ids: string[]) => {
@@ -194,6 +215,47 @@ export function PanelOrdenes({
             Ref. <span className="num secundario">{precio(referencia, dec)}</span>
           </span>
         </div>
+        <Segmentado
+          chico
+          etiqueta="Tipo de orden"
+          opciones={[
+            { valor: 'mercado', etiqueta: 'A mercado' },
+            { valor: 'limite', etiqueta: 'Límite' },
+          ]}
+          valor={tipo}
+          onCambio={(t) => {
+            setTipo(t);
+            proponer(lado, t);
+          }}
+        />
+        {tipo === 'limite' && (
+          <div className="ticket__campos">
+            <Campo etiqueta="Entrada límite">
+              {(id) => (
+                <input
+                  id={id}
+                  className="entrada"
+                  inputMode="decimal"
+                  value={entradaLim}
+                  onChange={(e) => {
+                    setEntradaLim(e.target.value);
+                    setEditado(true);
+                  }}
+                />
+              )}
+            </Campo>
+            <Campo etiqueta="Vence en">
+              {(id) => (
+                <select id={id} className="selector" value={vence} onChange={(e) => setVence(Number(e.target.value))}>
+                  <option value={60}>1 hora</option>
+                  <option value={240}>4 horas</option>
+                  <option value={1440}>1 día</option>
+                  <option value={4320}>3 días</option>
+                </select>
+              )}
+            </Campo>
+          </div>
+        )}
         <div className="ticket__campos">
           <Campo etiqueta="Stop (precio)">
             {(id) => (
@@ -252,9 +314,13 @@ export function PanelOrdenes({
           <p className="tenue">Calculando tamaño y costos…</p>
         )}
         <Boton type="submit" variante={lado} disabled={!!problema} icono={lado === 'compra' ? 'sube' : 'baja'}>
-          Crear orden simulada de {lado}
+          {tipo === 'limite' ? `Crear orden límite de ${lado}` : `Crear orden simulada de ${lado}`}
         </Boton>
-        <p className="campo__ayuda">Se llena a mercado en la apertura del minuto siguiente al límite. Si el stop y el objetivo caen en el mismo minuto, cuenta el stop.</p>
+        <p className="campo__ayuda">
+          {tipo === 'limite'
+            ? 'Se llena cuando el precio toca la entrada (o mejor, si abre del otro lado). Si antes llega al objetivo, se cancela. En el minuto del llenado solo se mira el stop (lab/smc.py).'
+            : 'Se llena a mercado en la apertura del minuto siguiente al límite. Si el stop y el objetivo caen en el mismo minuto, cuenta el stop.'}
+        </p>
       </form>
 
       <div className="fila fila--entre separado">
@@ -286,7 +352,7 @@ export function PanelOrdenes({
                 </div>
                 <div className="lista-ordenes__datos num">
                   <span>
-                    <span className="tenue">Entrada </span>
+                    <span className="tenue">{o.tipo === 'limite' ? `Límite ${precio(o.entrada, dec)} · entrada ` : 'Entrada '}</span>
                     {e?.precio_entrada ? precio(e.precio_entrada, dec) : '—'}
                   </span>
                   <span>

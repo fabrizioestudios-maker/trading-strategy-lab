@@ -149,7 +149,11 @@ def crear_app(svc: ServicioDatos | None = None, gestor: GestorTrabajos | None = 
     @app.post("/api/v1/replay/ordenes/estado", response_model=list[EstadoOrdenSimulada])
     def ordenes_estado(p: PedidoOrdenes):
         """Estado de órdenes simuladas en el límite dado (motor del laboratorio, solo minutos revelados)."""
-        return simulacion.estados(svc, p.simbolo, p.limite_ms, [o.model_dump() for o in p.ordenes])
+        ordenes = [o.model_dump() for o in p.ordenes]
+        for o in ordenes:
+            if o["tipo"] == "limite":
+                simulacion.validar_limite(o)
+        return simulacion.estados(svc, p.simbolo, p.limite_ms, ordenes)
 
     # ------------------------------------------------------------------ investigación
     @app.get("/api/v1/estrategias", response_model=list[Estrategia])

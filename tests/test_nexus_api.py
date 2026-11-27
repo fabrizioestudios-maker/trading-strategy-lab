@@ -5,6 +5,7 @@ import json
 import os
 import time
 
+import numpy as np
 import pytest
 from fastapi.testclient import TestClient
 
@@ -169,3 +170,23 @@ def test_listado_de_trabajos_es_liviano_y_trae_resumen(cliente):
     completo = cliente.get(f"/api/v1/trabajos/{tr['id']}").json()
     if completo["estado"] == "terminado" and completo["resultado"]["metricas"]["total"][0]["n"]:
         assert fila["resumen"]["perfil_costos"] == "optimista" and fila["resumen"]["n"] == completo["resultado"]["metricas"]["total"][0]["n"]
+
+
+def test_robustez_de_la_corrida_usa_el_laboratorio_y_no_inventa():
+    import pandas as pd
+
+    from lab import montecarlo as MC
+    from nexus_api import robustez as ROB
+
+    rng = np.random.default_rng(3)
+    t = np.sort(rng.integers(1_330_000_000_000, 1_790_000_000_000, 160))
+    ops = pd.DataFrame(dict(t=t, t_salida=t + 86_400_000, dir=1, entrada=2000.0, salida=2001.0, sl=1990.0, motivo=1, r=rng.normal(0.2, 1.4, 160)))
+    cfg = dict(eleccion_desde="2011-11-15", confirmacion_desde="2021-11-15", confirmacion_hasta="2026-11-14")
+    pl = ROB.pliegues(ops, ops.r.values, 2011, 2026, ROB.WF.ms(cfg["confirmacion_desde"]))
+    assert len(pl) == 15 and sum(p["n"] for p in pl) == int(((t >= ROB.WF.ms("2011-11-15")) & (t < ROB.WF.ms("2026-11-15"))).sum())
+    assert all(p["muestra"] == ("confirmacion" if p["desde"] >= "2021-11-15" else "eleccion") for p in pl)
+    filas, sug = ROB.montecarlo(ops.r.values, 15.0)
+    ref = MC.tabla_riesgo(ops.r.values, 160 / 15.0, anios=5, riesgos=ROB.RIESGOS, n_sim=5000, bloque=5, semilla=0)
+    assert [f["p_dd_20"] for f in filas] == [round(float(x), 4) for x in ref.p_dd_20]  # mismos números que el laboratorio
+    assert ROB.montecarlo(ops.r.values[:5], 15.0) == ([], None)  # con muy pocas operaciones no se calcula
+    _ = cfg

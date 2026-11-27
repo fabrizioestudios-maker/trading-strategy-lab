@@ -102,7 +102,16 @@ export function sanear(x: unknown): EstadoEspacio {
   const ordenes = Array.isArray(r.ordenes)
     ? r.ordenes
         .filter((o) => o && typeof o.id === 'string' && (o.lado === 'compra' || o.lado === 'venta') && o.sl > 0 && o.tp > 0 && o.creada_limite_ms > 0)
-        .map((o) => ({ id: o.id.slice(0, 40), lado: o.lado, creada_limite_ms: o.creada_limite_ms, sl: o.sl, tp: o.tp, simbolo: typeof o.simbolo === 'string' ? o.simbolo : 'XAUUSD' }))
+        .filter((o) => o.tipo !== 'limite' || (Number(o.entrada) > 0 && Number(o.vence_minutos) >= 1))
+        .map((o) => ({
+          id: o.id.slice(0, 40),
+          lado: o.lado,
+          creada_limite_ms: o.creada_limite_ms,
+          sl: o.sl,
+          tp: o.tp,
+          simbolo: typeof o.simbolo === 'string' ? o.simbolo : 'XAUUSD',
+          ...(o.tipo === 'limite' ? { tipo: 'limite' as const, entrada: Number(o.entrada), vence_minutos: Math.min(10080, Math.floor(Number(o.vence_minutos))) } : {}),
+        }))
     : [];
   return {
     version: 1,

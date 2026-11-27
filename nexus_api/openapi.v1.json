@@ -205,6 +205,102 @@
     "title": "ChequeoCalidad",
     "type": "object"
    },
+   "ComparacionBenchmark": {
+    "additionalProperties": false,
+    "properties": {
+     "correlacion": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Correlacion"
+     },
+     "descripcion": {
+      "title": "Descripcion",
+      "type": "string"
+     },
+     "ir_tasacion": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ir Tasacion"
+     },
+     "n_dias": {
+      "title": "N Dias",
+      "type": "integer"
+     },
+     "nombre": {
+      "title": "Nombre",
+      "type": "string"
+     },
+     "p_alfa": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "P Alfa"
+     },
+     "sharpe_benchmark": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sharpe Benchmark"
+     },
+     "sharpe_estrategia": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sharpe Estrategia"
+     },
+     "t_alfa": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "T Alfa"
+     }
+    },
+    "required": [
+     "nombre",
+     "descripcion",
+     "n_dias",
+     "ir_tasacion",
+     "t_alfa",
+     "p_alfa",
+     "correlacion",
+     "sharpe_estrategia",
+     "sharpe_benchmark"
+    ],
+    "title": "ComparacionBenchmark",
+    "type": "object"
+   },
    "Condicion": {
     "additionalProperties": false,
     "properties": {
@@ -603,7 +699,9 @@
        "esperando_llenado",
        "rechazada",
        "abierta",
-       "cerrada"
+       "cerrada",
+       "cancelada",
+       "vencida"
       ],
       "title": "Estado",
       "type": "string"
@@ -832,6 +930,181 @@
      "lado"
     ],
     "title": "Evento",
+    "type": "object"
+   },
+   "FilaMonteCarlo": {
+    "additionalProperties": false,
+    "properties": {
+     "anios": {
+      "title": "Anios",
+      "type": "integer"
+     },
+     "dd_mediana": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Dd Mediana"
+     },
+     "dd_p95": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Dd P95"
+     },
+     "final_mediana": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Final Mediana"
+     },
+     "final_p5": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Final P5"
+     },
+     "n_ops": {
+      "title": "N Ops",
+      "type": "integer"
+     },
+     "p_dd_10": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "P Dd 10"
+     },
+     "p_dd_20": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "P Dd 20"
+     },
+     "p_dd_30": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "P Dd 30"
+     },
+     "racha_perdedora_mediana": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Racha Perdedora Mediana"
+     },
+     "racha_perdedora_p95": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Racha Perdedora P95"
+     },
+     "recuperacion_p50_ops": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Recuperacion P50 Ops"
+     },
+     "recuperacion_p95_ops": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Recuperacion P95 Ops"
+     },
+     "riesgo_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Riesgo Pct"
+     },
+     "ruina": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ruina"
+     }
+    },
+    "required": [
+     "anios",
+     "n_ops",
+     "riesgo_pct",
+     "dd_mediana",
+     "dd_p95",
+     "final_mediana",
+     "final_p5",
+     "ruina",
+     "p_dd_10",
+     "p_dd_20",
+     "p_dd_30",
+     "racha_perdedora_mediana",
+     "racha_perdedora_p95",
+     "recuperacion_p50_ops",
+     "recuperacion_p95_ops"
+    ],
+    "title": "FilaMonteCarlo",
     "type": "object"
    },
    "HTTPValidationError": {
@@ -1319,6 +1592,19 @@
       "title": "Creada Limite Ms",
       "type": "integer"
      },
+     "entrada": {
+      "anyOf": [
+       {
+        "exclusiveMinimum": 0.0,
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Solo límite: precio de la orden",
+      "title": "Entrada"
+     },
      "id": {
       "maxLength": 40,
       "title": "Id",
@@ -1337,10 +1623,28 @@
       "title": "Sl",
       "type": "number"
      },
+     "tipo": {
+      "default": "mercado",
+      "description": "Límite: se llena al tocar `entrada` (lab/smc.simular_ordenes)",
+      "enum": [
+       "mercado",
+       "limite"
+      ],
+      "title": "Tipo",
+      "type": "string"
+     },
      "tp": {
       "exclusiveMinimum": 0.0,
       "title": "Tp",
       "type": "number"
+     },
+     "vence_minutos": {
+      "default": 240,
+      "description": "Solo límite: minutos de mercado hasta que vence sin llenarse",
+      "maximum": 10080.0,
+      "minimum": 1.0,
+      "title": "Vence Minutos",
+      "type": "integer"
      }
     },
     "required": [
@@ -1734,6 +2038,56 @@
     "title": "Pivote",
     "type": "object"
    },
+   "PliegueAnual": {
+    "additionalProperties": false,
+    "properties": {
+     "desde": {
+      "title": "Desde",
+      "type": "string"
+     },
+     "expectativa": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Expectativa"
+     },
+     "hasta": {
+      "title": "Hasta",
+      "type": "string"
+     },
+     "muestra": {
+      "enum": [
+       "eleccion",
+       "confirmacion"
+      ],
+      "title": "Muestra",
+      "type": "string"
+     },
+     "n": {
+      "title": "N",
+      "type": "integer"
+     },
+     "r_total": {
+      "title": "R Total",
+      "type": "number"
+     }
+    },
+    "required": [
+     "desde",
+     "hasta",
+     "n",
+     "expectativa",
+     "r_total",
+     "muestra"
+    ],
+    "title": "PliegueAnual",
+    "type": "object"
+   },
    "Referencias": {
     "additionalProperties": false,
     "properties": {
@@ -1852,6 +2206,17 @@
       "title": "Por Anio",
       "type": "array"
      },
+     "robustez": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Robustez"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Ausente en corridas anteriores a esta versión"
+     },
      "sensibilidad_costos": {
       "items": {
        "additionalProperties": true,
@@ -1867,7 +2232,8 @@
      "desgloses",
      "sensibilidad_costos",
      "operaciones",
-     "avisos"
+     "avisos",
+     "robustez"
     ],
     "title": "ResultadoCorrida",
     "type": "object"
@@ -1951,6 +2317,77 @@
      "corridas_recientes"
     ],
     "title": "Resumen",
+    "type": "object"
+   },
+   "Robustez": {
+    "additionalProperties": false,
+    "properties": {
+     "avisos": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Avisos",
+      "type": "array"
+     },
+     "benchmarks": {
+      "items": {
+       "$ref": "#/components/schemas/ComparacionBenchmark"
+      },
+      "title": "Benchmarks",
+      "type": "array"
+     },
+     "definiciones": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Definiciones",
+      "type": "array"
+     },
+     "montecarlo": {
+      "items": {
+       "$ref": "#/components/schemas/FilaMonteCarlo"
+      },
+      "title": "Montecarlo",
+      "type": "array"
+     },
+     "pliegues": {
+      "items": {
+       "$ref": "#/components/schemas/PliegueAnual"
+      },
+      "title": "Pliegues",
+      "type": "array"
+     },
+     "pliegues_con_operaciones": {
+      "title": "Pliegues Con Operaciones",
+      "type": "integer"
+     },
+     "pliegues_positivos": {
+      "title": "Pliegues Positivos",
+      "type": "integer"
+     },
+     "riesgo_sugerido_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Riesgo Sugerido Pct"
+     }
+    },
+    "required": [
+     "pliegues",
+     "pliegues_con_operaciones",
+     "pliegues_positivos",
+     "benchmarks",
+     "montecarlo",
+     "riesgo_sugerido_pct",
+     "definiciones",
+     "avisos"
+    ],
+    "title": "Robustez",
     "type": "object"
    },
    "Ruptura": {

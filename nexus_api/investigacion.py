@@ -14,7 +14,7 @@ import pandas as pd
 
 from lab import ejecucion as EJ, ficha as FI, multiples as MU, validacion as VA
 
-from . import estrategias as E022
+from . import estrategias as E022, robustez as ROB
 
 DEF = {
     "n": ("Operaciones", "", "Cantidad de operaciones cerradas en la muestra"),
@@ -127,4 +127,9 @@ def correr(svc, cfg: dict, etapa: Callable[[str], None], cancelado: Callable[[],
         "La confirmación 2021–2026 ya se miró al armar el ranking de E019: no es un holdout limpio (docs/criterios_v2.md, regla 4).",
         "Precios bid; el spread y el deslizamiento se cobran como costo según el perfil elegido.",
     ]
-    return dict(metricas=metricas, por_anio=por_anio, desgloses=desgloses, sensibilidad_costos=sens, operaciones=operaciones, avisos=avisos)
+    if cancelado():
+        return {}
+    etapa("Robustez: pliegues anuales, benchmarks y Monte Carlo (lab/benchmarks.py, lab/montecarlo.py)")
+    rob = ROB.calcular(ops, r, m1, cfg)
+    return dict(metricas=metricas, por_anio=por_anio, desgloses=desgloses, sensibilidad_costos=sens, operaciones=operaciones, avisos=avisos,
+                robustez=rob)

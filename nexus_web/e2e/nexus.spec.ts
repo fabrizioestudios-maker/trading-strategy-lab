@@ -104,6 +104,21 @@ test('replay: una orden simulada espera el llenado y después cambia de estado',
   await expect(page.getByText('Simulación. NEXUS no está conectado a ningún bróker')).toBeVisible();
 });
 
+test('replay: una orden límite queda pendiente y se resuelve con el simulador del laboratorio', async ({ page }) => {
+  await page.goto('/#/replay');
+  await expect(page.locator('.grafico__etiqueta-limite')).toBeVisible();
+  await page.locator('.replay__grafico').click({ position: { x: 200, y: 200 } });
+  await page.keyboard.press('v');
+  await page.getByRole('radio', { name: 'Límite' }).click();
+  const crear = page.getByRole('button', { name: 'Crear orden límite de venta' });
+  await expect(crear).toBeEnabled();
+  await crear.click();
+  await expect(page.locator('.lista-ordenes .insignia').filter({ hasText: 'Esperando llenado' })).toBeVisible();
+  await page.locator('.replay__grafico').click({ position: { x: 200, y: 200 } });
+  for (let i = 0; i < 4; i++) await page.keyboard.press('Shift+ArrowRight');
+  await expect(page.locator('.lista-ordenes .insignia').filter({ hasText: /Esperando llenado|Abierta|Cerrada|Cancelada|Vencida/ })).toBeVisible();
+});
+
 test('laboratorio: una corrida real pasa por sus estados y termina en la analítica', async ({ page }) => {
   await page.goto('/#/laboratorio?estrategia=e022');
   await page.getByRole('button', { name: 'Revisar y correr' }).click();
@@ -116,6 +131,8 @@ test('laboratorio: una corrida real pasa por sus estados y termina en la analít
   await expect(page).toHaveURL(/#\/analitica/);
   await expect(page.getByText(/Métricas de total/)).toBeVisible();
   await expect(page.getByText(/no una estrategia validada/)).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Pliegues anuales' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Monte Carlo de riesgo' })).toBeVisible();
 });
 
 test('accesibilidad: todos los botones tienen nombre y el foco se ve', async ({ page }) => {

@@ -136,6 +136,9 @@ class OrdenSimuladaEntrada(Modelo):
     creada_limite_ms: int
     sl: float = Field(gt=0)
     tp: float = Field(gt=0)
+    tipo: Literal["mercado", "limite"] = Field(default="mercado", description="Límite: se llena al tocar `entrada` (lab/smc.simular_ordenes)")
+    entrada: Optional[float] = Field(default=None, gt=0, description="Solo límite: precio de la orden")
+    vence_minutos: int = Field(default=240, ge=1, le=10080, description="Solo límite: minutos de mercado hasta que vence sin llenarse")
 
 
 class PedidoOrdenes(Modelo):
@@ -146,7 +149,7 @@ class PedidoOrdenes(Modelo):
 
 class EstadoOrdenSimulada(Modelo):
     id: str
-    estado: Literal["posterior_al_limite", "esperando_llenado", "rechazada", "abierta", "cerrada"]
+    estado: Literal["posterior_al_limite", "esperando_llenado", "rechazada", "abierta", "cerrada", "cancelada", "vencida"]
     entrada_ms: Optional[int]
     precio_entrada: Optional[float]
     salida_ms: Optional[int]
@@ -231,6 +234,56 @@ class Operacion(Modelo):
     muestra: Literal["eleccion", "confirmacion", "fuera"]
 
 
+class PliegueAnual(Modelo):
+    desde: str
+    hasta: str
+    n: int
+    expectativa: Optional[float]
+    r_total: float
+    muestra: Literal["eleccion", "confirmacion"]
+
+
+class ComparacionBenchmark(Modelo):
+    nombre: str
+    descripcion: str
+    n_dias: int
+    ir_tasacion: Optional[float]
+    t_alfa: Optional[float]
+    p_alfa: Optional[float]
+    correlacion: Optional[float]
+    sharpe_estrategia: Optional[float]
+    sharpe_benchmark: Optional[float]
+
+
+class FilaMonteCarlo(Modelo):
+    anios: int
+    n_ops: int
+    riesgo_pct: Optional[float]
+    dd_mediana: Optional[float]
+    dd_p95: Optional[float]
+    final_mediana: Optional[float]
+    final_p5: Optional[float]
+    ruina: Optional[float]
+    p_dd_10: Optional[float]
+    p_dd_20: Optional[float]
+    p_dd_30: Optional[float]
+    racha_perdedora_mediana: Optional[float]
+    racha_perdedora_p95: Optional[float]
+    recuperacion_p50_ops: Optional[float]
+    recuperacion_p95_ops: Optional[float]
+
+
+class Robustez(Modelo):
+    pliegues: list[PliegueAnual]
+    pliegues_con_operaciones: int
+    pliegues_positivos: int
+    benchmarks: list[ComparacionBenchmark]
+    montecarlo: list[FilaMonteCarlo]
+    riesgo_sugerido_pct: Optional[float]
+    definiciones: list[str]
+    avisos: list[str]
+
+
 class ResultadoCorrida(Modelo):
     metricas: dict[str, list[Metrica]] = Field(description="Por muestra: eleccion, confirmacion, total")
     por_anio: list[dict]
@@ -238,6 +291,7 @@ class ResultadoCorrida(Modelo):
     sensibilidad_costos: list[dict]
     operaciones: list[Operacion]
     avisos: list[str]
+    robustez: Optional[Robustez] = Field(default=None, description="Ausente en corridas anteriores a esta versión")
 
 
 EstadoTrabajo = Literal["enviado", "en_cola", "corriendo", "terminado", "fallido", "cancelado"]

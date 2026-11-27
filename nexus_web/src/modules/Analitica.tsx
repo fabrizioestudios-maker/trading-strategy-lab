@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { api } from '../api/cliente';
-import type { Metrica, Operacion, Trabajo } from '../api/contrato.gen';
+import type { Metrica, Operacion, Robustez, Trabajo } from '../api/contrato.gen';
 import { useRecurso } from '../api/recurso';
 import { useEspacio } from '../app/espacio';
 import { useRuta } from '../app/ruta';
@@ -272,34 +272,7 @@ function Resultado({ t, comp, muestra }: { t: Trabajo; comp: Trabajo | null; mue
         <MapaMeses filas={(r.desgloses.por_mes ?? []) as { mes: string; n: number; r_total: number }[]} />
       </Panel>
 
-      <Panel titulo="Robustez" subtitulo="Lo que el laboratorio tiene y todavía no se puede pedir desde NEXUS">
-        <ul className="lista planificado">
-          <li>
-            <Insignia>Planificado</Insignia>
-            <span>
-              <strong>Walk-forward</strong> lab/walkforward.py existe y tiene pruebas; falta exponerlo como trabajo de la API con su configuración inmutable.
-            </span>
-          </li>
-          <li>
-            <Insignia>Planificado</Insignia>
-            <span>
-              <strong>Comparación con benchmarks</strong> lab/benchmarks.py (comprar y mantener, señales al azar con el mismo riesgo); misma razón.
-            </span>
-          </li>
-          <li>
-            <Insignia>Planificado</Insignia>
-            <span>
-              <strong>Monte Carlo de la secuencia</strong> lab/montecarlo.py; misma razón.
-            </span>
-          </li>
-          <li>
-            <Insignia tono="activo">Disponible</Insignia>
-            <span>
-              <strong>Intervalos y prueba de media positiva</strong> IC por bootstrap y p de la media, arriba, por muestra.
-            </span>
-          </li>
-        </ul>
-      </Panel>
+      <PanelRobustez rob={r.robustez ?? null} />
 
       <TablaOperaciones ops={ops} zona={zona} />
     </div>
@@ -444,5 +417,131 @@ function TablaOperaciones({ ops, zona }: { ops: Operacion[]; zona: 'ny' | 'utc' 
         </table>
       </div>
     </Panel>
+  );
+}
+
+function PanelRobustez({ rob }: { rob: Robustez | null }) {
+  if (!rob)
+    return (
+      <Panel titulo="Robustez">
+        <Vacio
+          titulo="Esta corrida no tiene análisis de robustez"
+          texto="Se hizo con una versión anterior de NEXUS. Corré la misma configuración de nuevo: ahora cada corrida agrega pliegues anuales, benchmarks y Monte Carlo."
+          accion={
+            <a className="boton boton--chico" href={armarRuta('laboratorio', { estrategia: 'e022' })}>
+              Ir al laboratorio
+            </a>
+          }
+        />
+      </Panel>
+    );
+  const pct = (v: number | null | undefined, d = 1) => (v === null || v === undefined ? '—' : porcentaje(v * 100, d));
+  return (
+    <div className="apilado">
+      <div className="grilla grilla--principal">
+        <Panel
+          titulo="Pliegues anuales"
+          subtitulo={`La regla no cambia entre años: ${rob.pliegues_positivos} de ${rob.pliegues_con_operaciones} años con operaciones dieron expectativa positiva`}
+        >
+          <Barras
+            etiqueta="R total por año de laboratorio (15/11 a 15/11)"
+            separarAntesDe={rob.pliegues.find((x) => x.muestra === 'confirmacion')?.hasta.slice(0, 4)}
+            datos={rob.pliegues.map((x) => ({
+              clave: x.hasta.slice(0, 4),
+              valor: x.r_total,
+              detalle: `${x.desde} a ${x.hasta}: n = ${x.n}, expectativa ${conSigno(x.expectativa, 2, 'R')}`,
+            }))}
+          />
+          <p className="campo__ayuda separado">Cada barra es un año de laboratorio que termina el 15/11 del año indicado.</p>
+        </Panel>
+        <Panel titulo="Contra benchmarks pasivos" subtitulo="Resultado diario marcado a mercado contra oro pasivo" sinRelleno>
+          <div className="tabla-envoltura">
+            <table className="tabla">
+              <thead>
+                <tr>
+                  <th>Benchmark</th>
+                  <th className="der">IR de tasación</th>
+                  <th className="der">p (α &gt; 0)</th>
+                  <th className="der">Correlación</th>
+                  <th className="der">Sharpe E022 / bench.</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rob.benchmarks.map((b) => (
+                  <tr key={b.nombre} title={b.descripcion}>
+                    <td>{b.nombre}</td>
+                    <td className="der num">{numero(b.ir_tasacion, 2)}</td>
+                    <td className="der num">{numero(b.p_alfa, 4)}</td>
+                    <td className="der num">{numero(b.correlacion, 2)}</td>
+                    <td className="der num">
+                      {numero(b.sharpe_estrategia, 2)} / {numero(b.sharpe_benchmark, 2)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {rob.benchmarks.length === 0 && <p className="tenue" style={{ padding: 16 }}>Sin datos suficientes para comparar.</p>}
+        </Panel>
+      </div>
+      <Panel
+        titulo="Monte Carlo de riesgo"
+        subtitulo={`5 años, ${rob.montecarlo[0]?.n_ops ?? '—'} operaciones por trayectoria. Riesgo sugerido: ${rob.riesgo_sugerido_pct === null ? 'ninguno cumple la regla' : `${numero(rob.riesgo_sugerido_pct, 2)} % por operación`}`}
+        sinRelleno
+      >
+        {rob.montecarlo.length === 0 ? (
+          <p className="tenue" style={{ padding: 16 }}>Sin operaciones suficientes.</p>
+        ) : (
+          <div className="tabla-envoltura">
+            <table className="tabla">
+              <thead>
+                <tr>
+                  <th className="der">Riesgo por operación</th>
+                  <th className="der">Drawdown mediano</th>
+                  <th className="der">Drawdown p95</th>
+                  <th className="der">P(DD &gt; 10 %)</th>
+                  <th className="der">P(DD &gt; 20 %)</th>
+                  <th className="der">Resultado mediano</th>
+                  <th className="der">Resultado p5</th>
+                  <th className="der">Ruina</th>
+                  <th className="der">Racha perdedora p95</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rob.montecarlo.map((f) => (
+                  <tr key={String(f.riesgo_pct)}>
+                    <td className="der num">{numero(f.riesgo_pct, 2)} %</td>
+                    <td className="der num">{pct(f.dd_mediana)}</td>
+                    <td className="der num">{pct(f.dd_p95)}</td>
+                    <td className="der num">{pct(f.p_dd_10)}</td>
+                    <td className="der num">{pct(f.p_dd_20)}</td>
+                    <td className="der num">{f.final_mediana === null ? '—' : conSigno(f.final_mediana * 100, 1, '%')}</td>
+                    <td className="der num">{f.final_p5 === null ? '—' : conSigno(f.final_p5 * 100, 1, '%')}</td>
+                    <td className="der num">{pct(f.ruina)}</td>
+                    <td className="der num">{numero(f.racha_perdedora_p95, 0)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Panel>
+      <div className="nota nota--aviso">
+        <Icono nombre="alerta" />
+        <ul className="lista-avisos">
+          {rob.avisos.map((a) => (
+            <li key={a}>{a}</li>
+          ))}
+        </ul>
+      </div>
+      <details className="supuestos">
+        <summary>Definiciones</summary>
+        <ul className="lista-avisos">
+          {rob.definiciones.map((a) => (
+            <li key={a}>{a}</li>
+          ))}
+        </ul>
+      </details>
+    </div>
   );
 }

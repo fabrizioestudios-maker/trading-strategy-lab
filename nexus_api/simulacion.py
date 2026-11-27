@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from lab import datos as LD, motor
+from lab import datos as LD, motor, smc
 
 from . import sesiones as SE
 
@@ -32,9 +32,14 @@ def estados(svc, simbolo: str, limite_ms: int, ordenes: list[dict]) -> list[dict
             out.append(dict(base, explicacion="La orden se creó después del límite actual (se retrocedió el replay)."))
             continue
         if j < j0 + 1:
-            out.append(dict(base, estado="esperando_llenado", explicacion="Se llena a mercado en la apertura del próximo minuto."))
+            texto = ("Pendiente: se llena si el precio toca la entrada." if o.get("tipo") == "limite"
+                     else "Se llena a mercado en la apertura del próximo minuto.")
+            out.append(dict(base, estado="esperando_llenado", explicacion=texto))
             continue
         trunc = {k: np.asarray(m[k][: j + 1]) for k in ("t", "o", "h", "l", "c")}
+        if o.get("tipo", "mercado") == "limite":
+            out.append(_limite(simbolo, o, base, trunc, j0, j))
+            continue
         ent = float(trunc["o"][j0 + 1])
         costo = np.array([float(LD.costo(simbolo, ent))]) if simbolo in LD.COSTOS else np.array([0.0])
         r = motor.simular(trunc, np.array([j0 + 1]), np.array([d]), np.array([float(o["sl"])]), np.array([float(o["tp"])]), costo)
@@ -57,3 +62,46 @@ def estados(svc, simbolo: str, limite_ms: int, ordenes: list[dict]) -> list[dict
             out.append(dict(fila, estado="abierta", precio_salida=round(float(trunc["c"][j]), 2),
                             explicacion=fila["explicacion"] + "Abierta: el R no realizado se mide al cierre del último minuto revelado."))
     return out
+
+
+def validar_limite(o: dict) -> None:
+    e, sl, tp = o.get("entrada"), float(o["sl"]), float(o["tp"])
+    if not e:
+        raise ValueError(f"Orden {o['id']}: una orden límite necesita precio de entrada")
+    if o["lado"] == "compra" and not (sl < e < tp):
+        raise ValueError(f"Orden {o['id']}: en una compra límite el stop va debajo de la entrada y el objetivo arriba")
+    if o["lado"] == "venta" and not (tp < e < sl):
+        raise ValueError(f"Orden {o['id']}: en una venta límite el stop va arriba de la entrada y el objetivo debajo")
+
+
+def _limite(simbolo, o, base, trunc, j0, j):
+    """Orden límite con el simulador del laboratorio (lab/smc.simular_ordenes), solo con minutos revelados."""
+    d = 1 if o["lado"] == "compra" else -1
+    ent = float(o["entrada"])
+    crea = j0 + 1
+    vence = crea + int(o.get("vence_minutos", 240)) - 1
+    costo = float(LD.costo(simbolo, ent)) if simbolo in LD.COSTOS else 0.0
+    est, r, t_in, t_out = smc.simular_ordenes(
+        trunc["o"], trunc["h"], trunc["l"], trunc["c"], np.array([crea]), np.array([vence]), np.array([d]), np.array([ent]),
+        np.array([float(o["sl"])]), np.array([float(o["tp"])]), np.array([costo]), False, 2.0)
+    e = int(est[0])
+    riesgo = abs(ent - float(o["sl"]))
+    costo_r = round(costo / riesgo, 4) if riesgo > 0 else None
+    if e == 2:
+        return dict(base, estado="cancelada", explicacion="Cancelada: el precio llegó al objetivo antes de tocar la entrada (regla del laboratorio).")
+    if e == 3:
+        if vence > j:  # todavía no venció: los minutos que faltan no se revelaron
+            return dict(base, estado="esperando_llenado", explicacion=f"Pendiente en {ent:.2f}: vence a los {int(o.get('vence_minutos', 240))} minutos de mercado.")
+        return dict(base, estado="vencida", explicacion="Vencida sin llenarse.")
+    if e == 0:
+        return dict(base, estado="rechazada", explicacion="No se pudo evaluar la orden.")
+    ii, io = int(t_in[0]), int(t_out[0])
+    px_in = min(ent, float(trunc["o"][ii])) if d == 1 else max(ent, float(trunc["o"][ii]))
+    fila = dict(base, entrada_ms=int(trunc["t"][ii]), precio_entrada=round(px_in, 2), r=round(float(r[0]), 4), costo_r=costo_r)
+    if e == 4:
+        return dict(fila, estado="abierta", precio_salida=round(float(trunc["c"][j]), 2),
+                    explicacion="Llenada al tocar la entrada. Abierta: el R no realizado se mide al cierre del último minuto revelado.")
+    # precio de salida reconstruido de r = ((salida − llenado)·d − costo) / riesgo (el stop puede llenarse peor por hueco)
+    salida = px_in + d * (float(r[0]) * riesgo + costo)
+    return dict(fila, estado="cerrada", salida_ms=int(trunc["t"][io]), motivo="TP" if e == 1 else "SL", precio_salida=round(salida, 2),
+                explicacion=f"Llenada al tocar la entrada; cerrada en {'el objetivo' if e == 1 else 'el stop'} el {SE.texto_ny(int(trunc['t'][io]))}.")

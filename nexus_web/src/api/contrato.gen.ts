@@ -40,6 +40,18 @@ export interface ChequeoCalidad {
   detalle: string;
 }
 
+export interface ComparacionBenchmark {
+  nombre: string;
+  descripcion: string;
+  n_dias: number;
+  ir_tasacion: number | null;
+  t_alfa: number | null;
+  p_alfa: number | null;
+  correlacion: number | null;
+  sharpe_estrategia: number | null;
+  sharpe_benchmark: number | null;
+}
+
 export interface Condicion {
   clave: string;
   texto: string;
@@ -109,7 +121,7 @@ export interface DefinicionSesion {
 
 export interface EstadoOrdenSimulada {
   id: string;
-  estado: "posterior_al_limite" | "esperando_llenado" | "rechazada" | "abierta" | "cerrada";
+  estado: "posterior_al_limite" | "esperando_llenado" | "rechazada" | "abierta" | "cerrada" | "cancelada" | "vencida";
   entrada_ms: number | null;
   precio_entrada: number | null;
   salida_ms: number | null;
@@ -145,6 +157,24 @@ export interface Evento {
   titulo: string;
   detalle: string;
   lado: "compra" | "venta" | null;
+}
+
+export interface FilaMonteCarlo {
+  anios: number;
+  n_ops: number;
+  riesgo_pct: number | null;
+  dd_mediana: number | null;
+  dd_p95: number | null;
+  final_mediana: number | null;
+  final_p5: number | null;
+  ruina: number | null;
+  p_dd_10: number | null;
+  p_dd_20: number | null;
+  p_dd_30: number | null;
+  racha_perdedora_mediana: number | null;
+  racha_perdedora_p95: number | null;
+  recuperacion_p50_ops: number | null;
+  recuperacion_p95_ops: number | null;
 }
 
 export interface HTTPValidationError {
@@ -249,6 +279,12 @@ export interface OrdenSimuladaEntrada {
   creada_limite_ms: number;
   sl: number;
   tp: number;
+  /** Límite: se llena al tocar `entrada` (lab/smc.simular_ordenes) */
+  tipo?: "mercado" | "limite";
+  /** Solo límite: precio de la orden */
+  entrada?: number | null;
+  /** Solo límite: minutos de mercado hasta que vence sin llenarse */
+  vence_minutos?: number;
 }
 
 export interface PanelDecision {
@@ -323,6 +359,15 @@ export interface Pivote {
   confirmado_ms: number;
 }
 
+export interface PliegueAnual {
+  desde: string;
+  hasta: string;
+  n: number;
+  expectativa: number | null;
+  r_total: number;
+  muestra: "eleccion" | "confirmacion";
+}
+
 export interface Referencias {
   contrato: string;
   /** Minutos por vela soportados por el replay */
@@ -345,6 +390,8 @@ export interface ResultadoCorrida {
   sensibilidad_costos: Array<Record<string, unknown>>;
   operaciones: Array<Operacion>;
   avisos: Array<string>;
+  /** Ausente en corridas anteriores a esta versión */
+  robustez: Robustez | null;
 }
 
 export interface Resumen {
@@ -361,6 +408,17 @@ export interface Resumen {
   pruebas_a_futuro: Array<Record<string, unknown>>;
   hipotesis_por_estado: Record<string, number>;
   corridas_recientes: Array<Trabajo>;
+}
+
+export interface Robustez {
+  pliegues: Array<PliegueAnual>;
+  pliegues_con_operaciones: number;
+  pliegues_positivos: number;
+  benchmarks: Array<ComparacionBenchmark>;
+  montecarlo: Array<FilaMonteCarlo>;
+  riesgo_sugerido_pct: number | null;
+  definiciones: Array<string>;
+  avisos: Array<string>;
 }
 
 export interface Ruptura {

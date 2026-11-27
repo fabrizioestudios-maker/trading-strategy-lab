@@ -30,8 +30,8 @@ Branch: `nexus/rebuild-ux-foundation`. `main` untouched.
 | Replay range selection | Partial | Zoom/pan on the chart and candles per frame (Settings); no explicit date-range selector |
 | Strategy Lab | Implemented for E022 | Locked periods, confirmed runs, real stages, cancel/retry, provenance; hypotheses (passes and failures), test budget, forward tests. Other strategies are registry-only (not executable) |
 | Toolkit | Partial | Sessions, PDH/PDL/PWH/PWL, structure (pivots, BOS, CHOCH) and FVG as descriptive layers with evidence notes. iFVG/BPR, sweeps, order blocks, premium/discount/OTE planned |
-| Execution Engine | Partial | Risk sizing and costs via API, cost profiles and assumptions, market orders in replay. Limit/stop orders planned; broker routing not implemented by design |
-| Performance Analytics | Implemented (core) | Metrics with definitions, n, period and cost profile; equity, drawdown; by year/side/session/month; cost sensitivity; trades; run comparison. Walk-forward, benchmarks and Monte Carlo planned (lab modules exist, not yet exposed as jobs) |
+| Execution Engine | Partial | Risk sizing and costs via API, cost profiles and assumptions; market and **limit** orders in the replay (limit: `lab/smc.simular_ordenes`, fills on touch, cancels if the target trades first, expires after N market minutes). Stop orders planned; broker routing not implemented by design |
+| Performance Analytics | Implemented | Metrics with definitions, n, period and cost profile; equity, drawdown; by year/side/session/month; cost sensitivity; trades; run comparison; **robustness** in every run: annual out-of-sample folds of the fixed rule, appraisal IR vs passive gold benchmarks (`lab/benchmarks.py`), block-bootstrap Monte Carlo risk table (`lab/montecarlo.py`) |
 | Data Center | Implemented (core) | Inventory, coverage, SHA-256 provenance, quality checks, minutes per year, serving strategy. Import jobs planned (CLI today) |
 | Settings | Implemented | Workspaces, chart/time zone, risk defaults, sessions (read-only), appearance and accessibility, shortcuts, integrations policy |
 | Hardening | Implemented (local scope) | Keyboard, focus, labels, reduced motion, contrast and text size, phone layout, error/empty/loading states, CI workflow |
@@ -46,10 +46,17 @@ Branch: `nexus/rebuild-ux-foundation`. `main` untouched.
   max drawdown 9.11 R; the UI curve's drawdown matches the API's `max_dd`.
 
 ### Next steps
-1. Expose walk-forward, benchmarks and Monte Carlo (`lab/walkforward.py`, `lab/benchmarks.py`, `lab/montecarlo.py`) as jobs.
-2. Limit orders in the replay with `lab/smc.simular_ordenes` (fills on touch, expiry) and tests.
-3. iFVG/BPR, sweeps and order blocks as layers, defined without look-ahead and tested like the current ones.
+1. iFVG/BPR, sweeps and order blocks as layers, defined without look-ahead and tested like the current ones.
+2. Stop orders in the replay once a fill model is validated.
+3. Explicit date-range selection in the replay.
 4. Deployment plan (container + mounted `data/`, authentication) — only with explicit authorization.
+
+### Update — robustness and limit orders
+- Every research run now adds a robustness stage (code fingerprint includes `nexus_api/robustez.py` and the lab modules it uses,
+  so older runs are not reused). Older stored runs show an honest "rerun to get robustness" state.
+- Limit orders in the replay, validated by the API (422 on the wrong side) and tested to be prefix-invariant and identical
+  to the lab simulator on full data.
+- Tests: pytest **67 passed**; Vitest **29 passed**; Playwright **9 passed**.
 
 ## 2026-11-27 — Foundation and repository handoff
 
