@@ -1340,7 +1340,7 @@ E031 no agrega configuraciones.
 
 | Estrategia | Nivel | Qué falta |
 | --- | --- | --- |
-| **E022 oro D1** | **B · candidata** | DSR ≥ 0,95 (da 0,24), GR del walk-forward principal (0,34), 70 % de años positivos y un período limpio: E037 bloqueado y F001 en curso. **Pasa** azar (p 0,0005), IC > 0, PF 1,76, n 168, costos conservadores, alfa sobre benchmarks y la mayoría de ventanas positivas |
+| **E022 oro D1** | **B · candidata** | DSR ≥ 0,95 (da 0,24), GR del walk-forward principal (0,34) y un período limpio: E037 bloqueado y F001 en curso. **Pasa** azar (p 0,0005), IC > 0, PF 1,76, n 168, costos conservadores, alfa sobre benchmarks, la mayoría de ventanas positivas y años positivos (12 de 14 años completos, 86 %; corregido a las 09:27: la primera versión de esta fila lo daba como faltante) |
 | ICT 5 oro | A · exploratoria | Falló su historia limpia (+0,035 R). Sigue en F001 porque estaba registrada |
 | SMC oro | R en la historia limpia (−0,027 R); A con 2021–2026 | Sin evidencia |
 | Candidata B | A | Beta pura (IR 0,10) y no operable en CFD por los swaps |
