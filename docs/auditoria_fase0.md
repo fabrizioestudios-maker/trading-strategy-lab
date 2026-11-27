@@ -125,3 +125,106 @@ Hecha a partir de los tres prompts que Fabrizio trajo de otras IAs. Cada afirmac
   - 12 pruebas.
 - **Pendiente:** prueba a futuro, E028–E032, pruebas por módulo, workflow y tablero.
 - **Clasificación actual:** E022 = **B**. Los setups SMC e ICT = **C**: el setup 5 ICT tiene PBO de 0,17 y vale una prueba a futuro, pero no hay evidencia suficiente. La candidata B = **C** (no le gana a comprar siempre).
+
+---
+
+## K. Auditoría pedida por el prompt maestro (fase 4b, 27/11/2026)
+
+El detalle de cada experimento está en la bitácora, entradas 27 a 30. Esta sección completa lo que el prompt maestro pidió y la sección anterior no cubría.
+
+### K.1 Criterios: qué dice cada documento y qué se aplicó
+
+| Fuente | Acierto | Payoff | Expectancy | n total | n validación | Otros |
+| --- | --- | --- | --- | --- | --- | --- |
+| `docs/criterios.md` | ≥ 50 % | ≥ 2,0 | > 0 | ≥ 100 | ≥ 30 | — |
+| `lab/metricas.cumple()` | ≥ 50 % | ≥ 2,0 | > 0 | ≥ 100 | ≥ 30 | Igual al documento (comprobado línea por línea) |
+| E019 `elegir()` | ≥ 50 % | **no se exige** | > 0 | — | **≥ 15** | Por año: n ≥ 5 y acierto ≥ 40 %; vecinos de k ≥ 45 %; ordena por Wilson de 5 años (contaminado, entrada 26) |
+| E023–E025 | Sin mínimo | — | Límite inferior de la expectancy | — | — | Ordenan por la expectancy de 5 años (contaminado) |
+| E022 publicada | 55,2 % (5 años) | **1,93** | +0,63 R | **58** | **26** | Se eligió mirando 2011–2021 |
+
+**Conclusiones formales:**
+1. E019 relajó dos criterios sin cambiar `docs/criterios.md`: n de validación 15 en lugar de 30, y sin payoff mínimo. Es una modificación no documentada en su momento; queda registrada acá.
+2. **E022 nunca cumplió la Misión A:**
+   - con 5 años le faltan operaciones (58 < 100 y 26 < 30) y payoff (1,93 < 2);
+   - con 15 años le falta acierto (47,6 %).
+   - `cumple()` la daría "no concluyente".
+   - Donde se habló de "criterios mínimos" se refería a la candidata B de E009, no a E022.
+3. **PF no es payoff:**
+   - PF = ganancias totales / pérdidas totales (2,38 en 5 años);
+   - payoff = ganancia media / pérdida media (1,93).
+   - Con costos, el payoff real de una regla 1:2 queda siempre algo por debajo de 2.
+4. **Resultados reclasificados como no concluyentes según `docs/criterios.md`:**
+   - las 11 finalistas de E019, por n de validación < 30 y orden contaminado;
+   - E022 en 5 años.
+5. **La escala nueva (R/A/B/C/D/E, entrada 27) no reemplaza a `docs/criterios.md`:** se informa al lado, como propuesta, hasta que Fabrizio la apruebe.
+
+### K.2 Períodos y fugas
+
+| Protocolo | Elección | Confirmación | Prueba aparte | Estado |
+| --- | --- | --- | --- | --- |
+| Fase 1–2 (E000–E017) | < 2022 | ≥ 2022 | — | Validación mirada una vez para la candidata B |
+| Fase 2b (E019–E025) | 15/11/2021–14/11/2024 | 15/11/2024–13/11/2026 | 2011–2021 (E020–E022) | Confirmación usada para ordenar: **ya no es fuera de muestra** |
+| Fase 4b (E028–E038) | 15/11/2010–14/11/2021 | 15/11/2021–13/11/2026 | Historia limpia (E038, E037) y a futuro (F001) | Registrados antes de correr |
+
+- **Calentamiento:** los indicadores usan velas anteriores al inicio de cada muestra. Es correcto, porque no decide operaciones.
+- **Bordes:** una operación cuenta en la muestra de su entrada aunque salga en la siguiente. En D1 dura menos de un día en promedio: la fuga es despreciable. El walk-forward (E028) la elimina: descarta operaciones de entrenamiento que salen después del corte y deja una purga de 5 días.
+- **Temporalidad mayor:** sin velas abiertas. El lab usa `searchsorted − 2` y Pine `[1]` + `lookahead_on`, comprobado también en el reproductor.
+- **Estructura definitiva** (implementada desde la entrada 27):
+  1. desarrollo exploratorio;
+  2. elección solo con su muestra;
+  3. walk-forward con purga;
+  4. holdout sellado: historia nunca usada y, para el oro D1, la prueba a futuro F001 con hash;
+  5. prueba a futuro. Un holdout mirado una vez queda consumido.
+
+### K.3 Motor: reglas por tipo de orden
+
+| Orden | `lab/motor.py` | `smc`/`ict` | Supuesto |
+| --- | --- | --- | --- |
+| Entrada a mercado | Apertura del minuto siguiente al cierre de la señal | Igual | Sin deslizamiento extra; el perfil de E030 lo agrega |
+| Entrada límite | — | Toca el límite → precio límite, o la apertura si abre mejor (hueco) | Optimista: no hay cola. `realista=True` corrige el hueco más allá del stop |
+| Entrada stop | No se usa | No se usa | — |
+| SL | Toca → precio SL; abre más allá → apertura | Igual | Conservador |
+| TP | Toca → precio TP; abre más allá → precio TP | Igual | Conservador: no cobra el hueco a favor |
+| SL y TP en el mismo minuto | Cuenta el SL | Igual | Conservador. E022: 0 operaciones ambiguas en 5 años |
+| Minuto de la entrada | Mira SL y TP | Solo el SL | Diferencia documentada (hallazgo 8); 1 operación de E022, mismo R |
+| Fin de datos | Se excluye (`motivo 3`) | Se excluye | Informarlas aparte (hallazgo 13) |
+
+**Ambigüedad intrabar:**
+- con M1 alcanza para estrategias de horas o días;
+- para scalping de 1 a 5 minutos haría falta tick con bid y ask (Dukascopy, hoy con límite de pedidos);
+- regla: si más del 5 % de las operaciones son ambiguas, se informa la cota optimista y la conservadora, o se excluyen.
+
+### K.4 Pine Script v6
+
+| Punto | `oro_d1_bollinger_sma200.pine` | `smc_barrido_estructura.pine` | `ict_cinco_setups.pine` |
+| --- | --- | --- | --- |
+| Ejecución | Defaults: `process_orders_on_close = false`, `calc_on_every_tick = false` → entra en la apertura siguiente, igual que el lab | Igual | Igual |
+| Temporalidad mayor | — | `request.security(..., lookahead_on)` con `[1]` en las series: sin repintado | Igual (sesgo y EMA con `[1]`) |
+| Máx./mín. del día anterior | — | `request.security("D", [high[1], low[1]], lookahead_on)`: sin repintado | — |
+| SL/TP | `loss`/`profit` en ticks desde el precio de llenado, igual que el lab | `stop`/`limit` en precio, igual que el lab | Igual |
+| Costos | 0,00625 % por orden = 0,0125 % ida y vuelta, igual que el lab | 0,006 % por orden | Igual |
+| Tamaño | Riesgo % del capital / (distancia × `syminfo.pointvalue`) | Igual | Igual |
+| Resolución intrabar | **Sin Bar Magnifier:** TradingView supone el recorrido OHLC y no M1. Con `use_bar_magnifier = true` (planes pagos) se acerca al lab | Igual | Igual |
+| Vela diaria | **Depende del feed:** hay que usar uno que cierre a las 17:00 NY (OANDA, FXCM, Pepperstone). Con cierre 00:00 UTC las señales cambian | Pivotes: el desempate de `ta.pivothigh` no se verificó contra el lab (hallazgo 14) | Igual |
+| Compilado | **No verificado:** el validador de LuxAlgo devolvió 403 y no hay acceso a TradingView desde aquí | Igual | Igual |
+
+Ninguna regla de estrategia se cambió. La implementación operativa verificada sigue siendo el reproductor.
+
+### K.5 Paridad
+
+| Tramo | Cómo | Resultado | Tolerancia |
+| --- | --- | --- | --- |
+| Python ↔ reproductor | `senales-vip/backtest/reproductor/test/validar_tv.js`, automatizada, vuelta a correr el 27/11 después del rediseño | Oro D1 58/58; SMC 302 y 84; ICT 5 82; ICT 1 143/144 (llenado con hueco) | Misma cantidad, acierto y expectancy ± 0,01 R; por operación, mismo minuto de entrada |
+| Python ↔ TradingView | `herramientas/comparar_tradingview.py` con el export de la lista de operaciones | **Pendiente:** hace falta que Fabrizio exporte la lista desde TradingView | Misma dirección, entrada ± 1 día, precios ± 0,1 %, mismo signo |
+
+**No se afirma equivalencia con TradingView hasta correr esa comparación.**
+
+### K.6 Clasificación de cada estrategia
+
+| Estrategia | Publicado | Reproducido (27/11) | Nivel | Falta |
+| --- | --- | --- | --- | --- |
+| Oro D1 (E022) | 58 operaciones, 55,2 %, +0,63 R (5 años); 168, 47,6 %, +0,41 R (15 años) | Idéntico: 168 y +0,407 R (E028a, control) | **B** | DSR (0,24), GR del walk-forward principal (0,34) y período limpio: E037 bloqueado, F001 en curso |
+| ICT 5 oro | 82, 45,1 %, +0,30 R | Idéntico (E038, referencia) | A | Falló la historia limpia: +0,035 R |
+| SMC oro | 302, 43,4 %, +0,26 R | Idéntico | R en la historia limpia (−0,027 R) | — |
+| Candidata B | 51,0 % y 55,6 % (E009) | Con costos realistas: +0,07 R base, −0,35 R conservador | A | Beta; no operable por los swaps |
+| Líderes (E017) | 50,0 % y 52,5 % (n ≈ 100) | IR 0,37 (p 0,11) hasta 2021 | A | Su validación 2022–2026 sigue sin tocar |
