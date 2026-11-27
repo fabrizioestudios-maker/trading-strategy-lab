@@ -862,3 +862,38 @@ Mejor win rate de los 5 años por activo y par, entre las combinaciones con al m
 **Entregable:** `pine/smc_barrido_estructura.pine`, con todo el setup configurable y cargado por defecto con la configuración común a los 6 activos.
 
 **Pendiente:** US30, si Fabrizio exporta 5 años de M1 desde su MT5.
+
+---
+
+## 2026-11-27 01:01 UTC — Entrada 22: los 5 setups ICT del prompt de Google (registrada antes de correr)
+
+**Pedido.** Fabrizio pasó un prompt que Google le generó y pidió probarlo. El prompt describe 5 setups ICT activables o combinables en un único script, con killzones, cierre forzoso, riesgo fijo, un máximo de operaciones por día y un stop diario.
+
+**Reglas globales**
+- **Killzones** (hora de Nueva York, por la apertura de la vela): Londres 02:00–05:00 y Nueva York 08:30–11:00. El rango asiático va de 20:00 a 00:00.
+- **Órdenes:** solo se abren si el setup se completa dentro de una killzone habilitada. La orden límite vence a las V velas o al terminar esa killzone.
+- **Cierre forzoso** (opcional) a las 16:00 NY.
+- **Límites diarios:** máximo 2 operaciones por día y corte tras 2 pérdidas seguidas en el día.
+- **Salidas:** SL con un margen de 0,1 × ATR(14) (el prompt lo pide en ticks; en ATR sirve igual para todos los activos). TP = 2R. Una posición u orden a la vez. Se descartan los setups con un riesgo menor a 3 veces el costo. Salidas en M1 con los costos de siempre.
+
+**Conceptos**
+- **Swing:** pivote de L velas a cada lado, confirmado L velas después.
+- **FVG alcista:** low[0] > high[2] con la vela del medio alcista y tamaño mínimo opcional en ATR. El borde proximal es low[0] y el 50 % (CE) es el medio del hueco. El bajista es el espejo.
+- **MSS:** cierre de cuerpo más allá del último swing opuesto.
+
+**Los 5 setups** (compras; las ventas son el espejo)
+1. **Barrido hacia OB/FVG.** Una vela perfora el último swing bajo y cierra por encima. Dentro de N velas llega un MSS. Se entra con una límite en el FVG del tramo; si no hay FVG, en el OB (última vela bajista del tramo). SL bajo el mínimo del barrido.
+2. **Breaker block.** Al confirmarse un mínimo más bajo, el OB bajista es la última vela alcista en las 3 velas anteriores al máximo de swing previo. Si un cierre lo supera por arriba, pasa a ser un breaker alcista. Límite en su borde superior, SL bajo su mínimo.
+3. **Continuación en FVG.** El precio está sobre la EMA de la temporalidad mayor (última vela cerrada) y aparece un FVG alcista. Límite en el FVG durante N velas. SL bajo el mínimo de la vela 1 del FVG.
+4. **Poder de Tres (AMD).** Se toma el rango asiático. En killzone, el precio perfora el mínimo de Asia y vuelve a cerrar adentro. Después llega un MSS (pivote de 3) con un FVG desde la perforación. Límite en el FVG, SL bajo el mínimo de la manipulación. TP en 2R o en el máximo de Asia (variante).
+5. **Sesgo mayor + entrada en la killzone de NY.** La vela anterior de la temporalidad mayor es alcista (variante: estructura). Solo en la killzone de NY: barrido del último swing bajo interno (pivote de 3) y, dentro de N velas, un FVG alcista. Límite en el FVG, SL bajo el mínimo del barrido.
+- **Combinados:** los 5 activos a la vez, con una posición por vez.
+
+**Pruebas (E025)**
+- **Activos:** XAUUSD, EURUSD, GBPUSD, USDCAD, US100 y US500. US30 sigue sin datos.
+- **Temporalidades de ejecución:** 1M, 5M y 15M, con mayor 15M, 1H y 4H respectivamente.
+- **Período:** los últimos 5 años, partidos en elección (15/11/2021–14/11/2024) y confirmación (15/11/2024–13/11/2026), como en E023.
+- **Configuración del prompt** (lo primero que se informa, por activo y temporalidad): killzones de Londres y NY, cierre forzoso, 2 operaciones por día, corte tras 2 pérdidas, entrada en el borde proximal, N = 10, V = 10, sin tamaño mínimo de FVG, L = 5 en los setups 1–2 y L = 3 en los 4–5, EMA 50 en el setup 3 y vela anterior en el 5.
+- **Variantes:** borde o 50 %, tamaño mínimo de FVG (0 o 0,25 ATR), N y V (10 o 20), killzone (las dos, solo Londres o solo NY), cierre forzoso sí o no, L (3 o 5), EMA (50 o 200) y TP de Asia en el setup 4.
+
+**Qué se informa:** el resultado de la configuración del prompt y la mejor variante de cada setup. También se mide cuánto rinden en la confirmación las variantes que mejor salen en la elección, igual que en E023.
