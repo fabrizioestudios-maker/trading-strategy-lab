@@ -59,3 +59,56 @@ def clasificar(ev):
 def cumple_mision_a(wr, payoff, exp, n_total, n_val):
     m = MISION_A
     return wr >= m["wr_min"] and payoff >= m["payoff_min"] and exp > m["exp_min"] and n_total >= m["n_min"] and n_val >= m["n_val_min"]
+
+
+# --------------------------------------------------------------------------------------------------------------
+# Escala de estados R/A/B/C/D/E (BITACORA entrada 27, 27/11/2026; reemplaza a clasificar() para E028 en adelante).
+# clasificar() queda solo para reproducir E027. Las letras siguen al prompt maestro: A exploratoria ... E operativa.
+NIVEL_B = dict(exp_min=0.0, n_min=50, p_azar_max=0.10)
+NIVEL_C = dict(exp_min=0.15, ic_inf_min=0.0, pf_min=1.3, n_min=150, p_azar_max=0.05, dsr_min=0.95, gr_min=0.5,
+               wf_mayoria_min=2 / 3, anios_pos_min=0.70, limpio_n_min=30)
+NIVEL_D = dict(fwd_n_min=30)
+NOMBRES = {"R": "rechazada", "A": "exploratoria", "B": "candidata", "C": "validada estadísticamente",
+           "D": "validada a futuro", "E": "operativa"}
+
+
+def nivel(ev):
+    """ev: dict con (todas opcionales; ausente = no demostrado)
+    exp, exp_is, exp_conf, n, p_azar, ic_inf, pf, dsr, gr_wf, wf_mayoria, exp_conservador, anios_pos,
+    limpio_n, limpio_exp, fwd_n, fwd_exp, fwd_en_intervalo, paridad_ok, riesgo_ok, aprobado_fabrizio, solo_sin_costos.
+    Devuelve (letra, lista de condiciones que faltan para el nivel siguiente)."""
+    g = ev.get
+    if g("solo_sin_costos") or (g("exp_conf") is not None and g("exp_conf") <= 0):
+        return "R", ["expectancy ≤ 0 en la confirmación con costos base" if not g("solo_sin_costos") else "solo gana sin costos"]
+    b = NIVEL_B
+    fb = []
+    _chk(fb, (g("exp_is") or -1) > b["exp_min"] and (g("exp_conf") or -1) > b["exp_min"], "expectancy ≤ 0 en elección o confirmación")
+    _chk(fb, (g("n") or 0) >= b["n_min"], f"menos de {b['n_min']} operaciones")
+    _chk(fb, g("p_azar") is not None and g("p_azar") < b["p_azar_max"], f"no le gana al azar con p < {b['p_azar_max']}")
+    if fb:
+        return "A", fb
+    c = NIVEL_C
+    fc = []
+    _chk(fc, (g("exp") or -1) >= c["exp_min"], f"expectancy < {c['exp_min']} R")
+    _chk(fc, g("ic_inf") is not None and g("ic_inf") > c["ic_inf_min"], "IC 95 % incluye 0")
+    _chk(fc, (g("pf") or 0) >= c["pf_min"], f"PF < {c['pf_min']}")
+    _chk(fc, (g("n") or 0) >= c["n_min"], f"menos de {c['n_min']} operaciones")
+    _chk(fc, g("p_azar") is not None and g("p_azar") < c["p_azar_max"], f"azar p ≥ {c['p_azar_max']}")
+    _chk(fc, g("dsr") is not None and g("dsr") >= c["dsr_min"], f"DSR < {c['dsr_min']}")
+    _chk(fc, g("gr_wf") is not None and g("gr_wf") >= c["gr_min"], f"walk-forward GR < {c['gr_min']}")
+    _chk(fc, g("wf_mayoria") is not None and g("wf_mayoria") >= c["wf_mayoria_min"], "menos de 2/3 de ventanas positivas")
+    _chk(fc, g("exp_conservador") is not None and g("exp_conservador") > 0, "no resiste costos conservadores")
+    _chk(fc, g("anios_pos") is not None and g("anios_pos") >= c["anios_pos_min"], "menos del 70 % de años positivos")
+    _chk(fc, (g("limpio_n") or 0) >= c["limpio_n_min"] and (g("limpio_exp") or -1) > 0, "sin período nunca usado positivo")
+    if fc:
+        return "B", fc
+    fd = []
+    _chk(fd, (g("fwd_n") or 0) >= NIVEL_D["fwd_n_min"] and (g("fwd_exp") or -1) > 0 and bool(g("fwd_en_intervalo")),
+         "prueba a futuro sin 30 operaciones positivas dentro del intervalo")
+    if fd:
+        return "C", fd
+    fe = []
+    _chk(fe, bool(g("paridad_ok")), "paridad Python ↔ reproductor ↔ TradingView sin verificar")
+    _chk(fe, bool(g("riesgo_ok")), "sin protocolo de riesgo")
+    _chk(fe, bool(g("aprobado_fabrizio")), "sin aprobación de Fabrizio")
+    return ("D", fe) if fe else ("E", [])
