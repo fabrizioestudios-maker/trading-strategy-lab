@@ -1545,3 +1545,50 @@ El momentum diario de E022 no se transmite a entradas de M15 con stops de 1 ATR 
 - **Próximas hipótesis de la línea** (a registrar antes de correr):
   - E022 con más operaciones: la misma regla en H4, en vez de D1, a favor de la SMA 200 diaria;
   - salidas por tiempo de E022 (1 día) en lugar de TP fijo.
+
+---
+
+## 2026-11-27 11:13 UTC — Entrada 36: E043 (la regla de E022 en H4 y H1) y E044 (salidas por tiempo de E022), registrados antes de correr
+
+**Por qué:** E022 es la única ventaja del oro, pero opera unas 11 veces por año. El objetivo de Fabrizio (daytrading
+rentable en los últimos 5 años) necesita más operaciones. La prueba más directa es la misma regla en velas intradía,
+a favor de la tendencia diaria. E019 ya barrió H1 (sin corrección que sobreviva); H4 no se probó nunca.
+
+**E043 · ruptura de Bollinger a favor de la tendencia, en H4 y H1 (3 variantes, sin grilla).**
+- **Señal**, al cierre de la vela k de la temporalidad X:
+  - primer cierre sobre la banda superior de Bollinger (20, 2 desvíos poblacionales) → compra;
+  - primer cierre bajo la inferior → venta.
+- **Filtro de tendencia:**
+  - **FD:** el último cierre diario ya completo (velas diarias de 17:00 NY) contra la SMA 200 diaria; solo compras si
+    está arriba y solo ventas si está abajo;
+  - **FX:** el cierre de la vela k contra la SMA 200 de la misma temporalidad.
+- **Variantes:** H4·FD, H4·FX y H1·FD.
+- **Ejecución:**
+  - entrada en el minuto siguiente al cierre de la vela;
+  - **si cae entre las 17:00 y las 18:15 NY, se retrasa al primer minuto desde las 18:15** (lección de E041 y E042:
+    el bid de la reapertura no se puede operar);
+  - SL 0,5·ATR(14) de X y TP 2·SL desde la entrada real;
+  - una operación a la vez y sin cierre por tiempo (igual que E022).
+- **Muestras:** desarrollo 15/11/2010–14/11/2021; confirmación (los últimos 5 años) 15/11/2021–13/11/2026.
+- **Costos:** perfil **base** (principal), `docs/costos.md` y **conservador**.
+- **Pasa ("estrategia sólida"), con los criterios de la entrada 32:**
+  - desarrollo: expectancy > 0 con p < 0,05 de una cola, y Holm entre las 3 variantes;
+  - confirmación: expectancy > 0 con p < 0,10;
+  - al menos 4 de los 5 años de laboratorio de la confirmación positivos;
+  - al menos 100 operaciones en la confirmación;
+  - positiva con costos conservadores en las dos muestras.
+- **Si una variante pasa, antes de declararla candidata (fijado ahora):**
+  - **meseta:** Bollinger 1,8 y 2,2 desvíos, y SL 0,4 y 0,6·ATR; los 4 vecinos tienen que seguir positivos con costos
+    base en las dos muestras;
+  - **placebo:** 200 juegos de entradas al azar en cierres de velas de X de la misma muestra, en la dirección de la
+    tendencia del filtro, con las mismas reglas de SL y TP; la expectancy de la estrategia en la confirmación tiene que
+    superar el percentil 95 del placebo.
+- **Si pasa todo:** nivel B, prueba a futuro F002 sellada, implementación en el reproductor y en Pine, y ficha.
+  **Si no pasa:** queda registrado como falla.
+
+**E044 · E022 con salida por tiempo (informativo).**
+- E022 con la entrada de las 18:15 NY (E042) y el SL de 0,5·ATR(14) diario. Sin TP: la salida es a las 16:55 NY después
+  de 1, 2 o 5 días de operación.
+- Es **informativo**: E022 no llega a 100 operaciones en 5 años, así que no puede pasar el criterio de la entrada 32.
+- Una salida por tiempo solo se propone como alternativa (sin reemplazar la regla de E022) si supera al TP fijo en las
+  dos muestras con costos base.
