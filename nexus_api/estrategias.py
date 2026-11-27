@@ -163,9 +163,9 @@ def definicion() -> dict:
         ],
         nivel="B", nivel_texto="Candidata: no está validada. Le falta un período limpio (pruebas a futuro F001 y F002 desde el 27/11/2026).",
         evidencia=[
-            "2011–2026: 168 operaciones, 47,6 % de acierto, +0,41 R, IC 95 % [+0,18; +0,64] (docs/fichas.md).",
+            "Con la entrada de estas reglas (18:15 NY) y costos base: 168 operaciones, 45,2 % de acierto, +0,30 R por operación (E042; es la corrida que muestran Resumen y Analítica).",
+            "Definición original, entrada en la reapertura de las 17:00 NY: +0,41 R, IC 95 % [+0,18; +0,64] (docs/fichas.md). Parte de esa diferencia era el bid deprimido de la reapertura.",
             "Le gana a entradas al azar del mismo lado (p = 0,0005); IR de tasación 0,85 sobre el oro y el risk parity.",
-            "Entrada 18:15 NY: +0,33 R con costos de docs/costos.md, IC [+0,10; +0,56] (E042).",
         ],
         limitaciones=[
             "Elegida entre 185.367 configuraciones (E019): DSR 0,24.",

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { api } from '../api/cliente';
+import { api, ESTATICO } from '../api/cliente';
 import type { ConfigCorrida_Input, Estrategia, Hipotesis, Trabajo } from '../api/contrato.gen';
 import { useRecurso } from '../api/recurso';
 import { useAvisos } from '../app/avisos';
@@ -230,9 +230,10 @@ function DetalleEstrategia({ e, onCorrer }: { e: Estrategia; onCorrer: (c: Confi
               <p className="campo__ayuda">Fijados por el registro. La confirmación ya se miró al armar el ranking de E019: no es un holdout limpio.</p>
             </div>
             <div>
-              <Boton type="submit" variante="primario" icono="play">
+              <Boton type="submit" variante="primario" icono="play" disabled={ESTATICO}>
                 Revisar y correr
               </Boton>
+              {ESTATICO && <p className="campo__ayuda">En la versión publicada no se corren estrategias: las corridas guardadas están en Corridas y en Analítica.</p>}
             </div>
           </form>
         )}

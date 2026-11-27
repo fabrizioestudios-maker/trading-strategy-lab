@@ -220,7 +220,7 @@ export function Shell({ children }: { children: ReactNode }) {
         {ESTATICO && (
           <p className="banda-sintetica banda-publicada" role="note">
             <Icono nombre="alerta" tam={14} />
-            {import.meta.env.VITE_AVISO_ESTATICO ?? 'Versión publicada con datos grabados: el replay recorre un tramo fijo; órdenes y corridas nuevas solo en la versión completa.'}
+            {import.meta.env.VITE_AVISO_ESTATICO ?? 'Versión publicada con datos grabados: el replay recorre un tramo fijo, sin órdenes ni corridas nuevas.'}
           </p>
         )}
         {children}

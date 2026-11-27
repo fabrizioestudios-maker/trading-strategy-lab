@@ -165,7 +165,7 @@ export default function Resumen() {
       <div>
         <p className="resumen__fecha num">{fechaHora(ahora, 'ny')}</p>
         <h1>Resumen</h1>
-        <p>Precios históricos (no hay feed en vivo): cada tarjeta dice hasta cuándo llegan sus datos. Solo el horario del mercado es de ahora.</p>
+        <p>Precios históricos (no hay feed en vivo): cada tarjeta dice hasta cuándo llegan sus datos.{ESTATICO ? '' : ' Solo el horario del mercado es de ahora.'}</p>
       </div>
       <div className="pagina__acciones">
         <EstadoMercado />
@@ -173,10 +173,17 @@ export default function Resumen() {
           <Icono nombre="replay" />
           Abrir el replay
         </a>
-        <a className="boton boton--primario" href={armarRuta('laboratorio', { estrategia: 'e022' })}>
-          <Icono nombre="laboratorio" />
-          Correr E022
-        </a>
+        {ESTATICO ? (
+          <a className="boton boton--primario" href="#/analitica">
+            <Icono nombre="analitica" />
+            Ver resultados de E022
+          </a>
+        ) : (
+          <a className="boton boton--primario" href={armarRuta('laboratorio', { estrategia: 'e022' })}>
+            <Icono nombre="laboratorio" />
+            Correr E022
+          </a>
+        )}
       </div>
     </header>
   );

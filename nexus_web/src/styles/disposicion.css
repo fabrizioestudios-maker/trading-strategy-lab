@@ -556,3 +556,10 @@
   border-bottom-color: rgb(232 168 58 / 28%);
   color: var(--gold);
 }
+
+.banda-sintetica > svg { flex-shrink: 0; }
+
+/* En el teléfono la etiqueta del límite tapa las velas: queda solo la línea punteada y la zona rayada. */
+@media (max-width: 640px) {
+  .grafico__etiqueta-limite { display: none; }
+}

@@ -51,7 +51,10 @@ def _costo_texto(simbolo: str) -> str:
     if simbolo not in LD.COSTOS:
         return "sin costo de referencia"
     tipo, v = LD.COSTOS[simbolo]
-    return f"{v * 100:.4f} % del precio" if tipo == "pct" else f"{v} en precio"
+    # formato en español, como el resto de la interfaz: «0,0125 % del precio», «0,00014 en precio»
+    txt = f"{v * 100:.4f}".rstrip("0").rstrip(".") if tipo == "pct" else f"{v:.10f}".rstrip("0").rstrip(".")
+    txt = txt.replace(".", ",")
+    return f"{txt} % del precio" if tipo == "pct" else f"{txt} en precio"
 
 
 @dataclass
