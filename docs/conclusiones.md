@@ -35,6 +35,19 @@ Se probaron 171.072 variantes (E023–E024, `BITACORA.md` entradas 20 y 21) del 
 
 **Estrategia para el probador:** `pine/smc_barrido_estructura.pine`, con todas las opciones como parámetros.
 
+## Los 5 setups ICT del prompt de Google (27/11/2026)
+
+Se probaron con 19.908 pruebas (E025, `BITACORA.md` entradas 22 y 23):
+- **Setups:** barrido hacia OB/FVG, breaker block, continuación en FVG, Poder de Tres (AMD) y sesgo mayor con entrada en la killzone de NY.
+- **Condiciones:** 6 activos, 1M, 5M y 15M, últimos 5 años, RR 1:2.
+
+**Resultados**
+- **Con la configuración del prompt:** win rate de 23 a 47 % y casi siempre negativo. Los 5 combinados pierden en los 18 casos.
+- **Ninguna variante llega a 50 % de forma estable.**
+- **Lo menos malo:** el setup 5 en 15M en la killzone de NY, sobre todo en oro, con 41–48 % de acierto.
+
+**Script para el probador:** `pine/ict_cinco_setups.pine`.
+
 ## La estrategia que cumple los criterios mínimos en 2010–2026 (fase 1)
 
 **Nombre:** Tendencia de largo plazo con stop amplio, solo compras ("candidata B").

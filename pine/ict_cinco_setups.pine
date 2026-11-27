@@ -1,0 +1,588 @@
+//@version=6
+// trading-strategy-lab · E025: los 5 setups ICT del prompt de Google, con las mismas reglas que el laboratorio.
+// Cada setup se activa por separado; si hay varios activos, se toma una sola orden o posición a la vez (prioridad 1 → 5).
+// Sin repintado: swings con ta.pivothigh/ta.pivotlow (se conocen R velas después) y temporalidad mayor con [1] + lookahead_on
+// (siempre la última vela mayor CERRADA). Órdenes límite: válidas V velas o hasta el fin de la killzone donde se armó el
+// setup; se cancelan si el precio llega al TP antes de llenarse. Resultados del laboratorio en BITACORA.md, entrada 23.
+strategy("ICT · 5 setups (barrido, breaker, FVG, AMD, sesgo mayor)", shorttitle = "ICT 5 setups", overlay = true,
+     initial_capital = 10000, currency = currency.USD, pyramiding = 0,
+     commission_type = strategy.commission.percent, commission_value = 0.006,
+     margin_long = 0, margin_short = 0, max_bars_back = 5000, max_boxes_count = 100, max_lines_count = 100)
+
+// ═══════════════ Configuración general
+const string G0 = "Configuración general"
+rr = input.float(2.0, "Riesgo/beneficio (TP = RR × riesgo)", minval = 0.5, step = 0.1, group = G0)
+riesgoPct = input.float(1.0, "Riesgo por operación (% del capital)", minval = 0.01, step = 0.25, group = G0)
+margenATR = input.float(0.1, "Margen del SL (× ATR 14)", minval = 0.0, step = 0.05, group = G0)
+margenTicks = input.int(0, "Margen adicional del SL (ticks)", minval = 0, group = G0)
+entrada = input.string("Borde proximal", "Entrada en la zona", options = ["Borde proximal", "50 % (CE)"], group = G0)
+minFVG = input.float(0.0, "Tamaño mínimo del FVG (× ATR 14)", minval = 0.0, step = 0.05, group = G0)
+maxDia = input.int(2, "Máximo de operaciones por día", minval = 1, group = G0)
+maxPerd = input.int(2, "Stop diario: pérdidas seguidas", minval = 1, group = G0)
+costoPct = input.float(0.012, "Costo ida y vuelta (% del precio) para el riesgo mínimo", minval = 0.0, step = 0.001, group = G0)
+costoAbs = input.float(0.0, "Costo ida y vuelta en precio (0.0001 = 1 pip)", minval = 0.0, step = 0.00001, group = G0)
+desde = input.time(timestamp("2021-11-15T00:00:00+00:00"), "Desde", group = G0)
+hasta = input.time(timestamp("2026-11-27T00:00:00+00:00"), "Hasta", group = G0)
+
+// ═══════════════ Sesiones (hora de Nueva York)
+const string GS = "Sesiones (hora de Nueva York)"
+sesAsia = input.session("2000-0000", "Sesión asiática (rango del setup 4)", group = GS)
+sesLon = input.session("0200-0500", "Killzone Londres", group = GS)
+usarLon = input.bool(true, "Operar en la killzone de Londres (setups 1–4)", group = GS)
+sesNY = input.session("0830-1100", "Killzone Nueva York", group = GS)
+usarNY = input.bool(true, "Operar en la killzone de Nueva York (setups 1–4)", group = GS)
+cierreForzoso = input.bool(true, "Cerrar todo al terminar la sesión operativa", group = GS)
+sesOper = input.session("0000-1600", "Sesión operativa (al final se cierra todo)", group = GS)
+
+// ═══════════════ Setups
+const string G1 = "Setup 1: barrido de liquidez hacia OB/FVG"
+s1On = input.bool(true, "Activar setup 1", group = G1)
+piv1 = input.int(5, "Swing: velas a cada lado", minval = 1, group = G1)
+n1 = input.int(10, "Velas máximas entre el barrido y el MSS", minval = 1, group = G1)
+v1 = input.int(10, "Validez de la orden (velas)", minval = 1, group = G1)
+zona1 = input.string("FVG y si no OB", "Zona de entrada", options = ["FVG y si no OB", "Solo FVG", "Solo OB"], group = G1)
+tp1 = input.string("RR", "Take profit", options = ["RR", "Swing opuesto"], group = G1)
+
+const string G2 = "Setup 2: breaker block"
+s2On = input.bool(true, "Activar setup 2", group = G2)
+piv2 = input.int(5, "Swing: velas a cada lado", minval = 1, group = G2)
+v2 = input.int(10, "Validez de la orden (velas)", minval = 1, group = G2)
+
+const string G3 = "Setup 3: continuación en FVG"
+s3On = input.bool(true, "Activar setup 3", group = G3)
+tf3 = input.timeframe("60", "Temporalidad de la EMA", group = G3)
+ema3 = input.int(50, "Largo de la EMA", minval = 1, group = G3)
+v3 = input.int(10, "Validez de la orden (velas)", minval = 1, group = G3)
+
+const string G4 = "Setup 4: Poder de Tres (AMD)"
+s4On = input.bool(true, "Activar setup 4", group = G4)
+piv4 = input.int(3, "Swing del MSS: velas a cada lado", minval = 1, group = G4)
+n4 = input.int(10, "Velas máximas entre la perforación de Asia y el MSS", minval = 1, group = G4)
+v4 = input.int(10, "Validez de la orden (velas)", minval = 1, group = G4)
+tp4 = input.string("RR", "Take profit", options = ["RR", "Extremo opuesto de Asia"], group = G4)
+
+const string G5 = "Setup 5: sesgo de temporalidad mayor + entrada en killzone"
+s5On = input.bool(true, "Activar setup 5", group = G5)
+tf5 = input.timeframe("60", "Temporalidad del sesgo", group = G5)
+sesgo5 = input.string("Vela anterior", "Sesgo", options = ["Vela anterior", "Estructura"], group = G5)
+kz5 = input.string("Nueva York", "Killzone del setup 5", options = ["Nueva York", "Londres", "Las dos"], group = G5)
+piv5 = input.int(3, "Swing interno: velas a cada lado", minval = 1, group = G5)
+n5 = input.int(10, "Velas máximas entre el barrido y el FVG", minval = 1, group = G5)
+v5 = input.int(10, "Validez de la orden (velas)", minval = 1, group = G5)
+
+// ═══════════════ Utilidades
+const string NY = "America/New_York"
+atr14 = ta.atr(14)
+bool proximal = entrada == "Borde proximal"
+float margenTk = margenTicks * syminfo.mintick
+
+finSesion(string s) =>
+    int m = int(str.tonumber(str.substring(s, 5, 7))) * 60 + int(str.tonumber(str.substring(s, 7, 9)))
+    m == 0 ? 1440 : m
+
+minutoNY(int t) =>
+    hour(t, NY) * 60 + minute(t, NY)
+
+fvgAlc(int k) =>
+    low[k] > high[k + 2] and close[k + 1] > open[k + 1] and (low[k] - high[k + 2]) >= minFVG * atr14[k]
+
+fvgBaj(int k) =>
+    high[k] < low[k + 2] and close[k + 1] < open[k + 1] and (low[k + 2] - high[k]) >= minFVG * atr14[k]
+
+var array<line> lineas = array.new<line>()
+var array<box> cajas = array.new<box>()
+
+marcarNivel(float y, color col) =>
+    array.push(lineas, line.new(bar_index - 10, y, bar_index, y, color = col, style = line.style_dashed))
+    if array.size(lineas) > 20
+        line.delete(array.shift(lineas))
+
+marcarZona(float arriba, float abajo, int largo, color col) =>
+    array.push(cajas, box.new(bar_index - 2, arriba, bar_index + largo, abajo, border_color = col, bgcolor = color.new(col, 85)))
+    if array.size(cajas) > 20
+        box.delete(array.shift(cajas))
+
+bool enLon = not na(time(timeframe.period, sesLon, NY))
+bool enNYk = not na(time(timeframe.period, sesNY, NY))
+bool enAsia = not na(time(timeframe.period, sesAsia, NY))
+int mCierre = minutoNY(time_close) == 0 ? 1440 : minutoNY(time_close)
+int kzId = enLon ? 1 : enNYk ? 2 : 0
+bool permitido = (kzId == 1 and usarLon) or (kzId == 2 and usarNY)
+bool permitido5 = (kz5 == "Nueva York" and kzId == 2) or (kz5 == "Londres" and kzId == 1) or (kz5 == "Las dos" and kzId > 0)
+bool ultimaKZ = (enLon and mCierre >= finSesion(sesLon)) or (enNYk and mCierre >= finSesion(sesNY))
+int diaNY = dayofmonth(time, NY)
+bool nuevoDia = diaNY != diaNY[1]
+
+// ═══════════════ Swings (último pivote confirmado)
+var float ph1 = na
+var float pl1 = na
+var float ph4 = na
+var float pl4 = na
+var float ph5 = na
+var float pl5 = na
+float _a = ta.pivothigh(high, piv1, piv1)
+float _b = ta.pivotlow(low, piv1, piv1)
+float _c = ta.pivothigh(high, piv4, piv4)
+float _d = ta.pivotlow(low, piv4, piv4)
+float _e = ta.pivothigh(high, piv5, piv5)
+float _f = ta.pivotlow(low, piv5, piv5)
+if not na(_a)
+    ph1 := _a
+if not na(_b)
+    pl1 := _b
+if not na(_c)
+    ph4 := _c
+if not na(_d)
+    pl4 := _d
+if not na(_e)
+    ph5 := _e
+if not na(_f)
+    pl5 := _f
+
+// ═══════════════ Temporalidad mayor (sin repintado)
+estructuraMayor() =>
+    var float hph = na
+    var float hpl = na
+    var int est = 0
+    float prevH = hph
+    float prevL = hpl
+    float pH = ta.pivothigh(high, 3, 3)
+    float pL = ta.pivotlow(low, 3, 3)
+    if not na(pH)
+        hph := pH
+    if not na(pL)
+        hpl := pL
+    if not na(prevH) and close > prevH
+        est := 1
+    else if not na(prevL) and close < prevL
+        est := -1
+    est[1]
+
+float sesgo3 = request.security(syminfo.tickerid, tf3, math.sign(close[1] - ta.ema(close, ema3)[1]), lookahead = barmerge.lookahead_on)
+float sesgoVela = request.security(syminfo.tickerid, tf5, math.sign(close[1] - open[1]), lookahead = barmerge.lookahead_on)
+int sesgoEstr = request.security(syminfo.tickerid, tf5, estructuraMayor(), lookahead = barmerge.lookahead_on)
+float sesgo5v = sesgo5 == "Vela anterior" ? sesgoVela : sesgoEstr
+
+// ═══════════════ Orden candidata de esta vela (la primera que aparece gana)
+int cDir = 0
+float cEnt = na
+float cSL = na
+float cTP = na
+float cArriba = na
+float cAbajo = na
+int cV = 0
+
+// ═══════════════ SETUP 1: barrido de liquidez → MSS → FVG u OB
+var bool s1U = false
+var int s1Ub = 0
+var float s1Uext = na
+var float s1Univ = na
+var float s1Uuso = na
+var bool s1D = false
+var int s1Db = 0
+var float s1Dext = na
+var float s1Dniv = na
+var float s1Duso = na
+if s1On
+    float rl = pl1[1]
+    bool nuevoU = false
+    if not na(rl) and (na(s1Uuso) or rl != s1Uuso) and low < rl and close > rl and not na(ph1) and ph1 > close
+        s1U := true
+        s1Ub := bar_index
+        s1Uext := low
+        s1Univ := ph1
+        s1Uuso := rl
+        nuevoU := true
+        marcarNivel(rl, color.teal)
+    if s1U and not nuevoU
+        s1Uext := math.min(s1Uext, low)
+        if bar_index - s1Ub > n1
+            s1U := false
+        else if close > s1Univ
+            s1U := false
+            if permitido and cDir == 0
+                int largo = bar_index - s1Ub
+                float zArr = na
+                float zAba = na
+                if zona1 != "Solo OB" and largo >= 2
+                    for k = 0 to largo - 2
+                        if fvgAlc(k)
+                            zArr := low[k]
+                            zAba := high[k + 2]
+                            break
+                if na(zArr) and zona1 != "Solo FVG"
+                    for k = 0 to largo
+                        if close[k] < open[k]
+                            zArr := high[k]
+                            zAba := low[k]
+                            break
+                if not na(zArr)
+                    float e = proximal ? zArr : (zArr + zAba) / 2
+                    float sl = s1Uext - margenATR * atr14 - margenTk
+                    if e < close and e > sl
+                        cDir := 1
+                        cEnt := e
+                        cSL := sl
+                        cTP := tp1 == "Swing opuesto" and not na(ph1) and ph1 > e ? ph1 : na
+                        cArriba := zArr
+                        cAbajo := zAba
+                        cV := v1
+    float rh = ph1[1]
+    bool nuevoD = false
+    if not na(rh) and (na(s1Duso) or rh != s1Duso) and high > rh and close < rh and not na(pl1) and pl1 < close
+        s1D := true
+        s1Db := bar_index
+        s1Dext := high
+        s1Dniv := pl1
+        s1Duso := rh
+        nuevoD := true
+        marcarNivel(rh, color.red)
+    if s1D and not nuevoD
+        s1Dext := math.max(s1Dext, high)
+        if bar_index - s1Db > n1
+            s1D := false
+        else if close < s1Dniv
+            s1D := false
+            if permitido and cDir == 0
+                int largo = bar_index - s1Db
+                float zAba = na
+                float zArr = na
+                if zona1 != "Solo OB" and largo >= 2
+                    for k = 0 to largo - 2
+                        if fvgBaj(k)
+                            zAba := high[k]
+                            zArr := low[k + 2]
+                            break
+                if na(zAba) and zona1 != "Solo FVG"
+                    for k = 0 to largo
+                        if close[k] > open[k]
+                            zAba := low[k]
+                            zArr := high[k]
+                            break
+                if not na(zAba)
+                    float e = proximal ? zAba : (zAba + zArr) / 2
+                    float sl = s1Dext + margenATR * atr14 + margenTk
+                    if e > close and e < sl
+                        cDir := -1
+                        cEnt := e
+                        cSL := sl
+                        cTP := tp1 == "Swing opuesto" and not na(pl1) and pl1 < e ? pl1 : na
+                        cArriba := zArr
+                        cAbajo := zAba
+                        cV := v1
+
+// ═══════════════ SETUP 2: breaker block
+float p2h = ta.pivothigh(high, piv2, piv2)
+float p2l = ta.pivotlow(low, piv2, piv2)
+var float u2H = na
+var int u2Hb = na
+var float u2L = na
+var int u2Lb = na
+var bool obB = false
+var float obBh = na
+var float obBl = na
+var bool obA = false
+var float obAh = na
+var float obAl = na
+if not na(p2h)
+    if not na(u2H) and p2h > u2H and not na(u2Lb)
+        for q = 0 to 3
+            int idx = u2Lb - q
+            if idx >= 0
+                int off = bar_index - idx
+                if close[off] < open[off]
+                    obA := true
+                    obAh := high[off]
+                    obAl := low[off]
+                    break
+    u2H := p2h
+    u2Hb := bar_index - piv2
+if not na(p2l)
+    if not na(u2L) and p2l < u2L and not na(u2Hb)
+        for q = 0 to 3
+            int idx = u2Hb - q
+            if idx >= 0
+                int off = bar_index - idx
+                if close[off] > open[off]
+                    obB := true
+                    obBh := high[off]
+                    obBl := low[off]
+                    break
+    u2L := p2l
+    u2Lb := bar_index - piv2
+if obB and close > obBh
+    obB := false
+    if s2On and permitido and cDir == 0
+        float e = proximal ? obBh : (obBh + obBl) / 2
+        float sl = obBl - margenATR * atr14 - margenTk
+        if e < close and e > sl
+            cDir := 1
+            cEnt := e
+            cSL := sl
+            cArriba := obBh
+            cAbajo := obBl
+            cV := v2
+if obA and close < obAl
+    obA := false
+    if s2On and permitido and cDir == 0
+        float e = proximal ? obAl : (obAh + obAl) / 2
+        float sl = obAh + margenATR * atr14 + margenTk
+        if e > close and e < sl
+            cDir := -1
+            cEnt := e
+            cSL := sl
+            cArriba := obAh
+            cAbajo := obAl
+            cV := v2
+
+// ═══════════════ SETUP 3: continuación en FVG a favor de la EMA mayor
+if s3On and permitido and cDir == 0
+    if sesgo3 == 1 and fvgAlc(0)
+        float e = proximal ? low : (low + high[2]) / 2
+        float sl = low[2] - margenATR * atr14 - margenTk
+        if e < close and e > sl
+            cDir := 1
+            cEnt := e
+            cSL := sl
+            cArriba := low
+            cAbajo := high[2]
+            cV := v3
+    else if sesgo3 == -1 and fvgBaj(0)
+        float e = proximal ? high : (high + low[2]) / 2
+        float sl = high[2] + margenATR * atr14 + margenTk
+        if e > close and e < sl
+            cDir := -1
+            cEnt := e
+            cSL := sl
+            cArriba := low[2]
+            cAbajo := high
+            cV := v3
+
+// ═══════════════ SETUP 4: Poder de Tres (acumulación en Asia, manipulación, distribución)
+var float aH = na
+var float aL = na
+var float aHt = na
+var float aLt = na
+if enAsia and not enAsia[1]
+    aHt := high
+    aLt := low
+else if enAsia
+    aHt := math.max(aHt, high)
+    aLt := math.min(aLt, low)
+if not enAsia and enAsia[1]
+    aH := aHt
+    aL := aLt
+var int e4U = 0
+var bool u4U = false
+var int s4U = 0
+var int r4U = 0
+var float m4U = na
+var float n4U = na
+var int e4D = 0
+var bool u4D = false
+var int s4D = 0
+var int r4D = 0
+var float m4D = na
+var float n4D = na
+if nuevoDia
+    e4U := 0
+    u4U := false
+    e4D := 0
+    u4D := false
+if s4On and not na(aL) and not na(aH)
+    if not u4U
+        if e4U == 0
+            if permitido and low < aL and not na(ph4) and ph4 > close
+                e4U := 1
+                s4U := bar_index
+                m4U := low
+                n4U := ph4
+                marcarNivel(aL, color.teal)
+                if close > aL
+                    e4U := 2
+                    r4U := bar_index
+        else
+            m4U := math.min(m4U, low)
+            if e4U == 1 and close > aL
+                e4U := 2
+                r4U := bar_index
+            if bar_index - s4U > n4
+                e4U := 0
+            else if e4U == 2 and close > n4U
+                u4U := true
+                e4U := 0
+                if permitido and cDir == 0
+                    int lim = bar_index - math.max(r4U, 2)
+                    if lim >= 0
+                        for k = 0 to lim
+                            if fvgAlc(k)
+                                float e = proximal ? low[k] : (low[k] + high[k + 2]) / 2
+                                float sl = m4U - margenATR * atr14 - margenTk
+                                if e < close and e > sl
+                                    cDir := 1
+                                    cEnt := e
+                                    cSL := sl
+                                    cTP := tp4 == "Extremo opuesto de Asia" ? aH : na
+                                    cArriba := low[k]
+                                    cAbajo := high[k + 2]
+                                    cV := v4
+                                break
+    if not u4D
+        if e4D == 0
+            if permitido and high > aH and not na(pl4) and pl4 < close
+                e4D := 1
+                s4D := bar_index
+                m4D := high
+                n4D := pl4
+                marcarNivel(aH, color.red)
+                if close < aH
+                    e4D := 2
+                    r4D := bar_index
+        else
+            m4D := math.max(m4D, high)
+            if e4D == 1 and close < aH
+                e4D := 2
+                r4D := bar_index
+            if bar_index - s4D > n4
+                e4D := 0
+            else if e4D == 2 and close < n4D
+                u4D := true
+                e4D := 0
+                if permitido and cDir == 0
+                    int lim = bar_index - math.max(r4D, 2)
+                    if lim >= 0
+                        for k = 0 to lim
+                            if fvgBaj(k)
+                                float e = proximal ? high[k] : (high[k] + low[k + 2]) / 2
+                                float sl = m4D + margenATR * atr14 + margenTk
+                                if e > close and e < sl
+                                    cDir := -1
+                                    cEnt := e
+                                    cSL := sl
+                                    cTP := tp4 == "Extremo opuesto de Asia" ? aL : na
+                                    cArriba := low[k + 2]
+                                    cAbajo := high[k]
+                                    cV := v4
+                                break
+
+// ═══════════════ SETUP 5: sesgo mayor + barrido interno + FVG en la killzone
+var bool s5U = false
+var int s5Ub = 0
+var float s5Uext = na
+var float s5Uuso = na
+var bool s5D = false
+var int s5Db = 0
+var float s5Dext = na
+var float s5Duso = na
+if s5On
+    if not permitido5 or sesgo5v != 1
+        s5U := false
+    else
+        float rl = pl5[1]
+        if not na(rl) and (na(s5Uuso) or rl != s5Uuso) and low < rl
+            s5U := true
+            s5Ub := bar_index
+            s5Uext := low
+            s5Uuso := rl
+            marcarNivel(rl, color.teal)
+        else if s5U
+            s5Uext := math.min(s5Uext, low)
+            if bar_index - s5Ub > n5
+                s5U := false
+            else if bar_index - 2 >= s5Ub and fvgAlc(0)
+                if cDir == 0
+                    float e = proximal ? low : (low + high[2]) / 2
+                    float sl = s5Uext - margenATR * atr14 - margenTk
+                    if e < close and e > sl
+                        cDir := 1
+                        cEnt := e
+                        cSL := sl
+                        cArriba := low
+                        cAbajo := high[2]
+                        cV := v5
+                s5U := false
+    if not permitido5 or sesgo5v != -1
+        s5D := false
+    else
+        float rh = ph5[1]
+        if not na(rh) and (na(s5Duso) or rh != s5Duso) and high > rh
+            s5D := true
+            s5Db := bar_index
+            s5Dext := high
+            s5Duso := rh
+            marcarNivel(rh, color.red)
+        else if s5D
+            s5Dext := math.max(s5Dext, high)
+            if bar_index - s5Db > n5
+                s5D := false
+            else if bar_index - 2 >= s5Db and fvgBaj(0)
+                if cDir == 0
+                    float e = proximal ? high : (high + low[2]) / 2
+                    float sl = s5Dext + margenATR * atr14 + margenTk
+                    if e > close and e < sl
+                        cDir := -1
+                        cEnt := e
+                        cSL := sl
+                        cArriba := low[2]
+                        cAbajo := high
+                        cV := v5
+                s5D := false
+
+// ═══════════════ Límites diarios, órdenes pendientes y cierre forzoso
+var int opsHoy = 0
+var int perdHoy = 0
+if nuevoDia
+    opsHoy := 0
+    perdHoy := 0
+int totalOps = strategy.opentrades + strategy.closedtrades
+if totalOps > nz(totalOps[1])
+    opsHoy += 1
+int cerradas = strategy.closedtrades
+if cerradas > nz(cerradas[1])
+    for t = nz(cerradas[1]) to cerradas - 1
+        if strategy.closedtrades.profit(t) <= 0
+            perdHoy += 1
+        else
+            perdHoy := 0
+
+var bool pendiente = false
+var int barraOrden = 0
+var int vOrden = 0
+var float tpPend = na
+var int dirPend = 0
+if pendiente and totalOps > nz(totalOps[1])
+    pendiente := false
+if pendiente
+    if bar_index - barraOrden >= vOrden or ultimaKZ or kzId == 0 or (dirPend == 1 and high >= tpPend) or (dirPend == -1 and low <= tpPend)
+        strategy.cancel("Compra")
+        strategy.cancel("Venta")
+        pendiente := false
+
+int finOper = finSesion(sesOper)
+if cierreForzoso and strategy.position_size != 0 and mCierre >= finOper and minutoNY(time) < finOper
+    strategy.close_all(comment = "Cierre de sesión")
+
+bool libre = strategy.position_size == 0 and not pendiente
+bool limitesOK = opsHoy < maxDia and perdHoy < maxPerd
+if cDir != 0 and libre and limitesOK and time >= desde and time < hasta and not ultimaKZ
+    float riesgo = (cEnt - cSL) * cDir
+    float tp = na(cTP) ? cEnt + cDir * rr * riesgo : cTP
+    float costo = costoPct / 100 * cEnt + costoAbs
+    if riesgo > 0 and riesgo >= 3 * costo and (tp - cEnt) * cDir > 0
+        float cantidad = strategy.equity * riesgoPct / 100 / (riesgo * syminfo.pointvalue)
+        if cDir == 1
+            strategy.entry("Compra", strategy.long, qty = cantidad, limit = cEnt)
+            strategy.exit("Salida compra", "Compra", stop = cSL, limit = tp)
+        else
+            strategy.entry("Venta", strategy.short, qty = cantidad, limit = cEnt)
+            strategy.exit("Salida venta", "Venta", stop = cSL, limit = tp)
+        pendiente := true
+        barraOrden := bar_index
+        vOrden := cV
+        tpPend := tp
+        dirPend := cDir
+        marcarZona(cArriba, cAbajo, cV, cDir == 1 ? color.teal : color.red)
+
+plot(s4On ? aH : na, "Máximo de Asia", color = color.new(color.orange, 30), style = plot.style_linebr)
+plot(s4On ? aL : na, "Mínimo de Asia", color = color.new(color.orange, 30), style = plot.style_linebr)
+bgcolor(kzId == 1 ? color.new(color.blue, 93) : kzId == 2 ? color.new(color.purple, 93) : na, title = "Killzones")

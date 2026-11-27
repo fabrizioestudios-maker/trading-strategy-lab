@@ -25,9 +25,9 @@ Cada experimento es un script en `experimentos/` que escribe sus resultados en `
 | Carpeta | Qué hay |
 | --- | --- |
 | `lab/` | Datos (`datos.py`), descarga (`descarga_histdata.py`), motor numba (`motor.py`), métricas (`metricas.py`), señales (`senales.py`), estrategias operables (`estrategia.py`), COT de la CFTC (`cot.py`) |
-| `experimentos/` | E000 calidad de datos · E001 línea de base · E002 filtros de tendencia · E003 tendencia operable · E004 retrocesos y reversión · E005 intradía · E006 retrocesos en índices · E007 régimen de volatilidad · E008 cartera de tendencia · E009 validación · E010 aprendizaje automático · E011 elección de candidatas · E012 Sharpe y teoría · E013 curva de la candidata · E014 divergencias y multi-temporalidad · E015 máximos de 52 semanas, estacionalidad y momentum transversal (E015b, E015c) · E016 COT · E017 retroceso en los líderes de momentum · E018 historia larga (pausada) · E019 búsqueda exhaustiva en los últimos 5 años · E020 pruebas de las finalistas · E021 sensibilidad · E022 estrategia recomendada · E023 setup SMC en 6 activos y 3 pares de temporalidades · E024 finalistas del setup SMC |
+| `experimentos/` | E000 calidad de datos · E001 línea de base · E002 filtros de tendencia · E003 tendencia operable · E004 retrocesos y reversión · E005 intradía · E006 retrocesos en índices · E007 régimen de volatilidad · E008 cartera de tendencia · E009 validación · E010 aprendizaje automático · E011 elección de candidatas · E012 Sharpe y teoría · E013 curva de la candidata · E014 divergencias y multi-temporalidad · E015 máximos de 52 semanas, estacionalidad y momentum transversal (E015b, E015c) · E016 COT · E017 retroceso en los líderes de momentum · E018 historia larga (pausada) · E019 búsqueda exhaustiva en los últimos 5 años · E020 pruebas de las finalistas · E021 sensibilidad · E022 estrategia recomendada · E023 setup SMC en 6 activos y 3 pares de temporalidades · E024 finalistas del setup SMC · E025 los 5 setups ICT del prompt de Google |
 | `resultados/` | CSV y JSON de cada experimento |
-| `pine/` | Estrategias en Pine Script v6 para el probador de TradingView: oro D1 Bollinger (`oro_d1_bollinger_sma200.pine`) y el setup SMC configurable (`smc_barrido_estructura.pine`) |
+| `pine/` | Estrategias en Pine Script v6 para el probador de TradingView: oro D1 Bollinger (`oro_d1_bollinger_sma200.pine`) el setup SMC configurable (`smc_barrido_estructura.pine`) y los 5 setups ICT (`ict_cinco_setups.pine`) |
 | `tests/` | Pruebas del motor |
 | `data/` | No se sube; se regenera con la descarga |
 
@@ -43,6 +43,8 @@ XAUUSD y XAGUSD; EURUSD, GBPUSD, USDJPY y AUDUSD; SPX500, NAS100, Nikkei 225, FT
 **Estrategia recomendada para los últimos 5 años:** oro D1, ruptura de Bollinger (20, 2) a favor de la SMA 200, SL 0,5 ATR(14), TP 2 × SL. Da 55,2 % de acierto y +0,63 R por operación en 2021–2026 (58 operaciones), y 43,6 % y +0,29 R en 2011–2021. Código: `pine/oro_d1_bollinger_sma200.pine`. Operaciones para comparar con el probador: `resultados/E022/operaciones_5a.csv`. Detalle en `BITACORA.md`, entradas 18 y 19.
 
 **Setup SMC de Fabrizio (scalping y daytrading):** se probaron 171.072 variantes en 6 activos y en 1H–5M, 4H–15M y 15M–1M, en los últimos 5 años. Ninguna llega a 50 % de acierto con RR 1:2; el promedio es 33 %, igual que el azar. Las mejores de cada activo dan 43–47 %, pero elegir así no funcionó a futuro. Estrategia configurable: `pine/smc_barrido_estructura.pine`. Detalle en `BITACORA.md`, entradas 20 y 21.
+
+**Los 5 setups ICT del prompt de Google:** pierden en los 6 activos con la configuración del prompt (19.908 pruebas, RR 1:2, últimos 5 años). Ninguna variante llega a 50 % de forma estable. Script: `pine/ict_cinco_setups.pine`. Detalle en `BITACORA.md`, entradas 22 y 23.
 
 
 **Fases 1 y 2 terminadas.** Resumen en `docs/conclusiones.md`:

@@ -897,3 +897,50 @@ Mejor win rate de los 5 años por activo y par, entre las combinaciones con al m
 - **Variantes:** borde o 50 %, tamaño mínimo de FVG (0 o 0,25 ATR), N y V (10 o 20), killzone (las dos, solo Londres o solo NY), cierre forzoso sí o no, L (3 o 5), EMA (50 o 200) y TP de Asia en el setup 4.
 
 **Qué se informa:** el resultado de la configuración del prompt y la mejor variante de cada setup. También se mide cuánto rinden en la confirmación las variantes que mejor salen en la elección, igual que en E023.
+
+---
+
+## 2026-11-27 01:12 UTC — Entrada 23: resultados de los 5 setups ICT del prompt de Google (E025)
+
+**Corrección antes de leer los números.** En la primera corrida, los totales de 5 años incluían también las operaciones del 01/01 al 14/11/2021, que solo debían calentar los indicadores. Se detectó porque el total no daba la suma de elección más confirmación. Se corrigió filtrando los setups desde el 15/11/2021 y se volvió a correr todo. Las cifras de elección y confirmación no cambiaron.
+
+**Grilla.** 19.908 pruebas: 5 setups, más los 5 combinados, × 6 activos × 1M, 5M y 15M × variantes, con RR 1:2 y las reglas globales del prompt. Tardó 58 segundos.
+
+**Configuración del prompt** (18 casos por setup: 6 activos × 3 temporalidades; últimos 5 años):
+
+| Setup | Win rate | Resultado por operación | Casos positivos | Mejor caso |
+| --- | --- | --- | --- | --- |
+| 1 Barrido → OB/FVG | 29,4–40,0 % | −0,34 a +0,02 R | 1 de 18 | XAUUSD 15M: 40,0 %, +0,02 R (160 ops) |
+| 2 Breaker block | 29,9–36,4 % | −0,30 a −0,02 R | 0 de 18 | XAUUSD 15M: 36,4 %, −0,02 R (549) |
+| 3 Continuación FVG | 32,1–38,0 % | −0,30 a −0,03 R | 0 de 18 | XAUUSD 15M: 38,0 %, −0,03 R (1.164) |
+| 4 Poder de Tres (AMD) | 22,6–38,4 % | −0,40 a +0,00 R | 1 de 18 | EURUSD 15M: 38,4 %, +0,00 R (112) |
+| 5 Sesgo mayor + NY | 25,8–46,6 % | −0,39 a +0,07 R | 3 de 18 | XAUUSD 15M: 46,6 %, +0,07 R (58) |
+| Los 5 combinados | 31,1–38,0 % | −0,33 a −0,02 R | 0 de 18 | XAUUSD 15M: 38,0 %, −0,02 R (1.449) |
+
+**Todas las variantes**
+- **Promedio:** el win rate medio por setup y temporalidad va de 28,7 % a 34,8 %, el nivel del azar con 1:2.
+- **En 1M nada es positivo.** En 15M, entre el 4 % y el 24 % de las variantes da positivo.
+- **Superan el 50 % con al menos 50 operaciones solo dos configuraciones:**
+  - setup 4 en GBPUSD 5M con TP en el extremo de Asia: 50,0 %, pero ese TP no es 1:2;
+  - setup 2 en USDCAD 15M: 57 % en la elección y 35 % en la confirmación.
+
+**Elección → confirmación.** 179 variantes pasan la elección y en la confirmación dan −0,084 R en promedio (todas juntas: −0,169 R).
+- **Setup 5:** sus elegidas siguen positivas, +0,114 R con 39,5 % de acierto (24 variantes).
+- **Setup 1:** −0,12 R.
+- **Setup 4:** −0,09 R.
+- **Setup 2:** −0,20 R (4 variantes).
+
+**Las mejores que pasan las dos etapas** (ojo: elegidas mirando los 5 años):
+
+| Configuración | Ops | Win rate | Expectancy | PF | Max DD | Elección / confirmación |
+| --- | --- | --- | --- | --- | --- | --- |
+| Setup 5, XAUUSD 15M (mayor 4H): killzone de NY, sesgo por estructura, entrada al 50 % del FVG, FVG ≥ 0,25 ATR, sin cierre forzoso | 82 | 45,1 % | +0,30 R | 1,52 | 8,4 R | 47,9 % / 41,2 % |
+| Setup 1, XAUUSD 15M: solo Londres, pivote 3, N 20, entrada en el OB (borde), sin cierre forzoso | 144 | 45,1 % | +0,28 R | 1,48 | 7,5 R | 47,1 % / 40,5 % |
+
+**Conclusión**
+- El prompt de Google, tal como está, **pierde en los 6 activos** en los últimos 5 años.
+- Ninguna variante llega a 50 % con RR 1:2 de forma estable.
+- Coincide con el setup SMC propio (E023), con los 1.584 modelos de LuxAlgo y con la teoría: con stops intradía, estos patrones no anticipan la dirección.
+- Lo único con algo de persistencia es el setup 5 en 15M en la killzone de NY, sobre todo en oro, y queda en 41–48 % de acierto.
+
+**Entregable:** `pine/ict_cinco_setups.pine`, con los 5 setups activables, las killzones y el cierre forzoso como inputs, tamaño por riesgo, máximo diario, stop diario y dibujos limitados a 20. Por defecto viene con la configuración del prompt.
