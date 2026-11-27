@@ -1,0 +1,8 @@
+experimento,familia,configuraciones,periodo_de_busqueda,fuente_del_numero,uso_de_datos_de_validacion
+E001-E018,"indicadores clasicos, momentum, retrocesos, reversion, intradia, divergencias, ML, COT, estacionalidad",1560,2010-2021,"BITACORA entradas 2-16 (conteo aproximado de la propia bitacora)","validacion 2022-2026 mirada una sola vez para la candidata B (E009)"
+proyectos previos,"modelos SMC/ICT de LuxAlgo, Setup A+, scalping (noticias-bot / senales-vip)",1600,variable,"BITACORA entrada 1 y docs/conclusiones.md",sin control de muestras
+E019,"40 senales x 3 filtros x 3 direcciones x 7 SL x 5 temporalidades x 13 instrumentos",185367,2021-11-15 a 2026-11-13,"resultados/E019/grilla_*.csv.gz (171.850 simuladas + 13.517 sin senales)","ranking final con los 5 anios (incluye confirmacion); E022 elegida mirando 2011-2021"
+E020-E022,"pruebas de las 11 finalistas y sensibilidad del oro D1",~200,2011-2026,resultados/E020-E022,"2011-2021 usado para elegir entre 11"
+E023,"setup SMC: 6 activos x 3 pares x 9.504",171072,2021-11-15 a 2026-11-13,resultados/E023/grilla_*.csv.gz,"ranking final con los 5 anios (incluye confirmacion)"
+E025,"5 setups ICT + combinados x 6 activos x 3 temporalidades",19908,2021-11-15 a 2026-11-13,resultados/E025/grilla_*.csv.gz,"ranking final con los 5 anios"
+TOTAL,,~379700,,,

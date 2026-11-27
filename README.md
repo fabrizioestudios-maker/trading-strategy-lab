@@ -41,6 +41,13 @@ XAUUSD y XAGUSD; EURUSD, GBPUSD, USDJPY y AUDUSD; SPX500, NAS100, Nikkei 225, FT
 
 ## Estado (27/11/2026)
 
+**Fase 4 (rama `phase-4-quantitative-research`):**
+- Auditoría integral en `docs/auditoria_fase0.md` y criterios v2 con categorías A/B/C en `docs/criterios_v2.md` y `lab/politica.py`.
+- Herramientas DSR, PBO y bootstrap en `lab/validacion.py`; presupuesto de pruebas en `registro/`; manifiesto de datos y dependencias fijas.
+- Resultados:
+  - el oro D1 (E022) le gana al azar (p = 0,0005), pero queda en **categoría B** hasta una prueba a futuro;
+  - en SMC e ICT, elegir por el pasado no generaliza (E026).
+
 **Estrategia recomendada para los últimos 5 años:** oro D1, ruptura de Bollinger (20, 2) a favor de la SMA 200, SL 0,5 ATR(14), TP 2 × SL. Da 55,2 % de acierto y +0,63 R por operación en 2021–2026 (58 operaciones), y 43,6 % y +0,29 R en 2011–2021. Código: `pine/oro_d1_bollinger_sma200.pine`. Operaciones para comparar con el probador: `resultados/E022/operaciones_5a.csv`. Detalle en `BITACORA.md`, entradas 18 y 19.
 
 **Setup SMC de Fabrizio (scalping y daytrading):** se probaron 171.072 variantes en 6 activos y en 1H–5M, 4H–15M y 15M–1M, en los últimos 5 años. Ninguna llega a 50 % de acierto con RR 1:2; el promedio es 33 %, igual que el azar. Las mejores de cada activo dan 43–47 %, pero elegir así no funcionó a futuro. Estrategia configurable: `pine/smc_barrido_estructura.pine`. Detalle en `BITACORA.md`, entradas 20 y 21.

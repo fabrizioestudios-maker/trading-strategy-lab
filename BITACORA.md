@@ -1021,3 +1021,45 @@ En consecuencia, **para el oro D1 ya no queda ningún período de 2010–2026 si
 - Política de aceptación centralizada y versionada (`lab/politica.py`, `docs/criterios_v2.md`). La misión original (50 % y 1:2) se conserva como "Misión A". Las categorías A/B/C son la escala para ventajas con otro perfil de acierto.
 - Herramientas estadísticas en `lab/validacion.py` (PSR, DSR, PBO/CSCV, bootstrap), con pruebas.
 - Registro del presupuesto de pruebas, manifiesto de datos con huellas sha256 y dependencias con versiones fijas.
+
+---
+
+## 2026-11-27 07:50 UTC — Entrada 26: resultados de E026–E027 y auditoría de la fase 0
+
+**E026-A · selección solo con la muestra de elección**
+- **E019:** la regla corregida elige la misma primera (USDJPY H4 momentum 60). E022 fue la segunda; la contaminación vino de elegirla mirando 2011–2021.
+- **Proceso honesto** (las 10 mejores por elección, sin mirar la confirmación):
+
+| Búsqueda | En la confirmación | Positivas |
+| --- | --- | --- |
+| E019 | +0,098 R (38,2 % de acierto) | 6 de 10 |
+| E023 | −0,145 R | 2 de 10 |
+| E025 | −0,050 R | 4 de 10 |
+
+- **E023:** con la regla corregida cambia la mejor de EURUSD, US100 y USDCAD.
+
+**E026-B · PBO (CSCV, 4 bloques; estimación gruesa: 6 particiones)**
+
+| Búsqueda | PBO |
+| --- | --- |
+| E019 | D1 0,50 · H1 0,17 · H4 0,67 · M15 0,17 · M5 0,67 (win rate por bloque) |
+| E023 | 15M–1M 0,33 · 1H–5M 0,50 · 4H–15M 0,50 |
+| E025 | setup 1 0,50 · 2 0,50 · 3 0,17 · 4 1,00 · 5 0,17 |
+
+- En SMC, la elegida por elección rinde **peor que la mediana** en la confirmación (1H–5M: −0,231 contra −0,147 R).
+- El setup 5 es la excepción: la elegida da +0,078 contra −0,181 R de la mediana.
+
+**E026-C · llenado realista** (`realista=True`): cambian 39.252 de 91.687 configuraciones de E023 (−0,006 R en promedio, p5 −0,030, peor −0,223) y 3.146 de 19.322 de E025 (−0,002 R). El sesgo era real y optimista, pero ninguna conclusión cambia.
+
+**E027 · oro D1 (E022)**
+- **Resultados:**
+  - 15 años (2011-11 a 2026-11): 168 operaciones, 47,6 %, +0,407 R, PF 1,76, IC 95 % [+0,175; +0,639].
+  - 5 años: 58 operaciones, 55,2 %, +0,634 R, IC [+0,265; +0,999].
+- **Contra entradas al azar** del lado de la SMA 200 (mismo año, lado, SL/TP y costos; 2.000 simulaciones): media +0,029 R, **p = 0,0005** (15 años); 5 años p = 0,009. Sin filtro de tendencia: p = 0,0035. **No es solo deriva.**
+- **DSR** (5 años, Sharpe por operación 0,420; varianza de Sharpe en E019 0,0201): N = 10 → 0,92; 100 → 0,67; 1.000 → 0,38; **N efectivo 4.098 → 0,24**; 161.302 → 0,06. Complementario, no fijado de antemano: en 2011–2021, PSR(0) = 0,98 y DSR con N = 11 finalistas = 0,80.
+- **Estrés:** swap base +0,389 R, swap adverso +0,368 R (0,96 noches de promedio) y costos × 3 +0,365 R.
+- **Clasificación (`lab/politica.py`): categoría B.** Falla el DSR ≥ 0,95 y no hay período sin usar. Lo único que puede llevarla a A es una **prueba a futuro**.
+
+**Auditoría completa:** `docs/auditoria_fase0.md` (14 hallazgos por gravedad, afirmaciones de los prompts corregidas, plan E028–E032, qué no hacer y lista de control).
+
+**Próximo paso:** prueba a futuro de E022 y del setup 5 ICT en el reproductor desde el 27/11/2026, y E028 (walk-forward de la familia de E022).

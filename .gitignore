@@ -1,6 +1,11 @@
 # Datos crudos y derivados (pesados): se bajan con lab/descarga_histdata.py
 data/*
 !data/README.md
+!data/MANIFIESTO.csv
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+
+# grillas regenerables de E026 (parte C): solo se versiona el resumen
+resultados/E026/C_E023/
+resultados/E026/C_E025/

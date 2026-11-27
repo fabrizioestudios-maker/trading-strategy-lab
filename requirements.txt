@@ -1,0 +1,8 @@
+# Versiones con las que se corrieron E000–E027 (27/11/2026). Fijarlas evita cambios silenciosos de resultados.
+numpy==2.5.3
+pandas==3.0.5
+numba==0.68.1
+scipy==1.18.1
+scikit-learn==1.9.1
+matplotlib==3.11.2
+pytest==9.1.1
