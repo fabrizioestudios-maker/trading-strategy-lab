@@ -1,0 +1,829 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="NEXUS: replay histórico del oro (XAUUSD) vela por vela con velas de 1 minuto desde 2018, herramientas de dibujo, indicadores SMC e ICT, probador de estrategias y diario de operaciones. Gratis, en el navegador.">
+<meta name="theme-color" content="#05070D">
+<meta property="og:type" content="website">
+<meta property="og:title" content="NEXUS · Institutional Trading Terminal">
+<meta property="og:description" content="NEXUS: replay histórico del oro (XAUUSD) vela por vela con velas de 1 minuto desde 2018, herramientas de dibujo, indicadores SMC e ICT, probador de estrategias y diario de operaciones. Gratis, en el navegador.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34'%3E%3Crect width='34' height='34' rx='8' fill='%2305070D'/%3E%3Cg stroke='%2322D3EE' stroke-opacity='.5'%3E%3Cpath d='M7 11L17 7M7 11L17 17M7 23L17 17M7 23L17 27M17 7L27 17M17 17L27 17M17 27L27 17'/%3E%3C/g%3E%3Ccircle cx='7' cy='11' r='2.4' fill='%2322D3EE'/%3E%3Ccircle cx='7' cy='23' r='2.4' fill='%2322D3EE'/%3E%3Ccircle cx='17' cy='17' r='2.8' fill='%232563EB'/%3E%3Ccircle cx='27' cy='17' r='3' fill='%238B5CF6'/%3E%3C/svg%3E">
+<title>NEXUS XAUUSD Terminal</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* NEXUS:css */
+/* NEXUS — Institutional Trading Terminal. Sistema de diseño único (lo inyecta armar.py en index.html y publico.html).
+   Layout: header NEXUS · barra de instrumento · [dibujo | gráfico + replay + red + Strategy Lab | operaciones] ;
+   en el celular: gráfico → replay → operaciones → herramientas → Strategy Lab. Solo oscuro, a propósito. */
+:root {
+  /* paleta obligatoria */
+  --nx-bg: #05070D; --nx-bg-2: #080B12; --nx-espacial: #0B1224; --nx-panel: #10192B; --nx-panel-2: #131E32;
+  --nx-azul: #2563EB; --nx-cian: #22D3EE; --nx-violeta: #8B5CF6;
+  --nx-texto: #F1F5F9; --nx-texto-2: #94A3B8; --nx-texto-3: #5E6B80;
+  --nx-buy: #22C55E; --nx-sell: #EF4444; --nx-alerta: #F59E0B;
+  /* derivados */
+  --nx-borde: rgba(148, 163, 184, .10); --nx-borde-2: rgba(148, 163, 184, .18); --nx-borde-luz: rgba(34, 211, 238, .30);
+  --nx-vidrio: rgba(13, 21, 38, .74); --nx-vidrio-2: rgba(16, 25, 43, .86);
+  --nx-cian-dim: rgba(34, 211, 238, .12); --nx-azul-dim: rgba(37, 99, 235, .16); --nx-violeta-dim: rgba(139, 92, 246, .14);
+  --nx-sombra: 0 24px 48px -28px rgba(0, 0, 0, .9); --nx-halo: 0 0 0 1px rgba(34, 211, 238, .06), 0 0 28px -12px rgba(34, 211, 238, .35);
+  --nx-grad: linear-gradient(135deg, var(--nx-azul), var(--nx-cian));
+  --nx-r: 12px; --nx-r-sm: 8px; --nx-r-xs: 6px;
+  --nx-e1: 4px; --nx-e2: 8px; --nx-e3: 12px; --nx-e4: 16px;
+  --nx-dur: .18s; --nx-ease: cubic-bezier(.2, .8, .2, 1);
+  --nx-titulo: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --fuente: 'Inter', 'DM Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  /* nombres que leen los scripts (valores literales para que el gráfico los pueda usar) */
+  --bg: #080B12; --panel: #10192B; --panel-2: #131E32; --borde: rgba(148, 163, 184, .12); --borde-fuerte: rgba(148, 163, 184, .2);
+  --texto: #F1F5F9; --texto-2: #94A3B8; --texto-3: #5E6B80;
+  --acento: #22D3EE; --acento-suave: #A5F3FC; --acento-dim: rgba(34, 211, 238, .12); --acento-texto: #031219;
+  --sube: #22C55E; --baja: #EF4444; --grilla: rgba(148, 163, 184, .055);
+  --sb: rgba(139, 92, 246, .09); --kz-asia: rgba(139, 92, 246, .07); --kz-lon: rgba(34, 211, 238, .06); --kz-ny: rgba(37, 99, 235, .08); --kz-cierre: rgba(148, 163, 184, .05);
+  --pend: #F59E0B; --sombra: 0 18px 40px -14px rgba(0, 0, 0, .75);
+  --display: var(--nx-titulo); --radio: 12px; --radio-sm: 8px; --sinapsis: #22D3EE;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--nx-bg); color: var(--nx-texto); font-family: var(--fuente); font-size: 13px; margin: 0; -webkit-font-smoothing: antialiased; }
+::selection { background: var(--nx-cian); color: var(--acento-texto); }
+body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: -1;
+  background: radial-gradient(1100px 600px at 85% -10%, rgba(37, 99, 235, .13), transparent 60%), radial-gradient(800px 520px at -10% 110%, rgba(139, 92, 246, .10), transparent 60%), var(--nx-bg); }
+#fondo-neuronal { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+.app { position: relative; z-index: 1; display: grid; gap: var(--nx-e2); padding-block: var(--nx-e2) var(--nx-e4); padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px)); }
+@media (max-width: 600px) { .app { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); } }
+.app:fullscreen { overflow: auto; background: var(--nx-bg); }
+button, select, input, textarea { font: inherit; color: var(--nx-texto); }
+button { background: var(--nx-panel-2); border: 1px solid var(--nx-borde); border-radius: var(--nx-r-sm); padding: 6px 11px; cursor: pointer; line-height: 1.2; transition: border-color var(--nx-dur), background var(--nx-dur), color var(--nx-dur), box-shadow var(--nx-dur); }
+button:hover { border-color: var(--nx-borde-2); background: #182540; }
+button:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible { outline: 2px solid var(--nx-cian); outline-offset: 1px; }
+button[aria-pressed="true"] { background: var(--nx-cian-dim); color: var(--acento-suave); border-color: var(--nx-borde-luz); box-shadow: inset 0 0 12px -6px rgba(34, 211, 238, .6); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button.primario { background: var(--nx-grad); color: #F8FBFF; border-color: transparent; font-weight: 600; letter-spacing: .02em; box-shadow: 0 10px 28px -12px rgba(37, 99, 235, .9); }
+button.primario:hover { filter: brightness(1.1); }
+button.peligro { color: var(--nx-sell); }
+select, input, textarea { background: var(--nx-bg-2); border: 1px solid var(--nx-borde-2); border-radius: var(--nx-r-xs); padding: 5px 8px; min-width: 0; }
+select:focus, input:focus, textarea:focus { border-color: var(--nx-cian); outline: none; }
+input[type="number"] { width: 100%; font-variant-numeric: tabular-nums; font-family: var(--mono); }
+input[type="checkbox"] { accent-color: var(--nx-cian); }
+.etq { color: var(--nx-texto-2); font-size: 12px; }
+.sep { width: 1px; align-self: stretch; background: var(--nx-borde); }
+.grupo { display: flex; gap: 2px; flex-wrap: wrap; align-items: center; }
+
+/* ---------------- header NEXUS ---------------- */
+.nx-header { position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: var(--nx-e3) var(--nx-e4); padding: 10px 14px; border: 1px solid var(--nx-borde-2); border-radius: var(--nx-r); background: linear-gradient(180deg, rgba(16, 25, 43, .86), rgba(8, 11, 18, .86)); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: var(--nx-halo); overflow: hidden; }
+.nx-header::before { content: ""; position: absolute; inset: 0 0 auto; height: 1px; background: linear-gradient(90deg, transparent, rgba(34, 211, 238, .55), rgba(139, 92, 246, .45), transparent); }
+.nx-marca { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.nx-glifo { width: 34px; height: 34px; flex: none; }
+.nx-glifo line { stroke: rgba(34, 211, 238, .35); stroke-width: 1; }
+.nx-glifo .pulso { stroke: var(--nx-cian); stroke-width: 1.4; stroke-dasharray: 3 22; animation: nx-sinapsis 2.6s linear infinite; }
+.nx-glifo circle { fill: var(--nx-cian); }
+.nx-glifo circle.v { fill: var(--nx-violeta); }
+.nx-glifo circle.a { fill: var(--nx-azul); }
+@keyframes nx-sinapsis { to { stroke-dashoffset: -25; } }
+.nx-nombre { display: grid; gap: 1px; line-height: 1.05; }
+.nx-nombre b { font-family: var(--nx-titulo); font-weight: 700; font-size: 18px; letter-spacing: .32em; background: linear-gradient(90deg, #F1F5F9, #A5F3FC); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.nx-nombre span { font-family: var(--mono); font-size: 9.5px; letter-spacing: .22em; color: var(--nx-texto-2); }
+.nx-activo { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.nx-chip { font-family: var(--mono); font-size: 11px; letter-spacing: .08em; padding: 4px 9px; border-radius: 999px; border: 1px solid var(--nx-borde-2); background: var(--nx-bg-2); color: var(--nx-texto); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.nx-chip.inst { border-color: rgba(245, 158, 11, .35); color: #FCD34D; }
+.nx-chip.estado { display: inline-flex; align-items: center; gap: 6px; }
+.nx-chip.estado i { width: 7px; height: 7px; border-radius: 50%; background: var(--nx-texto-3); }
+.nx-chip.estado[data-estado="reproduciendo"] { border-color: rgba(34, 211, 238, .4); color: var(--acento-suave); }
+.nx-chip.estado[data-estado="reproduciendo"] i { background: var(--nx-cian); box-shadow: 0 0 10px var(--nx-cian); animation: nx-latido 1.2s ease-in-out infinite; }
+@keyframes nx-latido { 50% { opacity: .35; } }
+.nx-telemetria { order: 5; flex: 1 1 100%; min-width: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; padding-top: 10px; border-top: 1px solid var(--nx-borde); }
+.nx-modulo { display: flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: var(--nx-r-xs); border: 1px solid var(--nx-borde); background: rgba(8, 11, 18, .6); font-family: var(--mono); font-size: 9.5px; letter-spacing: .08em; color: var(--nx-texto-2); white-space: nowrap; overflow: hidden; min-width: 0; }
+.nx-modulo b { margin-left: auto; }
+.nx-modulo i { width: 6px; height: 6px; border-radius: 50%; background: var(--nx-texto-3); flex: none; }
+.nx-modulo b { font-weight: 500; color: var(--nx-texto); }
+.nx-modulo[data-estado="CONNECTED"] i { background: var(--nx-buy); box-shadow: 0 0 8px rgba(34, 197, 94, .7); }
+.nx-modulo[data-estado="PROCESSING"] i { background: var(--nx-cian); box-shadow: 0 0 8px var(--nx-cian); animation: nx-latido 1s ease-in-out infinite; }
+.nx-modulo[data-estado="IDLE"] i { background: var(--nx-texto-3); }
+.nx-modulo[data-estado="ERROR"] i, .nx-modulo[data-estado="DISCONNECTED"] i { background: var(--nx-sell); box-shadow: 0 0 8px rgba(239, 68, 68, .7); }
+.nx-modulo[data-estado="ERROR"] b, .nx-modulo[data-estado="DISCONNECTED"] b { color: #FCA5A5; }
+.nx-acciones { display: flex; gap: 6px; flex-wrap: wrap; margin-left: auto; }
+.nx-acciones button { display: inline-flex; align-items: center; gap: 7px; }
+.nx-acciones svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; flex: none; }
+.nx-acciones svg circle { fill: var(--nx-panel-2); }
+.nx-modulo small { font-size: 9px; color: var(--nx-texto-2); letter-spacing: .06em; }
+.nx-modulo small::before { content: "· "; }
+.nx-nombre em { font-style: normal; font-size: 10px; color: var(--nx-texto-3); letter-spacing: .02em; display: none; }
+@media (min-width: 1560px) { .nx-nombre em { display: block; } }
+@media (max-width: 1500px) { .nx-modulo small { display: none; } }
+@media (max-width: 1100px) { .nx-telemetria { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 700px) {
+  .nx-header { padding: 8px 10px; gap: 8px; }
+  .nx-marca { order: 1; flex: 1 1 0; min-width: 0; gap: 8px; }
+  .nx-nombre { min-width: 0; }
+  .nx-acciones { order: 2; gap: 4px; flex-wrap: nowrap; }
+  .nx-activo { order: 3; flex: 1 1 100%; }
+  .nx-acciones button { padding: 0; width: 34px; height: 34px; justify-content: center; }
+  .nx-acciones button span { display: none; }
+  .nx-acciones svg { width: 17px; height: 17px; }
+  .nx-nombre b { font-size: 16px; letter-spacing: .26em; }
+  .nx-nombre span { letter-spacing: .08em; font-size: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .nx-glifo { width: 26px; height: 26px; }
+  .nx-telemetria { display: flex; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding-top: 8px; }
+  .nx-telemetria::-webkit-scrollbar { display: none; }
+  .nx-modulo { flex: none; overflow: visible; }
+  .nx-modulo b { display: none; }
+  .barra .nx-et { display: none; }
+}
+
+/* ---------------- barra de instrumento ---------------- */
+.barra { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; background: var(--nx-vidrio); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--nx-borde); border-radius: var(--nx-r); padding: 6px 8px; }
+.barra .tf { flex-wrap: nowrap; }
+.tf button { padding: 5px 8px; min-width: 36px; font-family: var(--mono); font-size: 12px; }
+.nx-zona { flex-wrap: nowrap; gap: 6px; }
+.nx-et { font-family: var(--mono); font-size: 9.5px; letter-spacing: .14em; color: var(--nx-texto-3); text-transform: uppercase; }
+@media (max-width: 700px) {
+  .barra { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
+  .barra > * { flex: none; }
+}
+
+/* ---------------- cuerpo ---------------- */
+.cuerpo { position: relative; display: grid; grid-template-columns: 46px minmax(0, 1fr) 330px; gap: var(--nx-e2); align-items: start; }
+@media (max-width: 1180px) { .cuerpo { grid-template-columns: 46px minmax(0, 1fr) 290px; } }
+.herramientas { display: flex; flex-direction: column; gap: 2px; background: var(--nx-vidrio); border: 1px solid var(--nx-borde); border-radius: var(--nx-r); padding: 5px; position: sticky; top: 8px; }
+.herr { width: 34px; height: 34px; padding: 0; display: grid; place-items: center; background: transparent; border-color: transparent; color: var(--nx-texto-2); }
+.herr:hover { background: var(--nx-panel-2); border-color: transparent; color: var(--nx-texto); }
+.herr[aria-pressed="true"] { background: var(--nx-cian-dim); color: var(--acento-suave); border-color: transparent; }
+.herr-grupo { position: relative; flex: none; }
+.herr-mas { position: absolute; right: -3px; bottom: -1px; width: 12px; height: 14px; padding: 0; font-size: 8px; line-height: 1; background: transparent; border: 0; color: var(--nx-texto-3); }
+.herr-sep { height: 1px; width: 100%; background: var(--nx-borde); margin: 3px 0; flex: none; }
+.menu-herr { position: absolute; z-index: 30; background: var(--nx-panel); border: 1px solid var(--nx-borde-2); border-radius: var(--nx-r-sm); box-shadow: var(--nx-sombra); padding: 4px; display: grid; min-width: 250px; }
+.item-herr { display: flex; align-items: center; gap: 10px; background: transparent; border-color: transparent; text-align: left; padding: 6px 8px; }
+.item-herr:hover { background: var(--nx-panel-2); }
+.item-herr span { flex: 1; }
+.col-grafico { display: grid; gap: var(--nx-e2); min-width: 0; align-content: start; }
+
+/* gráfico: protagonista, opaco, sin efectos sobre las velas */
+.grafico { position: relative; height: clamp(400px, 68vh, 880px); border: 1px solid var(--nx-borde-2); border-radius: var(--nx-r); overflow: hidden; background: var(--bg); box-shadow: 0 0 0 1px rgba(37, 99, 235, .05), 0 30px 70px -45px rgba(34, 211, 238, .35); }
+.paneles { position: absolute; inset: 0; display: flex; flex-direction: column; }
+.principal { position: relative; flex: 1 1 auto; min-height: 120px; }
+#lienzo { position: absolute; inset: 0; }
+.subpanel { position: relative; flex: 0 0 118px; border-top: 1px solid var(--nx-borde); }
+.subpanel.apagado { flex-basis: 30px; }
+.lienzo-sub { position: absolute; inset: 0; }
+.leyenda { position: absolute; left: 10px; top: 8px; z-index: 3; pointer-events: none; font-variant-numeric: tabular-nums; font-family: var(--mono); font-size: 11.5px; color: var(--nx-texto-2); max-width: calc(100% - 96px); display: grid; gap: 2px; }
+#leyenda-precio { display: flex; flex-wrap: wrap; gap: 8px; }
+.leyenda b { color: var(--nx-texto); font-weight: 600; font-family: var(--fuente); }
+.leyenda .v { color: var(--nx-texto); }
+.leyenda .sube { color: var(--nx-buy); } .leyenda .baja { color: var(--nx-sell); }
+.fila-ind { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.fila-ind .nom { color: var(--nx-texto); }
+.fila-ind .res { color: var(--nx-texto-2); }
+.fila-ind.apagado .nom { opacity: .5; }
+.fila-ind .acc { display: inline-flex; gap: 2px; pointer-events: auto; opacity: .35; }
+.fila-ind:hover .acc, .fila-ind .acc:focus-within { opacity: 1; }
+@media (hover: none) { .fila-ind .acc { opacity: 1; } }
+.mini-btn { padding: 0 5px; min-width: 20px; height: 18px; font-size: 11px; line-height: 16px; background: var(--nx-panel); }
+.leyenda-sub { top: 4px; }
+.plegar-ley { position: absolute; left: 8px; z-index: 4; }
+#leyenda-ind.plegado { display: none; }
+.aviso-centro { position: absolute; inset: 0; display: grid; place-items: center; z-index: 6; background: rgba(5, 7, 13, .78); font-size: 14px; color: var(--nx-texto); text-align: center; padding: 16px; font-family: var(--mono); letter-spacing: .06em; }
+.modo, .vivo-ind { position: absolute; right: 84px; z-index: 4; padding: 3px 8px; border-radius: var(--nx-r-xs); font-size: 11.5px; max-width: calc(100% - 100px); font-weight: 600; }
+.modo { top: 8px; background: var(--nx-azul); color: #fff; }
+.vivo-ind { top: 34px; background: var(--nx-buy); color: #04140A; }
+.props { position: absolute; left: 50%; transform: translateX(-50%); bottom: 34px; z-index: 5; display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: center; background: var(--nx-panel); border: 1px solid var(--nx-borde-2); border-radius: var(--nx-r-sm); box-shadow: var(--nx-sombra); padding: 4px 6px; max-width: calc(100% - 96px); width: max-content; font-size: 11px; }
+.props button, .props select, .props input { padding: 2px 6px; font-size: 11px; }
+.props b { font-size: 11px; color: var(--nx-texto-2); font-weight: 600; }
+.props .botones { gap: 3px; }
+.props .prop { display: inline-flex; gap: 4px; align-items: center; color: var(--nx-texto-2); }
+.props .prop input[type="text"] { width: 110px; }
+.props .chk { color: var(--nx-texto); }
+.paleta { display: inline-flex; gap: 3px; }
+.color { width: 16px; height: 16px; padding: 0; border-radius: 50%; border: 2px solid transparent; }
+.color[aria-pressed="true"] { border-color: var(--nx-texto); box-shadow: 0 0 0 1px var(--bg) inset; }
+.flotante { position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%); z-index: 8; box-shadow: var(--nx-sombra); max-width: calc(100% - 32px); }
+
+/* ---------------- replay ---------------- */
+.replay { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; background: var(--nx-vidrio); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--nx-borde); border-radius: var(--nx-r); padding: 8px 10px; }
+.nx-rep-grupo { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.nx-transporte { display: flex; align-items: center; gap: 4px; padding: 3px; border-radius: 999px; background: var(--nx-bg-2); border: 1px solid var(--nx-borde); }
+.replay .grande { min-width: 38px; height: 34px; padding: 0 10px; font-size: 14px; border-radius: 999px; background: transparent; border-color: transparent; }
+.replay .grande:hover { background: var(--nx-panel-2); }
+#play { min-width: 46px; background: var(--nx-grad); color: #fff; box-shadow: 0 8px 22px -10px rgba(37, 99, 235, .9); }
+#play[aria-pressed="true"] { background: linear-gradient(135deg, #0E7490, #22D3EE); box-shadow: 0 0 0 1px rgba(34, 211, 238, .5), 0 0 22px -4px rgba(34, 211, 238, .7); color: #031219; }
+.nx-led { display: inline-flex; align-items: center; gap: 7px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; color: var(--nx-texto-2); padding: 4px 9px; border-radius: 999px; border: 1px solid var(--nx-borde); }
+.nx-led i { width: 7px; height: 7px; border-radius: 50%; background: var(--nx-alerta); }
+.nx-led[data-estado="reproduciendo"] { color: var(--acento-suave); border-color: var(--nx-borde-luz); }
+.nx-led[data-estado="reproduciendo"] i { background: var(--nx-cian); box-shadow: 0 0 10px var(--nx-cian); animation: nx-latido 1s ease-in-out infinite; }
+.reloj { font-variant-numeric: tabular-nums; font-family: var(--mono); font-size: 12px; color: var(--acento-suave); padding: 0 6px; white-space: nowrap; margin-left: auto; }
+.replay .nx-ir { flex: 0 1 auto; }
+.replay #fecha { min-width: 0; flex: 1 1 190px; }
+.replay .nx-saltos { margin-left: auto; }
+@media (max-width: 700px) {
+  .replay .grande { min-width: 44px; height: 40px; }
+  .replay .nx-transporte { flex: 1 1 auto; justify-content: space-between; }
+  .replay .nx-ir { flex: 1 1 100%; flex-wrap: nowrap; }
+  .replay .nx-saltos { margin-left: 0; flex: 1 1 100%; }
+  .replay .nx-saltos button { flex: 1; }
+  .reloj { margin-left: 0; flex: 1 1 100%; text-align: center; }
+}
+
+/* ---------------- paneles y cajas ---------------- */
+.panel { display: grid; gap: var(--nx-e2); align-content: start; min-width: 0; }
+.pestanas { display: flex; gap: 2px; border-bottom: 1px solid var(--nx-borde); flex-wrap: wrap; }
+.pestanas button { background: transparent; border: 0; border-bottom: 2px solid transparent; border-radius: 0; padding: 8px 10px; color: var(--nx-texto-2); font-family: var(--nx-titulo); font-size: 13px; }
+.pestanas button[aria-selected="true"] { color: var(--nx-texto); border-bottom-color: var(--nx-cian); font-weight: 600; box-shadow: 0 6px 12px -10px var(--nx-cian); }
+.caja { position: relative; background: linear-gradient(180deg, rgba(16, 25, 43, .9), rgba(11, 18, 36, .9)); border: 1px solid var(--nx-borde); border-radius: var(--nx-r); padding: 12px 14px; display: grid; gap: 10px; min-width: 0; }
+.caja h2 { margin: 0; font-family: var(--nx-titulo); font-size: 14px; font-weight: 600; letter-spacing: .01em; display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; }
+.contenido { display: grid; gap: var(--nx-e2); }
+.campos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.campos label, .campos-dlg label { display: grid; grid-template-rows: 1fr auto; align-content: end; gap: 4px; font-size: 10.5px; letter-spacing: .04em; color: var(--nx-texto-2); min-width: 0; text-transform: uppercase; }
+.campos label.chk, .campos-dlg label.chk { display: flex; align-items: center; gap: 6px; grid-column: 1 / -1; color: var(--nx-texto); font-size: 12px; text-transform: none; letter-spacing: 0; }
+.acciones { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.comprar, .vender { border-color: transparent; font-weight: 700; padding: 12px 10px; letter-spacing: .08em; font-family: var(--nx-titulo); border-radius: var(--nx-r-sm); }
+.comprar small, .vender small { display: block; margin-top: 3px; font-family: var(--mono); font-size: 9.5px; font-weight: 500; letter-spacing: .18em; opacity: .78; }
+.comprar { background: linear-gradient(180deg, #22C55E, #16A34A); color: #03140A; box-shadow: 0 10px 24px -14px rgba(34, 197, 94, .9); }
+.comprar:hover { background: linear-gradient(180deg, #34D399, #22C55E); }
+.vender { background: linear-gradient(180deg, #EF4444, #DC2626); color: #FFF5F5; box-shadow: 0 10px 24px -14px rgba(239, 68, 68, .9); }
+.vender:hover { background: linear-gradient(180deg, #F87171, #EF4444); }
+.precio-vivo { display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; font-family: var(--mono); font-size: 12px; padding: 8px 10px; border-radius: var(--nx-r-sm); background: var(--nx-bg-2); border: 1px solid var(--nx-borde); }
+.precio-vivo span:first-child b { color: var(--nx-sell); }
+.precio-vivo span:last-child b { color: var(--nx-buy); }
+.pos { display: grid; gap: 4px; font-variant-numeric: tabular-nums; font-family: var(--mono); font-size: 12px; }
+.fila { display: flex; justify-content: space-between; gap: 8px; }
+.fila span:first-child { color: var(--nx-texto-2); font-family: var(--fuente); }
+.pnl-pos { color: var(--nx-buy); font-weight: 600; }
+.pnl-neg { color: var(--nx-sell); font-weight: 600; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.stat { background: rgba(8, 11, 18, .72); border: 1px solid var(--nx-borde); border-radius: var(--nx-r-sm); padding: 8px 10px; display: grid; gap: 3px; min-width: 0; align-content: start; }
+.stat span { font-family: var(--mono); font-size: 9px; color: var(--nx-texto-2); text-transform: uppercase; letter-spacing: .14em; }
+.stat b { font-family: var(--mono); font-size: 16px; font-weight: 500; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; color: var(--nx-texto); }
+.stat small { font-size: 10.5px; color: var(--nx-texto-2); }
+.curva { width: 100%; height: 60px; display: block; }
+.diario { max-height: 340px; overflow: auto; border: 1px solid var(--nx-borde); border-radius: var(--nx-r-xs); }
+table { border-collapse: collapse; width: 100%; font-size: 11px; font-variant-numeric: tabular-nums; }
+th, td { padding: 5px 7px; border-bottom: 1px solid var(--nx-borde); text-align: right; white-space: nowrap; }
+td { font-family: var(--mono); font-size: 11px; }
+th:nth-child(-n+3), td:nth-child(-n+3) { text-align: left; }
+thead th { position: sticky; top: 0; background: #0E1729; font-family: var(--mono); font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--nx-texto-2); font-weight: 500; z-index: 1; }
+tbody tr:hover td { background: rgba(34, 211, 238, .04); }
+.mini { font-size: 11px; color: var(--nx-texto-2); line-height: 1.5; margin: 0; }
+.botones { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); background: var(--nx-panel-2); color: var(--nx-texto); border: 1px solid var(--nx-borde-luz); padding: 8px 14px; border-radius: var(--nx-r-sm); z-index: 40; max-width: calc(100% - 32px); font-size: 13px; box-shadow: var(--nx-sombra), var(--nx-halo); }
+.confirmar { display: grid; gap: 6px; background: var(--nx-bg-2); border: 1px solid var(--nx-sell); border-radius: var(--nx-r-xs); padding: 8px; }
+details summary { cursor: pointer; color: var(--nx-texto-2); }
+kbd { font-family: var(--mono); font-size: 10px; background: var(--nx-panel-2); border: 1px solid var(--nx-borde); border-radius: 3px; padding: 0 4px; color: var(--nx-texto-2); }
+.senal { border-color: var(--nx-borde-luz); box-shadow: var(--nx-halo); }
+.objetos { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; max-height: 360px; overflow: auto; }
+.objetos li { display: flex; gap: 4px; align-items: center; }
+.objetos li.sel .obj-nombre { color: var(--nx-cian); }
+.objetos button { padding: 3px 7px; font-size: 11px; }
+.obj-nombre { flex: 1; min-width: 0; text-align: left; display: flex; gap: 6px; align-items: center; background: transparent; border-color: transparent; overflow: hidden; font-size: 12px; }
+.obj-nombre span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.obj-nombre i { width: 10px; height: 10px; border-radius: 2px; flex: none; }
+
+/* ---------------- NEXUS STRATEGY LAB ---------------- */
+.probador { gap: 12px; }
+.probador::before, .red::before { content: ""; position: absolute; inset: -1px; border-radius: inherit; padding: 1px; pointer-events: none; background: linear-gradient(135deg, rgba(34, 211, 238, .45), transparent 30%, transparent 70%, rgba(139, 92, 246, .45)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+.pr-cab { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.pr-cab h2 { margin: 0; font-family: var(--nx-titulo); font-size: 15px; font-weight: 700; letter-spacing: .18em; }
+.pr-cab h2 { align-items: baseline; }
+.pr-cab h2 small { display: block; font-family: var(--mono); font-size: 9.5px; font-weight: 400; letter-spacing: .16em; color: var(--nx-texto-2); }
+.pr-cab .etq { flex: 1; min-width: 0; }
+.pr-cuerpo { display: grid; grid-template-columns: 310px minmax(0, 1fr); gap: 14px; align-items: start; }
+@media (max-width: 1100px) { .pr-cuerpo { grid-template-columns: minmax(0, 1fr); } }
+.pr-config { display: grid; gap: 8px; align-content: start; min-width: 0; }
+.pr-config > label { display: grid; gap: 4px; font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase; color: var(--nx-texto-2); }
+.pr-config fieldset { border: 1px solid var(--nx-borde); border-radius: var(--nx-r-sm); padding: 8px 10px 10px; margin: 0; display: grid; gap: 6px; min-width: 0; background: rgba(8, 11, 18, .45); }
+.pr-config legend { font-family: var(--mono); font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--nx-cian); padding: 0 4px; }
+.presets { display: flex; flex-wrap: wrap; gap: 4px; }
+.presets button { padding: 3px 8px; font-size: 11px; border-radius: 999px; }
+#pr-codigo, #pine-codigo, .codigo-ind { font-family: var(--mono); font-size: 12px; width: 100%; resize: vertical; line-height: 1.5; tab-size: 2; background: #060910; }
+#pr-api { white-space: pre-wrap; font-family: var(--mono); font-size: 11px; margin: 6px 0 0; }
+.error { color: #FCA5A5; font-size: 12px; margin: 0; }
+.progreso { display: grid; gap: 4px; font-size: 12px; color: var(--nx-texto-2); font-family: var(--mono); }
+.progreso progress { width: 100%; accent-color: var(--nx-cian); }
+.vivo-caja { border: 1px solid var(--nx-borde); border-radius: var(--nx-r-sm); padding: 8px; display: grid; gap: 6px; background: var(--nx-bg-2); }
+.vivo-caja label { display: flex; gap: 6px; align-items: center; font-weight: 600; }
+.pr-resultados { min-width: 0; display: grid; gap: 10px; align-content: start; }
+.pr-resultados > *, [data-prcont], .rend > * { min-width: 0; }
+.rend .tabla-scroll { max-height: none; }
+.pr-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.pr-cards .stat b { font-size: 17px; }
+@media (max-width: 520px) { .pr-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } .pr-cards .stat:first-child { grid-column: span 2; } }
+.pr-curva-caja { border: 1px solid var(--nx-borde); border-radius: var(--nx-r-sm); padding: 8px 10px; background: var(--nx-bg-2); display: grid; gap: 2px; }
+.pr-curva-caja .fila { font-size: 11px; color: var(--nx-texto-2); }
+.pr-curva-caja svg { width: 100%; height: 130px; display: block; }
+.tabla-scroll { overflow: auto; border: 1px solid var(--nx-borde); border-radius: var(--nx-r-xs); max-height: 420px; }
+.rend { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 8px; }
+.rend table { border: 1px solid var(--nx-borde); border-radius: var(--nx-r-xs); }
+table.meses td, table.meses th { text-align: center; padding: 4px; }
+.lista-ind { display: grid; gap: 2px; max-height: 60vh; overflow: auto; }
+.lista-ind h3 { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .14em; color: var(--nx-cian); margin: 10px 0 2px; }
+.item-ind { text-align: left; background: transparent; border-color: transparent; padding: 8px; }
+.item-ind:hover { background: var(--nx-panel-2); }
+
+/* ---------------- ficha del laboratorio (y estilos de la red de decisión anterior) ---------------- */
+.red { gap: 8px; }
+.red-cab { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.red-cab h2 { margin: 0; font-family: var(--nx-titulo); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.red-cab h2::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--nx-violeta); box-shadow: 0 0 10px var(--nx-violeta); }
+.red-cab .etq { flex: 1; min-width: 0; }
+@media (max-width: 700px) { .red-cab .etq { order: 3; flex: 1 1 100%; } .red-cab h2 { flex: 1; } }
+.red-cuerpo { display: grid; gap: 6px; min-width: 0; }
+.red-lienzo-caja { position: relative; min-width: 0; border-radius: var(--nx-r-sm); background: radial-gradient(120% 140% at 50% 0%, rgba(37, 99, 235, .08), transparent 60%), var(--nx-bg-2); border: 1px solid var(--nx-borde); overflow: hidden; }
+#red-lienzo { display: block; width: 100%; }
+.red-estado { margin: 0; font-size: 12.5px; color: var(--nx-texto); line-height: 1.5; min-height: 1.5em; }
+.red-ley { display: flex; flex-wrap: wrap; gap: 12px; font-size: 11px; color: var(--nx-texto-2); }
+.red-ley span { display: inline-flex; align-items: center; gap: 6px; }
+.red-ley i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; border: 1.5px solid var(--nx-borde-2); background: var(--nx-panel-2); }
+.red-ley i.on { background: var(--nx-cian); border-color: var(--nx-cian); box-shadow: 0 0 8px var(--nx-cian); }
+.red-ley i.fuego { background: var(--nx-violeta); border-color: var(--nx-violeta); box-shadow: 0 0 8px var(--nx-violeta); }
+.red-ley i.na { border-style: dashed; border-color: var(--nx-texto-3); background: transparent; }
+.ficha { display: grid; gap: 8px; border: 1px solid var(--nx-borde-2); border-radius: var(--nx-r-sm); padding: 10px 12px; background: rgba(8, 11, 18, .72); }
+.ficha-cab { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.ficha ul { margin: 0; padding-left: 18px; display: grid; gap: 5px; font-size: 12px; color: var(--nx-texto); line-height: 1.5; }
+.ficha .mini b { color: var(--nx-texto); font-weight: 600; }
+.nivel { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; border: 1px solid; white-space: nowrap; }
+.nivel-B { color: #A5F3FC; border-color: var(--nx-borde-luz); background: var(--nx-cian-dim); }
+.nivel-A { color: #FCD34D; border-color: rgba(245, 158, 11, .35); background: rgba(245, 158, 11, .08); }
+.nivel-R { color: #FCA5A5; border-color: rgba(239, 68, 68, .4); background: rgba(239, 68, 68, .08); }
+.nivel-C, .nivel-D, .nivel-E { color: #86EFAC; border-color: rgba(34, 197, 94, .4); background: rgba(34, 197, 94, .08); }
+
+/* ---------------- pulso del mercado ---------------- */
+.nx-pulso { gap: 8px; padding-block: 10px; }
+.nx-pulso-cab { display: flex; align-items: baseline; gap: 10px 14px; flex-wrap: wrap; }
+.nx-pulso-cab b { font-family: var(--mono); font-size: 16px; font-weight: 500; color: var(--nx-texto); font-variant-numeric: tabular-nums; }
+.nx-pulso-cab #nx-pulso-var { font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+.nx-pulso-cab .sube { color: var(--nx-buy); } .nx-pulso-cab .baja { color: var(--nx-sell); }
+.nx-pulso-cab #nx-pulso-rango { font-family: var(--mono); }
+.nx-pulso-cab .nx-chip { margin-left: auto; font-size: 10px; letter-spacing: .14em; color: var(--acento-suave); border-color: var(--nx-borde-luz); }
+.nx-pulso-caja { position: relative; border-radius: var(--nx-r-sm); overflow: hidden; background: radial-gradient(120% 160% at 50% 0%, rgba(37, 99, 235, .10), transparent 60%), var(--nx-bg-2); border: 1px solid var(--nx-borde); }
+#nx-pulso-lienzo { display: block; width: 100%; height: 74px; }
+
+/* ---------------- analíticas del diario ---------------- */
+.nx-analitica { display: grid; gap: 10px; }
+.nx-filtros { display: flex; gap: 4px; flex-wrap: wrap; }
+.nx-filtros button { padding: 3px 10px; font-size: 11px; border-radius: 999px; }
+.nx-dist { display: grid; gap: 6px; }
+.nx-barra-dist { display: flex; height: 8px; border-radius: 999px; overflow: hidden; background: var(--nx-bg-2); border: 1px solid var(--nx-borde); }
+.nx-barra-dist i { display: block; height: 100%; }
+.nx-barra-dist i.c { background: var(--nx-buy); }
+.nx-barra-dist i.v { background: var(--nx-sell); }
+.nx-dd { width: 100%; height: 54px; display: block; }
+
+.nx-sub { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.nx-dist-ley { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-family: var(--mono); font-size: 10.5px; }
+.nx-dist-ley .c { color: var(--nx-buy); } .nx-dist-ley .v { color: var(--nx-sell); }
+.nx-ses th, .nx-ses td { text-align: right; padding: 5px 5px; }
+.nx-ses thead th { letter-spacing: .04em; }
+.nx-ses th:first-child, .nx-ses td:first-child { text-align: left; font-family: var(--fuente); }
+.nx-ses tr.nx-sel td { background: rgba(34, 211, 238, .07); }
+.nx-dd { height: 96px; }
+.nx-aj { border: 1px solid var(--nx-borde); border-radius: var(--nx-r-sm); padding: 10px 12px; margin: 0; display: grid; gap: 8px; }
+.nx-aj legend { font-family: var(--mono); font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--nx-cian); padding: 0 4px; }
+.nx-aj label { display: grid; gap: 4px; font-size: 12px; color: var(--nx-texto-2); }
+.nx-aj label.chk { display: flex; align-items: center; gap: 8px; color: var(--nx-texto); }
+
+/* ---------------- diálogos ---------------- */
+dialog { border: 1px solid var(--nx-borde-2); border-radius: var(--nx-r); background: var(--nx-panel); color: var(--nx-texto); padding: 0; width: min(540px, calc(100vw - 32px)); box-shadow: var(--nx-sombra), var(--nx-halo); }
+dialog::backdrop { background: rgba(3, 5, 10, .74); backdrop-filter: blur(4px); }
+.dlg { display: grid; gap: 10px; padding: 16px; }
+.dlg header { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.dlg h2 { margin: 0; font-family: var(--nx-titulo); font-size: 17px; font-weight: 600; }
+.dlg header button { padding: 2px 9px; font-size: 16px; }
+.campos-dlg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+/* ---------------- responsive ---------------- */
+@media (max-width: 900px) {
+  .cuerpo { grid-template-columns: minmax(0, 1fr); }
+  .col-grafico { display: contents; }
+  .grafico { order: 1; height: 58vh; min-height: 340px; }
+  .replay { order: 2; }
+  .panel { order: 3; }
+  .herramientas { order: 4; flex-direction: row; overflow-x: auto; position: static; }
+  .herr-sep { width: 1px; height: auto; margin: 0 3px; align-self: stretch; }
+  .probador { order: 5; }
+  .nx-pulso { order: 6; }
+  .subpanel { flex-basis: 92px; }
+}
+@media (max-width: 900px) { .nx-header, .barra, .replay { backdrop-filter: none; -webkit-backdrop-filter: none; background: rgba(13, 21, 38, .92); } }
+@media (max-width: 480px) { .campos-dlg, .campos { grid-template-columns: 1fr; } .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } .nx-nombre b { font-size: 16px; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } .nx-glifo .pulso, .nx-led i, .nx-modulo i, .nx-chip.estado i { animation: none !important; } }
+
+/* NEXUS · portada de la versión pública (se agrega después de nexus.css). */
+.portada { position: relative; display: grid; gap: 14px; padding-block: clamp(22px, 4.5vw, 52px) clamp(16px, 3vw, 30px); max-width: 1020px; }
+.portada .marca-p { display: flex; align-items: center; gap: 12px; }
+.portada .marca-p .nx-glifo { width: 40px; height: 40px; }
+.portada .marca-p b { font-family: var(--nx-titulo); font-weight: 700; font-size: 20px; letter-spacing: .34em; background: linear-gradient(90deg, #F1F5F9, #A5F3FC); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.portada .marca-p span { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .22em; color: var(--nx-texto-2); }
+.portada .ceja-p { font-family: var(--mono); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--nx-cian); }
+.portada h1 { margin: 0; font-family: var(--nx-titulo); font-weight: 600; font-size: clamp(32px, 5.4vw, 60px); line-height: 1.04; letter-spacing: -.02em; text-wrap: balance; }
+.portada h1 em { font-style: normal; background: linear-gradient(90deg, #22D3EE, #8B5CF6); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.portada p.lead { margin: 0; color: var(--nx-texto-2); font-size: clamp(15px, 1.6vw, 17px); line-height: 1.65; max-width: 64ch; text-wrap: pretty; }
+.portada .acciones-p { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 6px; }
+.portada a.btn-p { display: inline-block; text-decoration: none; font-family: var(--nx-titulo); font-weight: 600; letter-spacing: .04em; font-size: 14px; padding: 13px 26px; border-radius: 999px; background: var(--nx-grad); color: #F8FBFF; box-shadow: 0 12px 34px -12px rgba(37, 99, 235, .95), 0 0 0 1px rgba(34, 211, 238, .25); transition: transform .2s var(--nx-ease), filter .2s; }
+.portada a.btn-p:hover { transform: translateY(-2px); filter: brightness(1.08); }
+.portada a.btn-p:focus-visible { outline: 2px solid var(--nx-cian); outline-offset: 3px; }
+.portada .nota-p { font-size: 12.5px; color: var(--nx-texto-3); }
+.chips-p { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 0; padding: 0; list-style: none; }
+.chips-p li { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: #A5F3FC; border: 1px solid var(--nx-borde-luz); background: var(--nx-cian-dim); border-radius: 999px; padding: 5px 12px; }
+.pie-p { border-top: 1px solid var(--nx-borde); padding-top: 16px; margin-top: 8px; display: grid; gap: 6px; color: var(--nx-texto-3); font-size: 12px; line-height: 1.6; max-width: 110ch; }
+.pie-p b { color: var(--nx-texto-2); font-weight: 600; }
+@media (prefers-reduced-motion: reduce) { .portada a.btn-p { transition: none; } }
+/* /NEXUS:css */
+</style>
+</head>
+<body>
+<canvas id="fondo-neuronal" aria-hidden="true"></canvas>
+<div class="app">
+  <section class="portada" aria-labelledby="titulo-p">
+    <div class="marca-p"><svg class="nx-glifo" viewBox="0 0 34 34" aria-hidden="true"><line x1="5" y1="10" x2="17" y2="5"/><line x1="5" y1="10" x2="17" y2="17"/><line x1="5" y1="10" x2="17" y2="29"/><line x1="5" y1="24" x2="17" y2="5"/><line x1="5" y1="24" x2="17" y2="17"/><line x1="5" y1="24" x2="17" y2="29"/><line x1="17" y1="5" x2="29" y2="17"/><line x1="17" y1="17" x2="29" y2="17"/><line x1="17" y1="29" x2="29" y2="17"/><polyline class="pulso" points="5,10 17,17 29,17" fill="none"/><circle cx="5" cy="10" r="2.2"/><circle cx="5" cy="24" r="2.2"/><circle class="a" cx="17" cy="5" r="2.2"/><circle class="a" cx="17" cy="17" r="2.6"/><circle class="a" cx="17" cy="29" r="2.2"/><circle class="v" cx="29" cy="17" r="3"/></svg><div><b>NEXUS</b><span>INSTITUTIONAL TRADING TERMINAL</span></div></div>
+    <div class="ceja-p">Advanced Historical Market Replay &amp; Strategy Testing Platform · XAUUSD · gratis</div>
+    <h1 id="titulo-p">Practicá el oro <em>vela por vela</em></h1>
+    <p class="lead">Elegí cualquier día desde enero de 2018, avanzá minuto a minuto y operá como si fuera en vivo, sin ver lo que viene. Velas de 1 minuto del oro, herramientas de dibujo, indicadores SMC e ICT, un probador con las estrategias del laboratorio y el pulso del mercado en vivo. Todo en el navegador.</p>
+    <ul class="chips-p" aria-label="Qué incluye">
+      <li>Velas de 1 minuto desde 2018</li><li>Pulso del mercado en vivo</li><li>Dibujo y Fibonacci</li><li>SMC · ICT · Silver Bullet</li><li>Probador de estrategias</li>
+    </ul>
+    <div class="acciones-p">
+      <a class="btn-p" href="#reproductor">Abrir el reproductor</a>
+      <span class="nota-p">Tus sesiones se guardan en tu cuenta de Claude si entraste; si no, en este navegador.</span>
+    </div>
+  </section>
+  <header class="nx-header" id="reproductor" aria-label="NEXUS · Institutional Trading Terminal">
+    <div class="nx-marca">
+      <svg class="nx-glifo" viewBox="0 0 34 34" aria-hidden="true"><line x1="5" y1="10" x2="17" y2="5"/><line x1="5" y1="10" x2="17" y2="17"/><line x1="5" y1="10" x2="17" y2="29"/><line x1="5" y1="24" x2="17" y2="5"/><line x1="5" y1="24" x2="17" y2="17"/><line x1="5" y1="24" x2="17" y2="29"/><line x1="17" y1="5" x2="29" y2="17"/><line x1="17" y1="17" x2="29" y2="17"/><line x1="17" y1="29" x2="29" y2="17"/><polyline class="pulso" points="5,10 17,17 29,17" fill="none"/><circle cx="5" cy="10" r="2.2"/><circle cx="5" cy="24" r="2.2"/><circle class="a" cx="17" cy="5" r="2.2"/><circle class="a" cx="17" cy="17" r="2.6"/><circle class="a" cx="17" cy="29" r="2.2"/><circle class="v" cx="29" cy="17" r="3"/></svg>
+      <div class="nx-nombre"><b>NEXUS</b><span>INSTITUTIONAL TRADING TERMINAL</span><em>Advanced Historical Market Replay &amp; Strategy Testing Platform</em></div>
+    </div>
+    <div class="nx-activo" aria-label="Instrumento, temporalidad y estado del replay">
+      <span class="nx-chip inst" title="Oro contra dólar, velas de 1 minuto (BID)">XAUUSD</span>
+      <span class="nx-chip" id="nx-tf">TF —</span>
+      <span class="nx-chip estado" id="nx-estado-replay" data-estado="sin-datos"><i></i><span>SIN DATOS</span></span>
+    </div>
+    <div class="nx-telemetria" id="nx-telemetria" aria-label="Telemetría del sistema">
+      <span class="nx-modulo" data-mod="datos" data-nombre="MARKET DATA" data-estado="DISCONNECTED"><i></i>MARKET DATA <b>DISCONNECTED</b><small hidden></small></span>
+      <span class="nx-modulo" data-mod="hist" data-nombre="HISTORICAL ENGINE" data-estado="DISCONNECTED"><i></i>HISTORICAL ENGINE <b>DISCONNECTED</b><small hidden></small></span>
+      <span class="nx-modulo" data-mod="replay" data-nombre="REPLAY ENGINE" data-estado="DISCONNECTED"><i></i>REPLAY ENGINE <b>DISCONNECTED</b><small hidden></small></span>
+      <span class="nx-modulo" data-mod="estrategia" data-nombre="STRATEGY ENGINE" data-estado="DISCONNECTED"><i></i>STRATEGY ENGINE <b>DISCONNECTED</b><small hidden></small></span>
+      <span class="nx-modulo" data-mod="sesion" data-nombre="SESSION ENGINE" data-estado="DISCONNECTED"><i></i>SESSION ENGINE <b>DISCONNECTED</b><small hidden></small></span>
+      <span class="nx-modulo" data-mod="ejecucion" data-nombre="TRADE EXECUTION" data-estado="DISCONNECTED"><i></i>TRADE EXECUTION <b>DISCONNECTED</b><small hidden></small></span>
+    </div>
+    <div class="nx-acciones">
+      <button id="nx-stats" title="Estadísticas de la sesión (pestaña Diario)" aria-label="Estadísticas"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 14h12M4 12V8M8 12V3M12 12V6"/></svg><span>Estadísticas</span></button>
+      <button id="nx-ajustes" title="Ajustes de NEXUS" aria-label="Ajustes" aria-haspopup="dialog"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h7M13 4h1M2 8h2M8 8h6M2 12h8M14 12h0"/><circle cx="11" cy="4" r="1.6"/><circle cx="6" cy="8" r="1.6"/><circle cx="12" cy="12" r="1.6"/></svg><span>Ajustes</span></button>
+      <button id="pantalla" title="Pantalla completa" aria-label="Pantalla completa" aria-pressed="false"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4"/></svg><span>Pantalla completa</span></button>
+    </div>
+  </header>
+  <div class="barra" role="group" aria-label="Instrumento, temporalidad y vista">
+    <span class="nx-et">Temporalidad</span>
+    <div class="grupo tf" role="group" aria-label="Temporalidad">
+      <button data-tf="1">1m</button><button data-tf="3">3m</button><button data-tf="5">5m</button><button data-tf="15">15m</button><button data-tf="30">30m</button><button data-tf="60">1H</button><button data-tf="240">4H</button><button data-tf="1440">D</button>
+    </div>
+    <span class="sep"></span>
+    <select id="tipo-grafico" aria-label="Tipo de gráfico">
+      <option value="velas">Velas</option><option value="huecas">Velas huecas</option><option value="heikin">Heikin Ashi</option><option value="barras">Barras</option><option value="linea">Línea</option><option value="area">Área</option>
+    </select>
+    <button id="btn-indicadores" title="Agregar indicadores">ƒx Indicadores</button>
+    <span class="sep"></span>
+    <span class="grupo nx-zona"><label class="etq" for="zona">Hora</label>
+    <select id="zona">
+      <option value="America/New_York">Nueva York</option>
+      <option value="America/Argentina/Buenos_Aires">Argentina</option>
+      <option value="UTC">UTC</option>
+    </select></span>
+    <div class="grupo" role="group" aria-label="Sesiones">
+      <button id="ver-sb" aria-pressed="true" title="Ventanas del Silver Bullet: 03–04, 10–11 y 14–15 de Nueva York">Silver Bullet</button>
+      <button id="ver-kz" aria-pressed="false" title="Kill zones ICT (hora de NY): Asia 20–00, Londres 02–05, Nueva York 07–10, cierre de Londres 10–12">Kill zones</button>
+    </div>
+    <span class="sep"></span>
+    <div class="grupo" role="group" aria-label="Escala y vista">
+      <button id="escala-log" aria-pressed="false" title="Escala logarítmica">Log</button>
+      <button id="escala-auto" title="Ajustar la escala y volver a la última vela">Auto</button>
+      <button id="captura" title="Guardar una imagen del gráfico">Captura</button>
+    </div>
+  </div>
+
+  <div class="cuerpo" id="cuerpo">
+    <nav class="herramientas" id="herramientas" aria-label="Herramientas de dibujo"></nav>
+
+    <section class="col-grafico">
+      <div class="grafico">
+        <div class="paneles" id="paneles">
+          <div class="principal">
+            <div id="lienzo"></div>
+            <div class="leyenda" aria-live="off"><div id="leyenda-precio"></div><div id="leyenda-ind"></div></div>
+            <button class="mini-btn plegar-ley" id="plegar-ley" title="Mostrar u ocultar la lista de indicadores" aria-label="Mostrar u ocultar la lista de indicadores" hidden>▾</button>
+            <div class="props" id="props" hidden></div>
+          </div>
+        </div>
+        <div class="modo" id="modo" hidden></div>
+        <div class="vivo-ind" id="vivo-indicador" hidden></div>
+        <div class="confirmar flotante" id="confirmar-dibujos" hidden>
+          <span>¿Borrar todos los dibujos de esta sesión? Los bloqueados se conservan. Se puede deshacer con Ctrl+Z.</span>
+          <div class="botones"><button id="dib-borrar-si" class="peligro">Sí, borrar</button><button id="dib-borrar-no">No</button></div>
+        </div>
+        <div class="aviso-centro" id="cargando">Cargando datos del oro…</div>
+      </div>
+
+      <div class="replay" aria-label="Controles de reproducción">
+        <div class="nx-transporte" role="group" aria-label="Transporte"><button class="grande" id="atras" title="Retroceder una vela (←)" aria-label="Retroceder una vela">⏮</button><button class="grande" id="play" title="Reproducir / pausar (Espacio)" aria-label="Reproducir" aria-pressed="false">▶</button><button class="grande" id="adelante" title="Avanzar una vela (→)" aria-label="Avanzar una vela">⏭</button></div>
+        <span class="nx-led" id="nx-led" data-estado="sin-datos"><i></i><span>SIN DATOS</span></span>
+        <div class="nx-rep-grupo nx-vel"><select id="velocidad" aria-label="Velocidad (velas por segundo)" title="Velocidad: velas por segundo">
+          <option value="1">1×</option><option value="2">2×</option><option value="3" selected>3×</option><option value="5">5×</option><option value="10">10×</option><option value="20">20×</option><option value="40">40×</option>
+        </select><select id="paso" aria-label="Tamaño del paso">
+          <option value="vela">Paso: 1 vela</option>
+          <option value="min">Paso: 1 minuto</option>
+        </select></div>
+        <span class="reloj" id="reloj">—</span>
+        <div class="nx-rep-grupo nx-ir"><button id="elegir" title="Elegir el punto de inicio haciendo clic en el gráfico">⇤ Elegir inicio</button><input type="datetime-local" id="fecha" aria-label="Fecha y hora de inicio" step="60"><button id="ir">Ir</button></div>
+        <div class="nx-rep-grupo nx-saltos"><button id="prox-sb" title="Avanzar hasta 10 minutos antes de la próxima ventana del Silver Bullet (N)">Próxima ventana SB</button><button id="prox-dia" title="Avanzar hasta el cierre del día de trading (17:00 de Nueva York)">Fin del día</button></div>
+      </div>
+
+      <section class="caja nx-pulso" id="nx-pulso" aria-label="Pulso del mercado: precio de los últimos 180 minutos del replay">
+        <div class="nx-pulso-cab">
+          <span class="nx-et">Pulso del mercado</span>
+          <b id="nx-pulso-precio">—</b>
+          <span id="nx-pulso-var">—</span>
+          <span id="nx-pulso-rango" class="mini">—</span>
+          <span id="nx-pulso-sesion" class="nx-chip">—</span>
+        </div>
+        <div class="nx-pulso-caja"><canvas id="nx-pulso-lienzo" aria-hidden="true"></canvas></div>
+      </section>
+      <section class="caja probador" id="probador" aria-label="Probador de estrategias">
+        <div class="pr-cab">
+          <h2>NEXUS STRATEGY LAB<small>Probador de estrategias · velas de 1 minuto</small></h2>
+          <span class="etq" id="pr-titulo"></span>
+          <button id="pr-plegar" aria-controls="probador-cuerpo" aria-expanded="true">Ocultar</button>
+        </div>
+        <div class="pr-cuerpo" id="probador-cuerpo">
+          <div class="pr-config">
+            <label>Estrategia<select id="pr-estrategia"></select></label>
+            <p class="mini" id="pr-desc"></p>
+            <div class="ficha" id="pr-ficha" hidden></div>
+            <div class="campos" id="pr-params"></div>
+            <div id="pr-editor" class="pr-config" hidden>
+              <div class="botones">
+                <select id="pr-plantilla" aria-label="Plantillas"><option value="">Cargar plantilla…</option><option value="tv">Formato TradingView: cruce de EMAs</option><option value="ema">Cruce de EMAs (formato anterior)</option><option value="asia">Ruptura del rango de Asia</option><option value="vacia">Vacía</option></select>
+                <button id="pr-pine" hidden title="Pegá tu código de TradingView y Claude lo traduce">Convertir desde Pine Script</button>
+              </div>
+              <textarea id="pr-codigo" rows="14" spellcheck="false" aria-label="Código de la estrategia"></textarea>
+              <details><summary>Cómo escribir una estrategia</summary><pre id="pr-api"></pre></details>
+            </div>
+            <fieldset>
+              <legend>Período</legend>
+              <div class="campos">
+                <label>Desde<input type="date" id="pr-desde"></label>
+                <label>Hasta<input type="date" id="pr-hasta"></label>
+              </div>
+              <div class="presets"><button data-preset="1">1 mes</button><button data-preset="3">3 meses</button><button data-preset="12">12 meses</button><button data-preset="2024">2024</button><button data-preset="2025">2025</button><button data-preset="2026">2026</button><button data-preset="todo">Todo (2018–2026)</button></div>
+            </fieldset>
+            <fieldset>
+              <legend>Capital y costos</legend>
+              <div class="campos">
+                <label>Capital inicial (USD)<input type="number" id="pr-capital" min="100" step="100"></label>
+                <label>Riesgo % por operación<input type="number" id="pr-riesgo" min="0.1" max="10" step="0.1"></label>
+                <label>Spread (USD)<input type="number" id="pr-spread" min="0" step="0.05"></label>
+                <label>Deslizamiento (USD)<input type="number" id="pr-desliz" min="0" step="0.05"></label>
+                <label>Cerrar a los (min, 0 = no)<input type="number" id="pr-maxmin" min="0" step="10"></label>
+                <label class="chk"><input type="checkbox" id="pr-propo"> Costos proporcionales al precio (los valores son a precio 4000)</label>
+              </div>
+            </fieldset>
+            <button id="pr-probar" class="primario">Probar estrategia</button>
+            <div class="progreso" id="pr-progreso" hidden><progress id="pr-barra" max="1" value="0"></progress><span id="pr-estado"></span></div>
+            <p class="error" id="pr-error" role="alert" hidden></p>
+            <div class="vivo-caja">
+              <label><input type="checkbox" id="vivo"> Ejecutar en el reproductor</label>
+              <div class="botones"><select id="vivo-modo" aria-label="Modo"><option value="auto">Opera sola</option><option value="avisar">Me avisa y pausa</option></select><button id="vivo-tf" hidden></button></div>
+              <p class="mini" id="vivo-estado">Apagada. Prendela para que la estrategia opere (o te avise) mientras avanzás el replay, con el riesgo y el spread del panel Operar.</p>
+            </div>
+          </div>
+          <div class="pr-resultados">
+            <p class="mini" id="pr-vacio">Elegí una estrategia, el período y tocá «Probar estrategia». Los resultados se calculan con velas de 1 minuto: si el SL y el TP caen en el mismo minuto, cuenta el SL.</p>
+            <div id="pr-res" class="pr-resultados" hidden>
+              <div class="pestanas" role="tablist" aria-label="Resultados">
+                <button role="tab" data-prtab="resumen" aria-selected="true">Resumen</button>
+                <button role="tab" data-prtab="rend" aria-selected="false">Rendimiento</button>
+                <button role="tab" data-prtab="ops" aria-selected="false">Lista de operaciones</button>
+              </div>
+              <div data-prcont="resumen" class="pr-resultados">
+                <div class="pr-cards" id="pr-cards"></div>
+                <div class="pr-curva-caja">
+                  <div class="fila"><span>Curva de capital</span><span><span id="pr-curva-ini"></span> → <b id="pr-curva-fin"></b></span></div>
+                  <svg id="pr-curva" viewBox="0 0 300 120" preserveAspectRatio="none" role="img" aria-label="Curva de capital de la prueba"></svg>
+                </div>
+                <div class="tabla-scroll" id="pr-meses" aria-label="Resultado por mes en R"></div>
+              </div>
+              <div data-prcont="rend" class="rend" id="pr-rend" hidden></div>
+              <div data-prcont="ops" hidden>
+                <div class="tabla-scroll">
+                  <table aria-label="Operaciones del probador">
+                    <thead><tr><th>#</th><th>Lado</th><th>Señal</th><th>Entrada</th><th>Precio</th><th>Salida</th><th>Precio</th><th>Motivo</th><th>R</th><th>USD</th><th></th></tr></thead>
+                    <tbody id="pr-ops"></tbody>
+                  </table>
+                </div>
+                <button id="pr-mas" hidden>Ver más</button>
+              </div>
+              <div class="botones">
+                <label class="mini" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="pr-engrafico"> Mostrar las operaciones en el gráfico</label>
+                <button id="pr-copiar">Copiar resumen</button>
+                <button id="pr-csv">Exportar operaciones (CSV)</button>
+              </div>
+              <textarea id="pr-respaldo" rows="4" hidden aria-label="Texto para copiar"></textarea>
+            </div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <aside class="panel">
+      <div class="pestanas" role="tablist" aria-label="Panel">
+        <button role="tab" data-pestana="operar" aria-selected="true">Operar</button>
+        <button role="tab" data-pestana="diario" aria-selected="false">Diario</button>
+        <button role="tab" data-pestana="objetos" aria-selected="false">Objetos</button>
+      </div>
+
+      <div data-contenido="operar" class="contenido">
+        <div class="caja senal" id="senal-caja" hidden>
+          <h2>Señal de la estrategia</h2>
+          <p class="mini" id="senal-texto" style="color:var(--texto);font-size:12px"></p>
+          <div class="botones"><button id="senal-ejecutar" class="primario">Ejecutar</button><button id="senal-ignorar">Ignorar</button></div>
+        </div>
+        <div class="caja" aria-label="Orden">
+          <h2>Operar <span class="etq" id="saldo-chico">—</span></h2>
+          <div class="precio-vivo"><span>Bid <b id="bid">—</b></span><span>Ask <b id="ask">—</b></span></div>
+          <div class="campos">
+            <label>Riesgo % por operación<input type="number" id="riesgo" min="0.1" max="10" step="0.1" value="1"></label>
+            <label>Stop Loss (USD)<input type="number" id="sl-usd" min="0.1" step="0.1" value="5"></label>
+            <label>R:R (TP = SL ×)<input type="number" id="rr" min="0.5" step="0.1" value="2"></label>
+            <label>Spread (USD)<input type="number" id="spread" min="0" step="0.01" value="0.40"></label>
+          </div>
+          <div class="acciones">
+            <button class="comprar" id="comprar" title="Comprar a mercado (B)">COMPRAR<small>BUY · LONG</small></button>
+            <button class="vender" id="vender" title="Vender a mercado (S)">VENDER<small>SELL · SHORT</small></button>
+          </div>
+          <details>
+            <summary>Orden pendiente (limit o stop)</summary>
+            <div class="campos" style="margin-top:6px">
+              <label>Lado<select id="pend-lado"><option value="1">Compra</option><option value="-1">Venta</option></select></label>
+              <label>Precio<input type="number" id="pend-precio" step="0.01"></label>
+            </div>
+            <div class="botones" style="margin-top:6px"><button id="pend-crear">Colocar orden</button><button id="pend-cancelar">Cancelar orden</button></div>
+            <p class="mini" style="margin-top:6px">Si el precio está por debajo del actual, una compra es limit y una venta es stop; por encima, al revés. También podés dibujar una posición larga o corta y tocar «Colocar como orden».</p>
+          </details>
+        </div>
+        <div class="caja" aria-label="Posición abierta">
+          <h2>Posición <span class="etq" id="pos-estado">Sin posición</span></h2>
+          <div class="pos" id="pos-detalle" hidden>
+            <div class="fila"><span>Dirección</span><b id="pos-dir">—</b></div>
+            <div class="fila"><span>Entrada</span><span id="pos-entrada">—</span></div>
+            <div class="fila"><span>Lotes</span><span id="pos-lotes">—</span></div>
+            <div class="fila"><span>Resultado</span><span id="pos-pnl">—</span></div>
+            <div class="campos">
+              <label>SL (precio)<input type="number" id="pos-sl" step="0.01"></label>
+              <label>TP (precio)<input type="number" id="pos-tp" step="0.01"></label>
+            </div>
+            <div class="botones"><button id="pos-aplicar">Aplicar SL/TP</button><button id="pos-be">SL a break-even</button><button id="pos-cerrar" title="Cerrar a mercado (C)">Cerrar</button></div>
+          </div>
+          <label class="mini" style="display:flex;gap:6px;align-items:center"><input type="checkbox" id="pausar-cierre" checked> Pausar cuando se cierra una operación</label>
+        </div>
+      </div>
+
+      <div data-contenido="diario" class="contenido" hidden>
+        <div class="caja" aria-label="Resultados de la sesión">
+          <h2>Sesión de backtest <span class="etq" id="almacen">—</span></h2>
+          <div class="campos">
+            <label>Sesión<select id="sesion"></select></label>
+            <label>&nbsp;<button id="nueva-sesion">Nueva sesión</button></label>
+          </div>
+          <div id="form-nueva" class="campos" hidden>
+            <label>Nombre<input type="text" id="nueva-nombre" placeholder="Silver Bullet M3"></label>
+            <label>Saldo inicial (USD)<input type="number" id="nueva-saldo" value="10000" min="100" step="100"></label>
+            <button id="nueva-crear">Crear</button><button id="nueva-cancelar">Cancelar</button>
+          </div>
+          <div class="stats">
+            <div class="stat"><span>Operaciones</span><b id="st-n">0</b></div>
+            <div class="stat"><span>Acierto</span><b id="st-acierto">—</b></div>
+            <div class="stat"><span>R total</span><b id="st-r">0</b></div>
+            <div class="stat"><span>R promedio</span><b id="st-rprom">—</b></div>
+            <div class="stat"><span>Factor ben.</span><b id="st-pf">—</b></div>
+            <div class="stat"><span>Drawdown</span><b id="st-dd">—</b></div>
+          </div>
+          <svg class="curva" id="curva" viewBox="0 0 300 60" preserveAspectRatio="none" role="img" aria-label="Curva de saldo de la sesión"></svg>
+          <div class="nx-analitica" id="nx-analitica" aria-label="Analíticas de la sesión">
+            <div class="nx-sub"><span class="nx-et">Analíticas</span><span class="mini" id="nx-filtro-txt"></span></div>
+            <div class="nx-filtros" role="group" aria-label="Filtrar operaciones">
+              <button data-nxf="todas" aria-pressed="true">Todas</button><button data-nxf="compras" aria-pressed="false">Compras</button><button data-nxf="ventas" aria-pressed="false">Ventas</button>
+              <select id="nx-f-sesion" aria-label="Filtrar por sesión de mercado"><option value="">Todas las sesiones</option><option value="asia">Asia</option><option value="londres">Londres</option><option value="ny">Nueva York</option><option value="cierre">Cierre (17–18)</option></select>
+            </div>
+            <div class="nx-dist">
+              <div class="nx-barra-dist" aria-hidden="true"><i class="c" id="nx-dist-c"></i><i class="v" id="nx-dist-v"></i></div>
+              <div class="nx-dist-ley"><span class="c" id="nx-dist-ctxt"></span><span class="v" id="nx-dist-vtxt"></span></div>
+            </div>
+            <div class="tabla-scroll"><table class="nx-ses" aria-label="Resultados por sesión de mercado"><thead><tr><th>Sesión</th><th title="Operaciones">Op.</th><th>Acierto</th><th title="R total">R</th><th title="R promedio por operación (expectativa)">R/op</th><th title="Factor de beneficio">PF</th></tr></thead><tbody id="nx-ses-cuerpo"></tbody></table></div>
+            <div class="pr-curva-caja"><div class="fila"><span>Saldo y drawdown del filtro</span><span id="nx-dd-txt"></span></div><svg id="nx-curva" class="nx-dd" viewBox="0 0 300 96" preserveAspectRatio="none" role="img" aria-label="Curva de saldo y drawdown de las operaciones filtradas"></svg></div>
+            <p class="mini">Sesiones en hora de Nueva York según la entrada: Asia 18–02 · Londres 02–08 · Nueva York 08–17. El filtro también oculta filas de la tabla de abajo; las estadísticas de arriba son de toda la sesión.</p>
+          </div>
+          <div class="diario">
+            <table aria-label="Diario de operaciones">
+              <thead><tr><th>#</th><th>Entrada</th><th>Lado</th><th>Señal</th><th>Precio</th><th>Salida</th><th>Motivo</th><th>R</th><th>USD</th></tr></thead>
+              <tbody id="diario"></tbody>
+            </table>
+          </div>
+          <div class="botones">
+            <button id="copiar-csv">Copiar CSV</button>
+            <button id="bajar-csv" hidden>Descargar CSV</button>
+            <button id="borrar-sesion" class="peligro">Borrar sesión</button>
+          </div>
+          <div class="confirmar" id="confirmar-borrar" hidden>
+            <span>¿Borrar esta sesión con sus operaciones y dibujos? No se puede deshacer.</span>
+            <div class="botones"><button id="borrar-si" class="peligro">Sí, borrar</button><button id="borrar-no">No</button></div>
+          </div>
+          <textarea id="csv-respaldo" aria-label="CSV para copiar" rows="4" hidden></textarea>
+        </div>
+      </div>
+
+      <div data-contenido="objetos" class="contenido" hidden>
+        <div class="caja">
+          <h2>Indicadores</h2>
+          <ul class="objetos" id="obj-ind"></ul>
+          <p class="mini" id="obj-ind-vacio">Sin indicadores. Agregalos con el botón «Indicadores» de arriba.</p>
+        </div>
+        <div class="caja">
+          <h2>Dibujos</h2>
+          <ul class="objetos" id="obj-dib"></ul>
+          <p class="mini" id="obj-dib-vacio">Sin dibujos. Usá la barra de la izquierda.</p>
+        </div>
+      </div>
+
+      <details class="caja">
+        <summary>Atajos y cómo funciona</summary>
+        <p class="mini"><kbd>→</kbd> avanzar · <kbd>←</kbd> retroceder · <kbd>Espacio</kbd> reproducir/pausar · <kbd>N</kbd> próxima ventana SB · <kbd>B</kbd> comprar · <kbd>S</kbd> vender · <kbd>C</kbd> cerrar.</p>
+        <p class="mini">Dibujo: <kbd>Alt+T</kbd> tendencia · <kbd>Alt+H</kbd> horizontal · <kbd>Alt+J</kbd> rayo horizontal · <kbd>Alt+V</kbd> vertical · <kbd>Alt+C</kbd> cruz · <kbd>Alt+F</kbd> Fibonacci · <kbd>Alt+R</kbd> rectángulo · <kbd>Alt+M</kbd> medir · <kbd>Ctrl+Z</kbd> deshacer · <kbd>Ctrl+Y</kbd> rehacer · <kbd>Supr</kbd> borrar · <kbd>Esc</kbd> cursor. Doble clic en un dibujo para editar su texto.</p>
+        <p class="mini">Datos: velas de 1 minuto del oro (precio BID) de HistData, del 1/1/2018 al 13/11/2026, y de Dukascopy hasta el 23/11/2026. Las temporalidades mayores se arman con esas velas y los indicadores usan solo las velas ya reveladas. Las compras se llenan al ASK (BID + spread). Si el SL y el TP caen en el mismo minuto, cuenta el SL. 1 lote = 100 onzas. El indicador ICT Silver Bullet es de LuxAlgo (licencia CC BY-NC-SA 4.0): está reproducido para uso personal, no comercial. Los resultados de un backtest no garantizan resultados futuros.</p>
+      </details>
+    </aside>
+  </div>
+  <footer class="pie-p">
+    <span><b>Simulación educativa con datos históricos.</b> No es asesoramiento financiero ni una recomendación de inversión: los resultados de un backtest no garantizan resultados futuros.</span>
+    <span>Datos: HistData y Dukascopy (precio BID, velas de 1 minuto). Gráfico: Lightweight Charts de TradingView. Los indicadores ICT y SMC se basan en scripts de código abierto de LuxAlgo (licencia CC BY-NC-SA 4.0), reproducidos con fines educativos y sin uso comercial.</span>
+    <span>© Trading Institucional</span>
+  </footer>
+</div>
+<dialog id="dlg-ind" aria-labelledby="dlg-ind-t">
+  <div class="dlg">
+    <header><h2 id="dlg-ind-t">Indicadores</h2><button data-cerrar aria-label="Cerrar">×</button></header>
+    <input type="search" id="dlg-ind-buscar" placeholder="Buscar" aria-label="Buscar indicador">
+    <div class="lista-ind" id="dlg-ind-lista"></div>
+  </div>
+</dialog>
+<dialog id="dlg-cfg" aria-labelledby="dlg-cfg-titulo">
+  <form class="dlg" method="dialog">
+    <header><h2 id="dlg-cfg-titulo">Configuración</h2><button data-cerrar aria-label="Cerrar">×</button></header>
+    <div class="campos-dlg" id="dlg-cfg-campos"></div>
+    <div class="botones"><button id="dlg-cfg-def">Valores por defecto</button><span style="flex:1"></span><button data-cerrar>Cancelar</button><button id="dlg-cfg-ok" class="primario">Aplicar</button></div>
+  </form>
+</dialog>
+<dialog id="dlg-pine" aria-labelledby="dlg-pine-t">
+  <div class="dlg">
+    <header><h2 id="dlg-pine-t">Convertir desde Pine Script</h2><button data-cerrar aria-label="Cerrar">×</button></header>
+    <p class="mini">Pegá el código de tu estrategia o indicador de TradingView. Claude lo traduce al formato del probador; después revisalo y probalo. La primera vez se te pide permiso.</p>
+    <label class="mini">Traducir como <select id="pine-modo"><option value="estrategia">Estrategia (va al probador)</option><option value="indicador">Indicador (se agrega al gráfico)</option></select></label>
+    <textarea id="pine-codigo" rows="14" spellcheck="false" aria-label="Código Pine Script"></textarea>
+    <p class="mini" id="pine-estado" aria-live="polite"></p>
+    <div class="botones"><span style="flex:1"></span><button data-cerrar>Cancelar</button><button id="pine-traducir" class="primario">Traducir</button></div>
+  </div>
+</dialog>
+<dialog id="dlg-nx" aria-labelledby="dlg-nx-t">
+  <div class="dlg">
+    <header><h2 id="dlg-nx-t">Ajustes de NEXUS</h2><button data-cerrar aria-label="Cerrar">×</button></header>
+    <p class="mini">La red neuronal del fondo está siempre activa, en intensidad alta. Es una animación decorativa: no analiza el mercado ni influye en las señales, el probador ni las operaciones.</p>
+    <fieldset class="nx-aj">
+      <legend>Telemetría</legend>
+      <label class="chk"><input type="checkbox" id="nx-tele-on"> Mostrar el estado de los motores en el encabezado</label>
+      <p class="mini">Cada indicador se lee del estado real del reproductor: datos cargados, índice histórico, replay, probador, sesión guardada y posición.</p>
+    </fieldset>
+    <div class="botones"><span style="flex:1"></span><button data-cerrar class="primario">Listo</button></div>
+  </div>
+</dialog>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="js/sitio.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.2.3/dist/lightweight-charts.standalone.production.js"></script>
+<script src="js/motores.js"></script>
+<script src="js/tv.js"></script>
+<script src="js/luxalgo.js"></script>
+<script src="js/setups.js"></script>
+<script src="js/nucleo.js"></script>
+<script src="js/dibujos.js"></script>
+<script src="js/indicadores.js"></script>
+<script src="js/estrategias_tv.js"></script>
+<script src="js/estrategias.js"></script>
+<script src="js/fichas.js"></script>
+<script src="js/nexus/ficha.js"></script>
+<script src="js/nexus/pulso.js"></script>
+<script src="js/nexus/fondo.js"></script>
+<script src="js/nexus/telemetria.js"></script>
+<script src="js/nexus/analitica.js"></script>
+<script src="js/nexus/ajustes.js"></script>
+<script>window.REP && window.REP.arrancar();</script>
+</body>
+</html>
