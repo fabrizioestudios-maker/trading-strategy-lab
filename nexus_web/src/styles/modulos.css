@@ -247,6 +247,10 @@ input.selector--chico {
   grid-template-columns: auto 1fr;
 }
 
+.ticket__calculo dd {
+  white-space: normal;
+}
+
 .lista-ordenes li {
   padding: 10px 0;
   display: flex;
