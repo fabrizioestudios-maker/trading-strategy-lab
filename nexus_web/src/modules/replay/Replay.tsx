@@ -45,6 +45,7 @@ export default function Replay({ params }: { params: Record<string, string> }) {
   const zona = prefs.zona;
   const panel = prefs.panelReplay;
   const [fechaSalto, setFechaSalto] = useState('');
+  const [fechaFin, setFechaFin] = useState('');
   const [errorSalto, setErrorSalto] = useState<string | null>(null);
   const [saltoAbierto, setSaltoAbierto] = useState(false);
   useEffect(() => {
@@ -86,7 +87,7 @@ export default function Replay({ params }: { params: Record<string, string> }) {
   };
   const saltar = async () => {
     if (!fechaSalto) return;
-    const err = await r.saltar(fechaSalto);
+    const err = await r.saltar(fechaSalto, fechaFin || undefined);
     setErrorSalto(err);
     if (!err) setSaltoAbierto(false);
   };
@@ -308,8 +309,9 @@ export default function Replay({ params }: { params: Record<string, string> }) {
                   }}
                   onKeyDown={(e) => e.key === 'Escape' && setSaltoAbierto(false)}
                 >
-                  <label className="campo__etiqueta" htmlFor="rp-fecha">
-                    Ir a una fecha (hora de Nueva York)
+                  <p className="campo__etiqueta">Rango del replay (hora de Nueva York)</p>
+                  <label className="campo__ayuda" htmlFor="rp-fecha">
+                    Desde
                   </label>
                   <div className="fila">
                     <input
@@ -321,6 +323,19 @@ export default function Replay({ params }: { params: Record<string, string> }) {
                       onChange={(e) => setFechaSalto(e.target.value)}
                       aria-invalid={!!errorSalto}
                       aria-describedby={errorSalto ? 'rp-fecha-error' : undefined}
+                    />
+                  </div>
+                  <label className="campo__ayuda" htmlFor="rp-fecha-fin">
+                    Hasta (opcional: la reproducción se detiene ahí)
+                  </label>
+                  <div className="fila">
+                    <input
+                      id="rp-fecha-fin"
+                      type="datetime-local"
+                      className="entrada selector--chico"
+                      value={fechaFin}
+                      min={fechaSalto || undefined}
+                      onChange={(e) => setFechaFin(e.target.value)}
                     />
                     <Boton type="submit" chico variante="primario" disabled={!fechaSalto}>
                       Ir
@@ -384,6 +399,14 @@ export default function Replay({ params }: { params: Record<string, string> }) {
                 {entero(c.velas.length)} velas de {nombreTf(c.temporalidad)}
                 {c.velas[c.velas.length - 1]?.parcial ? ', la última en formación' : ''}
               </span>
+              {r.fin !== null && (
+                <span className="replay__fin">
+                  Se detiene en <strong className="num">{fechaHora(r.fin, 'ny')}</strong>
+                  <button type="button" className="enlace" onClick={r.quitarFin} aria-label="Quitar el final del rango">
+                    quitar
+                  </button>
+                </span>
+              )}
               {c.al_final_de_los_datos && (
                 <span className="tono-aviso">
                   <Icono nombre="alerta" tam={13} /> Fin de los datos históricos

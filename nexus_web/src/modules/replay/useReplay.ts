@@ -26,7 +26,10 @@ export interface Replay {
   alFinal: boolean;
   setReproduciendo: (r: boolean) => void;
   paso: (n: number, unidad?: 'velas' | 'minutos') => Promise<void>;
-  saltar: (fechaNy: string) => Promise<string | null>;
+  /** Salta a `desdeNy`; con `hastaNy`, la reproducción se detiene sola al llegar ahí. */
+  saltar: (desdeNy: string, hastaNy?: string) => Promise<string | null>;
+  fin: number | null;
+  quitarFin: () => void;
   reiniciar: () => Promise<void>;
   reintentar: () => void;
   latenciaMs: number | null;
@@ -40,6 +43,9 @@ export function useReplay(): Replay {
   const tf = estado.tf;
   const cantidad = estado.prefs.velasPorCuadro;
   const limite = estado.replay.limites[simbolo] ?? null;
+  const fin = estado.replay.fines[simbolo] ?? null;
+  const finRef = useRef<number | null>(fin);
+  finRef.current = fin;
   const velocidad = estado.replay.velocidad;
   const ordenes = useMemo(() => estado.replay.ordenes.filter((o) => o.simbolo === simbolo), [estado.replay.ordenes, simbolo]);
 
@@ -167,6 +173,12 @@ export function useReplay(): Replay {
           setReproduciendo(false);
           break;
         }
+        // se detiene en la última vela que cierra antes del final elegido (la próxima ya lo pasaría)
+        if (finRef.current !== null && ahora !== null && ahora + tf * 60_000 > finRef.current) {
+          setReproduciendo(false);
+          avisar({ texto: 'Llegó al final del rango elegido: la reproducción se detuvo.' });
+          break;
+        }
         if (ahora !== null) {
           const ok = await new Promise<boolean>((r) => {
             esperas.current.set(ahora, r);
@@ -181,23 +193,26 @@ export function useReplay(): Replay {
     return () => {
       vivo = false;
     };
-  }, [reproduciendo, velocidad, paso]);
+  }, [reproduciendo, velocidad, paso, avisar, tf]);
 
   // cambiar de instrumento o de temporalidad pausa la reproducción
   useEffect(() => setReproduciendo(false), [simbolo, tf]);
 
   const saltar = useCallback(
-    async (fechaNy: string) => {
+    async (desdeNy: string, hastaNy?: string) => {
       setReproduciendo(false);
+      if (hastaNy && hastaNy <= desdeNy) return 'El final del rango tiene que ser posterior al inicio';
       try {
-        const p = await api.fecha(simbolo, fechaNy);
+        const [p, q] = await Promise.all([api.fecha(simbolo, desdeNy), hastaNy ? api.fecha(simbolo, hastaNy) : Promise.resolve(null)]);
+        if (q && q.limite_ms <= p.limite_ms) return 'No hay datos entre esas dos fechas';
         fijarLimite(p.limite_ms);
+        despachar({ tipo: 'fin', simbolo, finMs: q ? q.limite_ms : null });
         return null;
       } catch (e) {
-        return e instanceof Error ? e.message : 'No se pudo saltar a esa fecha';
+        return e instanceof ErrorApi ? e.detalle : e instanceof Error ? e.message : 'No se pudo saltar a esa fecha';
       }
     },
-    [simbolo, fijarLimite],
+    [simbolo, fijarLimite, despachar],
   );
 
   const reiniciar = useCallback(async () => {
@@ -226,6 +241,8 @@ export function useReplay(): Replay {
     setReproduciendo,
     paso,
     saltar,
+    fin,
+    quitarFin: () => despachar({ tipo: 'fin', simbolo, finMs: null }),
     reiniciar,
     reintentar: () => setVuelta((v) => v + 1),
     latenciaMs,

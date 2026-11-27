@@ -1862,3 +1862,11 @@ input.selector--chico {
 .mapa__fila--rango .mapa__nombre {
   color: var(--gold-claro);
 }
+
+.replay__fin {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--gold-claro);
+}
+.salto .campo__ayuda { margin: 4px 0 2px; }

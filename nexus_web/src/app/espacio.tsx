@@ -56,7 +56,8 @@ export interface EstadoEspacio {
   simbolo: string;
   tf: number;
   prefs: Preferencias;
-  replay: { limites: Record<string, number>; velocidad: number; pasoN: number; ordenes: OrdenGuardada[] };
+  /** fines: dónde se detiene la reproducción por instrumento (límite en ms, del selector de rango). */
+  replay: { limites: Record<string, number>; fines: Record<string, number>; velocidad: number; pasoN: number; ordenes: OrdenGuardada[] };
   recientes: ReplayReciente[];
 }
 
@@ -66,7 +67,7 @@ export const ESTADO_INICIAL: EstadoEspacio = {
   simbolo: 'XAUUSD',
   tf: 15,
   prefs: PREFS_INICIALES,
-  replay: { limites: {}, velocidad: 2, pasoN: 10, ordenes: [] },
+  replay: { limites: {}, fines: {}, velocidad: 2, pasoN: 10, ordenes: [] },
   recientes: [],
 };
 
@@ -81,6 +82,7 @@ type Accion =
   | { tipo: 'simbolo'; simbolo: string }
   | { tipo: 'tf'; tf: number }
   | { tipo: 'limite'; simbolo: string; limiteMs: number }
+  | { tipo: 'fin'; simbolo: string; finMs: number | null }
   | { tipo: 'velocidad'; velocidad: number }
   | { tipo: 'pasoN'; pasoN: number }
   | { tipo: 'ordenes'; ordenes: OrdenGuardada[] }
@@ -126,6 +128,7 @@ export function sanear(x: unknown): EstadoEspacio {
     prefs,
     replay: {
       limites: r.limites && typeof r.limites === 'object' ? Object.fromEntries(Object.entries(r.limites).filter(([, v]) => Number(v) > 0)) : {},
+      fines: r.fines && typeof r.fines === 'object' ? Object.fromEntries(Object.entries(r.fines).filter(([, v]) => Number(v) > 0)) : {},
       velocidad: [1, 2, 4, 8, 16].includes(Number(r.velocidad)) ? Number(r.velocidad) : 2,
       pasoN: [5, 10, 20, 50].includes(Number(r.pasoN)) ? Number(r.pasoN) : 10,
       ordenes: ordenes.slice(0, 200),
@@ -144,6 +147,12 @@ export function reducir(s: EstadoEspacio, a: Accion): EstadoEspacio {
       return { ...s, tf: a.tf };
     case 'limite':
       return { ...s, replay: { ...s.replay, limites: { ...s.replay.limites, [a.simbolo]: a.limiteMs } } };
+    case 'fin': {
+      const fines = { ...s.replay.fines };
+      if (a.finMs === null) delete fines[a.simbolo];
+      else fines[a.simbolo] = a.finMs;
+      return { ...s, replay: { ...s.replay, fines } };
+    }
     case 'velocidad':
       return { ...s, replay: { ...s.replay, velocidad: a.velocidad } };
     case 'pasoN':

@@ -30,3 +30,13 @@ describe('espacio de trabajo', () => {
     expect(s.replay.limites).toEqual({ XAUUSD: 10, EURUSD: 20 });
   });
 });
+
+describe('final del rango del replay', () => {
+  it('se guarda por instrumento, se quita y se sanea', () => {
+    const a = reducir(ESTADO_INICIAL, { tipo: 'fin', simbolo: 'XAUUSD', finMs: 1_000 });
+    expect(a.replay.fines).toEqual({ XAUUSD: 1_000 });
+    expect(reducir(a, { tipo: 'fin', simbolo: 'XAUUSD', finMs: null }).replay.fines).toEqual({});
+    expect(sanear({ replay: { fines: { XAUUSD: 5, EURUSD: -1, X: 'a' } } }).replay.fines).toEqual({ XAUUSD: 5 });
+    expect(sanear({}).replay.fines).toEqual({});
+  });
+});
