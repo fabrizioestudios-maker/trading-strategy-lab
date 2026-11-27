@@ -3,7 +3,8 @@
  * siempre el mismo cuadro. La interfaz nunca pide ni guarda datos posteriores al límite.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { api } from '../../api/cliente';
+import { api, ErrorApi } from '../../api/cliente';
+import { useAvisos } from '../../app/avisos';
 import type { CapasReplay, CuadroReplay, CuentaSimulada, EstadoOrdenSimulada } from '../../api/contrato.gen';
 import { useEspacio, type OrdenGuardada } from '../../app/espacio';
 import { useGlobales } from '../../app/globales';
@@ -34,6 +35,7 @@ export interface Replay {
 export function useReplay(): Replay {
   const { estado, despachar } = useEspacio();
   const { setReplay } = useGlobales();
+  const { avisar } = useAvisos();
   const simbolo = estado.simbolo;
   const tf = estado.tf;
   const cantidad = estado.prefs.velasPorCuadro;
@@ -135,14 +137,18 @@ export function useReplay(): Replay {
           alFinalRef.current = p.al_final_de_los_datos;
           if (p.limite_ms !== base) fijarLimite(p.limite_ms);
         } catch (e) {
-          setError(e);
           setReproduciendo(false);
+          // versión publicada: fuera del tramo grabado se queda en el último cuadro y lo avisa, sin pantalla de error
+          if (e instanceof ErrorApi && e.tipo === 'solo_completa') {
+            alFinalRef.current = true;
+            avisar({ texto: 'Fin del tramo grabado de la versión publicada. Con NEXUS en tu computadora el replay sigue.' });
+          } else setError(e);
         }
       });
       cola.current = tarea.catch(() => undefined);
       return tarea;
     },
-    [simbolo, tf, fijarLimite],
+    [simbolo, tf, fijarLimite, avisar],
   );
 
   // reproducción: un paso por vela, esperando que el cuadro llegue antes de pedir el siguiente (determinista)

@@ -49,3 +49,18 @@ cd nexus_web && npm run dev    # Vite en :5173, /api va a :8800
   hay: el mapa de precios conocidos y una cuenta simulada calculada por la API.
 - Las cifras de una candidata no se pintan de verde: el nivel de evidencia y los avisos van al lado del número.
 - IBM Plex Sans: legible en tamaños chicos y con cifras de ancho fijo (las columnas de precios se alinean).
+
+## Versión publicada sin servidor
+
+Para publicar NEXUS en un hosting estático gratuito (por ejemplo un Space estático de Hugging Face), la interfaz
+puede leer respuestas grabadas en lugar de llamar a la API:
+
+1. Con la API corriendo (`python -m nexus_api`), grabar: `npm run grabar -- http://127.0.0.1:8800 dist-estatico 200`.
+   Recorre todos los módulos y 200 velas del replay de XAUUSD 15m, y guarda cada respuesta en
+   `dist-estatico/instantanea/<clave>.json` (clave de `src/api/clave.ts`).
+2. Construir: `npm run build:estatico` (`VITE_ESTATICO=1`, salida en `dist-estatico/`). Vite no borra
+   `instantanea/` si se graba después del build; si se construye después, volver a grabar o copiarla.
+3. Subir `dist-estatico/` tal cual.
+
+Lo que no está grabado (órdenes simuladas, otras fechas o temporalidades del replay, corridas nuevas) muestra
+«Disponible en la versión completa». Al final del tramo grabado el replay se detiene con un aviso.

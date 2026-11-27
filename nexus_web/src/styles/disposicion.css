@@ -549,3 +549,10 @@
     color: var(--identity);
   }
 }
+
+/* Versión publicada sin servidor: aviso informativo en oro, no de alerta. */
+.banda-publicada {
+  background: rgb(232 168 58 / 8%);
+  border-bottom-color: rgb(232 168 58 / 28%);
+  color: var(--gold);
+}

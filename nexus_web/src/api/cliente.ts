@@ -25,10 +25,14 @@ import type {
   Salud,
   Trabajo,
 } from './contrato.gen';
+import { claveRespuesta } from './clave';
 
 export const BASE = '/api/v1';
 
-export type TipoError = 'sin_conexion' | 'datos_no_disponibles' | 'no_existe' | 'pedido_invalido' | 'servidor' | 'cancelado';
+/** Versión publicada sin servidor: las respuestas se leen de archivos grabados (scripts/grabar-instantanea.mjs). */
+export const ESTATICO = import.meta.env.VITE_ESTATICO === '1';
+
+export type TipoError = 'sin_conexion' | 'datos_no_disponibles' | 'no_existe' | 'pedido_invalido' | 'servidor' | 'cancelado' | 'solo_completa';
 
 export class ErrorApi extends Error {
   constructor(
@@ -52,6 +56,8 @@ export function explicarError(e: unknown): { titulo: string; detalle: string } {
         return { titulo: 'No existe', detalle: e.detalle };
       case 'pedido_invalido':
         return { titulo: 'Pedido inválido', detalle: e.detalle };
+      case 'solo_completa':
+        return { titulo: 'Disponible en la versión completa', detalle: e.detalle };
       case 'cancelado':
         return { titulo: 'Cancelado', detalle: e.detalle };
       default:
@@ -74,7 +80,27 @@ function detalleDe(cuerpo: unknown): string {
   return 'Sin detalle';
 }
 
+async function pedirGrabado<T>(ruta: string, init: RequestInit): Promise<T> {
+  const metodo = init.method ?? 'GET';
+  const cuerpo = typeof init.body === 'string' ? init.body : null;
+  let r: Response;
+  try {
+    r = await fetch(`instantanea/${claveRespuesta(metodo, BASE + ruta, cuerpo)}.json`, { signal: init.signal });
+  } catch {
+    if (init.signal?.aborted) throw new ErrorApi('cancelado', 'Pedido cancelado');
+    throw new ErrorApi('sin_conexion', 'No se pudieron leer los datos publicados');
+  }
+  if (!r.ok)
+    throw new ErrorApi(
+      'solo_completa',
+      'Esta es la versión publicada, con datos grabados: el replay recorre un tramo fijo de XAUUSD en 15 minutos. Las órdenes simuladas, otras fechas o temporalidades y las corridas nuevas necesitan NEXUS corriendo en una computadora (python -m nexus_api).',
+      404,
+    );
+  return (await r.json()) as T;
+}
+
 export async function pedir<T>(ruta: string, init: RequestInit = {}, espera = 30_000): Promise<T> {
+  if (ESTATICO) return pedirGrabado<T>(ruta, init);
   const ctl = new AbortController();
   const reloj = setTimeout(() => ctl.abort(), espera);
   const externa = init.signal;

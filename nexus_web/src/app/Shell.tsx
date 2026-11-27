@@ -4,6 +4,7 @@ import { Icono, type NombreIcono } from '../components/iconos';
 import { Menu } from '../components/Menu';
 import { PaletaComandos } from '../components/PaletaComandos';
 import { Boton, Campo, Dialogo } from '../components/ui';
+import { ESTATICO } from '../api/cliente';
 import { etiquetaTf, nombreTf } from '../lib/formato';
 import { TEMPORALIDADES } from '../lib/replay';
 import { MODULOS, type Modulo } from '../lib/rutas';
@@ -214,6 +215,12 @@ export function Shell({ children }: { children: ReactNode }) {
           <p className="banda-sintetica" role="note">
             <Icono nombre="alerta" tam={14} />
             Datos sintéticos de prueba: no es mercado real (la API arrancó con --sintetico).
+          </p>
+        )}
+        {ESTATICO && (
+          <p className="banda-sintetica banda-publicada" role="note">
+            <Icono nombre="alerta" tam={14} />
+            {import.meta.env.VITE_AVISO_ESTATICO ?? 'Versión publicada con datos grabados: el replay recorre un tramo fijo; órdenes y corridas nuevas solo en la versión completa.'}
           </p>
         )}
         {children}
