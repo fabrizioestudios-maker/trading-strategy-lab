@@ -98,6 +98,16 @@ def correr(svc, cfg: dict, etapa: Callable[[str], None], cancelado: Callable[[],
         por_anio.append(dict(anio=int(y), n=int(sel.sum()), acierto=round(float((rr > 0).mean() * 100), 1),
                              expectativa=round(float(rr.mean()), 4), r_total=round(float(rr.sum()), 3),
                              muestra="eleccion" if (t[sel] < e_b).all() else "confirmacion" if (t[sel] >= c_a).all() else "mixta"))
+    sub = ops.assign(r=r)
+    f = FI.ficha(sub)
+    def tabla(df, nombre):
+        if not isinstance(df, pd.DataFrame) or df.empty:
+            return []
+        return [dict({nombre: str(k)}, n=int(v["n"]), acierto=round(float(v["wr"]) * 100, 1), expectativa=round(float(v["expectancy"]), 4),
+                     r_total=round(float(v["r_total"]), 3)) for k, v in df.iterrows()]
+    mes = pd.to_datetime(ops.t, unit="ms", utc=True).dt.strftime("%Y-%m").values
+    por_mes = [dict(mes=mm, n=int((mes == mm).sum()), r_total=round(float(r[mes == mm].sum()), 3)) for mm in sorted(set(mes))]
+    desgloses = dict(por_lado=tabla(f.get("por_direccion"), "lado"), por_sesion=tabla(f.get("por_sesion"), "sesion"), por_mes=por_mes)
     sens = []
     for p in PERFILES:
         rp = r_perfil[p]
@@ -117,4 +127,4 @@ def correr(svc, cfg: dict, etapa: Callable[[str], None], cancelado: Callable[[],
         "La confirmación 2021–2026 ya se miró al armar el ranking de E019: no es un holdout limpio (docs/criterios_v2.md, regla 4).",
         "Precios bid; el spread y el deslizamiento se cobran como costo según el perfil elegido.",
     ]
-    return dict(metricas=metricas, por_anio=por_anio, sensibilidad_costos=sens, operaciones=operaciones, avisos=avisos)
+    return dict(metricas=metricas, por_anio=por_anio, desgloses=desgloses, sensibilidad_costos=sens, operaciones=operaciones, avisos=avisos)

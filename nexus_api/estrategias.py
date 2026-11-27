@@ -176,3 +176,30 @@ def definicion() -> dict:
         fuentes=["BITACORA.md entradas 18–19, 34–38", "docs/fichas.md", "experimentos/E022_*.py, E042, F002", "registro/forward/F002.json"],
         ejecutable=True,
     )
+
+
+def niveles(svc, simbolo: str, limite_ms: int) -> list[dict]:
+    """Máximo y mínimo del día anterior (PDH/PDL) y de la semana anterior (PWH/PWL), con velas diarias cerradas.
+    Semana = días de operación (cierre 17:00 NY) agrupados por semana ISO del día de operación."""
+    b = ultima_diaria_cerrada(svc, simbolo, limite_ms)
+    if b < 1:
+        return []
+    d1 = svc.serie(simbolo, 1440)
+    t_m1 = svc.m1(simbolo)["t"]
+    nota = "Descriptivo: un nivel dibujado no es evidencia de ventaja (E035b: el barrido no predijo la reversión)."
+    cierre = lambda k: int(t_m1[int(d1.i1[k])]) + 60000  # noqa: E731
+    out = [dict(clave="pdh", nombre="Máximo del día anterior", precio=round(float(d1.h[b]), 2), conocido_desde_ms=cierre(b), nota=nota),
+           dict(clave="pdl", nombre="Mínimo del día anterior", precio=round(float(d1.l[b]), 2), conocido_desde_ms=cierre(b), nota=nota)]
+    a = max(0, b - 15)
+    dia_op = pd.to_datetime(np.asarray(d1.t[a:b + 1]) + 7 * 3600000, unit="ms", utc=True).tz_convert("America/New_York")
+    semana = np.array([d.isocalendar()[0] * 100 + d.isocalendar()[1] for d in dia_op])
+    t_sig = int(t_m1[svc.indice_limite(simbolo, limite_ms)])
+    sem_actual = pd.Timestamp(t_sig + 7 * 3600000, unit="ms", tz="UTC").tz_convert("America/New_York").isocalendar()
+    actual = sem_actual[0] * 100 + sem_actual[1]
+    previas = sorted(set(semana[semana < actual]))
+    if previas:
+        sel = np.flatnonzero(semana == previas[-1]) + a
+        ult = int(sel.max())
+        out += [dict(clave="pwh", nombre="Máximo de la semana anterior", precio=round(float(d1.h[sel].max()), 2), conocido_desde_ms=cierre(ult), nota=nota),
+                dict(clave="pwl", nombre="Mínimo de la semana anterior", precio=round(float(d1.l[sel].min()), 2), conocido_desde_ms=cierre(ult), nota=nota)]
+    return out

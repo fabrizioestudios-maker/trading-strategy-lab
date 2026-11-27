@@ -12,9 +12,9 @@ from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import CONTRATO, VERSION, catalogo, estrategias as E022, riesgo, sesiones as SE
-from .contratos import (CalculoRiesgo, ConfigCorrida, CuadroReplay, Estrategia, Hipotesis, InformeCalidad, Instrumento,
-                        Paso, PedidoRiesgo, Salud, Trabajo)
+from . import CONTRATO, VERSION, catalogo, estrategias as E022, riesgo, sesiones as SE, simulacion
+from .contratos import (CalculoRiesgo, ConfigCorrida, CuadroReplay, EstadoOrdenSimulada, Estrategia, Hipotesis,
+                        InformeCalidad, Instrumento, Paso, PedidoOrdenes, PedidoRiesgo, Salud, Trabajo)
 from .datos import TEMPORALIDADES, DatosNoDisponibles, ServicioDatos
 from .trabajos import GestorTrabajos
 
@@ -103,6 +103,7 @@ def crear_app(svc: ServicioDatos | None = None, gestor: GestorTrabajos | None = 
         return dict(simbolo=simbolo, temporalidad=tf,
                     limite=dict(limite_ms=t_lim, limite_iso=SE.iso(t_lim), limite_ny=SE.texto_ny(t_lim), sesion=SE.sesion(t_lim)),
                     velas=velas, sesiones=ses, eventos=ev, decision=E022.panel(svc, simbolo, t_lim) if simbolo == "XAUUSD" else None,
+                    niveles=E022.niveles(svc, simbolo, t_lim),
                     hay_mas_atras=mas, al_final_de_los_datos=t_lim >= ultimo)
 
     @app.get("/api/v1/replay/paso", response_model=Paso)
@@ -116,10 +117,24 @@ def crear_app(svc: ServicioDatos | None = None, gestor: GestorTrabajos | None = 
         return dict(limite_ms=lim, avanzo_minutos=mins, al_final_de_los_datos=fin)
 
     @app.get("/api/v1/replay/fecha", response_model=Paso)
-    def replay_fecha(simbolo: str = "XAUUSD", fecha_ms: int = Query(...)):
+    def replay_fecha(simbolo: str = "XAUUSD", fecha_ms: int | None = None, fecha_ny: str | None = None):
+        """Salto de fecha: fecha_ms (UTC) o fecha_ny ('AAAA-MM-DDTHH:MM' en hora de Nueva York, convertida acá)."""
+        if fecha_ny:
+            try:
+                d = SE.datetime.strptime(fecha_ny, "%Y-%m-%dT%H:%M").replace(tzinfo=SE.NY)
+            except ValueError:
+                raise ValueError("fecha_ny: formato AAAA-MM-DDTHH:MM") from None
+            fecha_ms = int(d.timestamp() * 1000)
+        if fecha_ms is None:
+            raise ValueError("Falta fecha_ms o fecha_ny")
         lim = svc.limite_para_fecha(simbolo, fecha_ms)
         _, ultimo = svc.extremos(simbolo)
         return dict(limite_ms=lim, avanzo_minutos=0, al_final_de_los_datos=lim >= ultimo)
+
+    @app.post("/api/v1/replay/ordenes/estado", response_model=list[EstadoOrdenSimulada])
+    def ordenes_estado(p: PedidoOrdenes):
+        """Estado de órdenes simuladas en el límite dado (motor del laboratorio, solo minutos revelados)."""
+        return simulacion.estados(svc, p.simbolo, p.limite_ms, [o.model_dump() for o in p.ordenes])
 
     # ------------------------------------------------------------------ investigación
     @app.get("/api/v1/estrategias", response_model=list[Estrategia])

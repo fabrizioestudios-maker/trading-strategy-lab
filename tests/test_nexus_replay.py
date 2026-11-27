@@ -93,3 +93,56 @@ def test_salto_de_fecha_y_bordes(svc):
     lim, _, fin = svc.siguiente_limite("XAUUSD", 15, ultimo, 5)
     assert lim == ultimo and fin
     assert svc.velas_hasta("XAUUSD", 15, primero - 1, 10) == ([], False)
+
+
+# ------------------------------------------------------------------ niveles y órdenes simuladas (sin futuro)
+def test_niveles_no_dependen_del_futuro():
+    from nexus_api import estrategias as E
+
+    largo = m1_sintetico(dias=60, semilla=9)
+    svc = ServicioDatos(m1_inyectado={"XAUUSD": largo})
+    rng = np.random.default_rng(1)
+    for j in rng.integers(20000, len(largo["t"]) - 1, 10):
+        lim = int(largo["t"][j])
+        corto = ServicioDatos(m1_inyectado={"XAUUSD": truncar(largo, int(j))})
+        a, b = E.niveles(svc, "XAUUSD", lim), E.niveles(corto, "XAUUSD", lim)
+        assert a == b and {x["clave"] for x in a} >= {"pdh", "pdl"}
+        assert all(x["conocido_desde_ms"] <= lim + 60000 for x in a)
+
+
+def test_ordenes_simuladas_deterministas_y_sin_futuro(svc):
+    from nexus_api import simulacion as SIM
+
+    j0 = 5000
+    t0 = int(M1["t"][j0])
+    ref = float(M1["c"][j0])
+    ordenes = [dict(id="c", lado="compra", creada_limite_ms=t0, sl=ref - 3, tp=ref + 6),
+               dict(id="v", lado="venta", creada_limite_ms=t0, sl=ref + 3, tp=ref - 6)]
+    assert [o["estado"] for o in SIM.estados(svc, "XAUUSD", t0, ordenes)] == ["esperando_llenado"] * 2
+    antes = int(M1["t"][j0 - 10])
+    assert {o["estado"] for o in SIM.estados(svc, "XAUUSD", antes, ordenes)} == {"posterior_al_limite"}
+    for j in (j0 + 1, j0 + 30, j0 + 400, j0 + 3000):
+        lim = int(M1["t"][j])
+        a = SIM.estados(svc, "XAUUSD", lim, ordenes)
+        corto = ServicioDatos(m1_inyectado={"XAUUSD": truncar(M1, j)})
+        assert a == SIM.estados(corto, "XAUUSD", lim, ordenes)  # el estado no depende de minutos posteriores
+        for o in a:
+            assert o["estado"] in ("abierta", "cerrada", "rechazada")
+            if o["estado"] == "cerrada":
+                assert o["salida_ms"] <= lim and o["motivo"] in ("TP", "SL")
+                assert o["r"] == pytest.approx((2 if o["motivo"] == "TP" else -1) - o["costo_r"], abs=0.05) or o["motivo"] == "SL"
+
+
+def test_salto_en_hora_de_nueva_york():
+    from fastapi.testclient import TestClient
+
+    from nexus_api.app import crear_app
+
+    svc = ServicioDatos(m1_inyectado={"XAUUSD": M1})
+    c = TestClient(crear_app(svc))
+    t = int(M1["t"][20000])
+    from nexus_api import sesiones as SE
+    ny = SE.a_ny(t).strftime("%Y-%m-%dT%H:%M")
+    r = c.get("/api/v1/replay/fecha", params=dict(fecha_ny=ny)).json()
+    assert r["limite_ms"] == t
+    assert c.get("/api/v1/replay/fecha", params=dict(fecha_ny="27/11/2026")).status_code == 422

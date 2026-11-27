@@ -100,6 +100,14 @@ class PanelDecision(Modelo):
     nivel: str = Field(description="Nivel de evidencia documentado (docs/fichas.md)")
 
 
+class Nivel(Modelo):
+    clave: Literal["pdh", "pdl", "pwh", "pwl"]
+    nombre: str
+    precio: float
+    conocido_desde_ms: int = Field(description="Cierre de la vela que lo definió (ya revelado)")
+    nota: str = Field(description="Descriptivo: un nivel dibujado no es evidencia de ventaja")
+
+
 class LimiteReplay(Modelo):
     limite_ms: int = Field(description="Apertura del último minuto revelado")
     limite_iso: str
@@ -116,8 +124,36 @@ class CuadroReplay(Modelo):
     sesiones: list[VentanaSesion]
     eventos: list[Evento]
     decision: Optional[PanelDecision] = None
+    niveles: list[Nivel] = Field(default_factory=list)
     hay_mas_atras: bool
     al_final_de_los_datos: bool
+
+
+class OrdenSimuladaEntrada(Modelo):
+    id: str = Field(max_length=40)
+    lado: Literal["compra", "venta"]
+    creada_limite_ms: int
+    sl: float = Field(gt=0)
+    tp: float = Field(gt=0)
+
+
+class PedidoOrdenes(Modelo):
+    simbolo: str = "XAUUSD"
+    limite_ms: int
+    ordenes: list[OrdenSimuladaEntrada] = Field(max_length=200)
+
+
+class EstadoOrdenSimulada(Modelo):
+    id: str
+    estado: Literal["posterior_al_limite", "esperando_llenado", "rechazada", "abierta", "cerrada"]
+    entrada_ms: Optional[int]
+    precio_entrada: Optional[float]
+    salida_ms: Optional[int]
+    precio_salida: Optional[float] = Field(description="Cerrada: precio de salida. Abierta: cierre del último minuto revelado")
+    motivo: Optional[Literal["TP", "SL"]]
+    r: Optional[float] = Field(description="Cerrada: R realizado. Abierta: R no realizado. Con costos de docs/costos.md")
+    costo_r: Optional[float]
+    explicacion: str
 
 
 class Paso(Modelo):
@@ -197,6 +233,7 @@ class Operacion(Modelo):
 class ResultadoCorrida(Modelo):
     metricas: dict[str, list[Metrica]] = Field(description="Por muestra: eleccion, confirmacion, total")
     por_anio: list[dict]
+    desgloses: dict[str, list[dict]] = Field(default_factory=dict, description="por_lado, por_sesion, por_mes (perfil elegido)")
     sensibilidad_costos: list[dict]
     operaciones: list[Operacion]
     avisos: list[str]

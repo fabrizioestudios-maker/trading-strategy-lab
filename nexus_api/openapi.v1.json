@@ -271,6 +271,13 @@
      "limite": {
       "$ref": "#/components/schemas/LimiteReplay"
      },
+     "niveles": {
+      "items": {
+       "$ref": "#/components/schemas/Nivel"
+      },
+      "title": "Niveles",
+      "type": "array"
+     },
      "sesiones": {
       "items": {
        "$ref": "#/components/schemas/VentanaSesion"
@@ -306,6 +313,127 @@
      "al_final_de_los_datos"
     ],
     "title": "CuadroReplay",
+    "type": "object"
+   },
+   "EstadoOrdenSimulada": {
+    "additionalProperties": false,
+    "properties": {
+     "costo_r": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Costo R"
+     },
+     "entrada_ms": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Entrada Ms"
+     },
+     "estado": {
+      "enum": [
+       "posterior_al_limite",
+       "esperando_llenado",
+       "rechazada",
+       "abierta",
+       "cerrada"
+      ],
+      "title": "Estado",
+      "type": "string"
+     },
+     "explicacion": {
+      "title": "Explicacion",
+      "type": "string"
+     },
+     "id": {
+      "title": "Id",
+      "type": "string"
+     },
+     "motivo": {
+      "anyOf": [
+       {
+        "enum": [
+         "TP",
+         "SL"
+        ],
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Motivo"
+     },
+     "precio_entrada": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Precio Entrada"
+     },
+     "precio_salida": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Cerrada: precio de salida. Abierta: cierre del último minuto revelado",
+      "title": "Precio Salida"
+     },
+     "r": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Cerrada: R realizado. Abierta: R no realizado. Con costos de docs/costos.md",
+      "title": "R"
+     },
+     "salida_ms": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Salida Ms"
+     }
+    },
+    "required": [
+     "id",
+     "estado",
+     "entrada_ms",
+     "precio_entrada",
+     "salida_ms",
+     "precio_salida",
+     "motivo",
+     "r",
+     "costo_r",
+     "explicacion"
+    ],
+    "title": "EstadoOrdenSimulada",
     "type": "object"
    },
    "Estrategia": {
@@ -767,6 +895,48 @@
     "title": "Metrica",
     "type": "object"
    },
+   "Nivel": {
+    "additionalProperties": false,
+    "properties": {
+     "clave": {
+      "enum": [
+       "pdh",
+       "pdl",
+       "pwh",
+       "pwl"
+      ],
+      "title": "Clave",
+      "type": "string"
+     },
+     "conocido_desde_ms": {
+      "description": "Cierre de la vela que lo definió (ya revelado)",
+      "title": "Conocido Desde Ms",
+      "type": "integer"
+     },
+     "nombre": {
+      "title": "Nombre",
+      "type": "string"
+     },
+     "nota": {
+      "description": "Descriptivo: un nivel dibujado no es evidencia de ventaja",
+      "title": "Nota",
+      "type": "string"
+     },
+     "precio": {
+      "title": "Precio",
+      "type": "number"
+     }
+    },
+    "required": [
+     "clave",
+     "nombre",
+     "precio",
+     "conocido_desde_ms",
+     "nota"
+    ],
+    "title": "Nivel",
+    "type": "object"
+   },
    "Operacion": {
     "additionalProperties": false,
     "properties": {
@@ -834,6 +1004,47 @@
      "muestra"
     ],
     "title": "Operacion",
+    "type": "object"
+   },
+   "OrdenSimuladaEntrada": {
+    "additionalProperties": false,
+    "properties": {
+     "creada_limite_ms": {
+      "title": "Creada Limite Ms",
+      "type": "integer"
+     },
+     "id": {
+      "maxLength": 40,
+      "title": "Id",
+      "type": "string"
+     },
+     "lado": {
+      "enum": [
+       "compra",
+       "venta"
+      ],
+      "title": "Lado",
+      "type": "string"
+     },
+     "sl": {
+      "exclusiveMinimum": 0.0,
+      "title": "Sl",
+      "type": "number"
+     },
+     "tp": {
+      "exclusiveMinimum": 0.0,
+      "title": "Tp",
+      "type": "number"
+     }
+    },
+    "required": [
+     "id",
+     "lado",
+     "creada_limite_ms",
+     "sl",
+     "tp"
+    ],
+    "title": "OrdenSimuladaEntrada",
     "type": "object"
    },
    "PanelDecision": {
@@ -1006,6 +1217,34 @@
     "title": "Paso",
     "type": "object"
    },
+   "PedidoOrdenes": {
+    "additionalProperties": false,
+    "properties": {
+     "limite_ms": {
+      "title": "Limite Ms",
+      "type": "integer"
+     },
+     "ordenes": {
+      "items": {
+       "$ref": "#/components/schemas/OrdenSimuladaEntrada"
+      },
+      "maxItems": 200,
+      "title": "Ordenes",
+      "type": "array"
+     },
+     "simbolo": {
+      "default": "XAUUSD",
+      "title": "Simbolo",
+      "type": "string"
+     }
+    },
+    "required": [
+     "limite_ms",
+     "ordenes"
+    ],
+    "title": "PedidoOrdenes",
+    "type": "object"
+   },
    "PedidoRiesgo": {
     "additionalProperties": false,
     "properties": {
@@ -1072,6 +1311,18 @@
       },
       "title": "Avisos",
       "type": "array"
+     },
+     "desgloses": {
+      "additionalProperties": {
+       "items": {
+        "additionalProperties": true,
+        "type": "object"
+       },
+       "type": "array"
+      },
+      "description": "por_lado, por_sesion, por_mes (perfil elegido)",
+      "title": "Desgloses",
+      "type": "object"
      },
      "metricas": {
       "additionalProperties": {
@@ -1581,6 +1832,7 @@
   },
   "/api/v1/replay/fecha": {
    "get": {
+    "description": "Salto de fecha: fecha_ms (UTC) o fecha_ny ('AAAA-MM-DDTHH:MM' en hora de Nueva York, convertida acá).",
     "operationId": "replay_fecha_api_v1_replay_fecha_get",
     "parameters": [
      {
@@ -1596,10 +1848,33 @@
      {
       "in": "query",
       "name": "fecha_ms",
-      "required": true,
+      "required": false,
       "schema": {
-       "title": "Fecha Ms",
-       "type": "integer"
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Fecha Ms"
+      }
+     },
+     {
+      "in": "query",
+      "name": "fecha_ny",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Fecha Ny"
       }
      }
     ],
@@ -1667,6 +1942,49 @@
      }
     },
     "summary": "Replay Inicio"
+   }
+  },
+  "/api/v1/replay/ordenes/estado": {
+   "post": {
+    "description": "Estado de órdenes simuladas en el límite dado (motor del laboratorio, solo minutos revelados).",
+    "operationId": "ordenes_estado_api_v1_replay_ordenes_estado_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PedidoOrdenes"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/EstadoOrdenSimulada"
+         },
+         "title": "Response Ordenes Estado Api V1 Replay Ordenes Estado Post",
+         "type": "array"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Ordenes Estado"
    }
   },
   "/api/v1/replay/paso": {
