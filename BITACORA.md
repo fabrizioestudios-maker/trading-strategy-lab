@@ -1393,3 +1393,63 @@ E031 no agrega configuraciones.
 - E037: Yahoo responde 429 a las 10:23 UTC;
 - F001 en curso;
 - paridad con TradingView, que necesita el export.
+
+---
+
+## 2026-11-27 10:36 UTC — Entrada 32: línea XAUUSD scalping/daytrading · recapitulación y programa nuevo (registrado antes de correr)
+
+**Pedido de Fabrizio:** la mejor estrategia para operar XAUUSD en scalping o daytrading, sólida y rentable en los últimos 5 años. Retomar todas las pruebas intradía del oro y no desviarse.
+
+**Todo lo intradía del oro hasta hoy (resumen honesto):**
+
+| Prueba | Qué cubrió | Resultado |
+| --- | --- | --- |
+| E005 (fase 1) | Rupturas de apertura, rango de Asia, intradía clásico | ≈ azar con RR 1:2 |
+| E019 en oro | M5, M15 y H1, 40 familias × k × filtros (~10.000 configuraciones) | Nada sobrevive a la corrección (E031) |
+| E023/E024 SMC | 171.072 variantes (oro y 5 activos más) | **Historia limpia del oro: −0,027 R** (E038) |
+| E025 ICT | 19.908 pruebas, 5 setups | **ICT 5 en historia limpia: +0,035 R, p 0,36** (E038) |
+| E035 | Componentes SMC y barridos con placebo | El barrido no predice la reversión. Suman la liquidez del día anterior y las killzones; resta entrar en FVG/OB |
+
+**Scalping (M1–M5) con RR 1:2, por qué los costos lo hacen casi imposible:**
+- el costo ida y vuelta del oro (~0,50 USD a 4.000) frente a un stop de 1 ATR de M1 (1,5–3 USD) es 0,2–0,3 R por operación;
+- para empatar hace falta acertar (1 + c)/3, es decir 40–43 %, con una regla que sin ventaja acierta 33 %.
+- Ninguna de las miles de reglas M1/M5 lo logró.
+- Por eso el programa apunta a **daytrading (M15, horas)**, apoyado en la única ventaja demostrada del oro: el momentum diario de E022.
+
+**Protocolo (igual para todo el programa):**
+- **Muestras:**
+  - desarrollo: 15/11/2010–14/11/2021, nunca usado para estas definiciones;
+  - confirmación: **los últimos 5 años**, 15/11/2021–13/11/2026;
+  - prueba a futuro: F002 si algo pasa.
+- **Costos:** perfil **base** de E030 (spread por sesión y volatilidad, deslizamiento, latencia); también conservador y `docs/costos.md`.
+- **Pasa ("estrategia sólida"):**
+  - en desarrollo, expectancy > 0 con p < 0,05 de una cola y Holm entre todas las variantes del experimento;
+  - en la confirmación, expectancy > 0 con p < 0,10;
+  - al menos 4 de los 5 años de laboratorio de la confirmación positivos;
+  - al menos 100 operaciones en la confirmación;
+  - positiva con costos conservadores.
+  - La Misión A (≥ 50 % y payoff ≥ 2) se informa aparte.
+- Si algo pasa, se implementa en el reproductor y en Pine con sus parámetros y entra en prueba a futuro.
+
+**E039 · daytrading a favor del sesgo diario (4 variantes, sin grilla).**
+- **Sesgo del día t**, con la vela diaria t−1 cerrada:
+  - **S1:** hubo una señal de E022 en las últimas 5 velas diarias; manda la dirección de la más reciente.
+  - **S2:** tendencia diaria: cierre > SMA 200 y cierre > cierre de hace 20 días → compras; al revés → ventas.
+- **Gatillo en M15**, entre las 02:00 y las 12:00 NY, una operación por día como máximo:
+  - **T1:** el cierre de M15 vuelve a cruzar la EMA 20 a favor del sesgo (fin de un retroceso).
+  - **T2:** primer cierre de M15 fuera del rango de Asia (20:00–00:00 NY) a favor del sesgo.
+- **Ejecución:**
+  - entrada en el minuto siguiente;
+  - SL 1·ATR(14) de M15, TP 2·SL;
+  - cierre a las 16:00 NY.
+- **Por qué:** E022 muestra deriva de varios días después de rupturas a favor de la tendencia. Operarla intradía multiplica las operaciones.
+
+**E040 · deriva por hora del día (12 pruebas).**
+- **Bloques de 4 horas del día de operación** (NY): 18–22, 22–02, 02–06, 06–10, 10–14 y 14–17.
+- **Operación:** se entra al inicio del bloque y se sale al final, todos los días, en cada dirección; costos base.
+- **Por qué:** la literatura describe un sesgo horario en el oro (subas en Asia y Europa).
+- **Pasa:** con el mismo criterio. El objetivo es que la deriva supere los costos, no RR 1:2.
+
+**No se corre:**
+- continuación tras aceptar un nivel (E035b ya dio expectancy de desarrollo ≤ 0: falla el primer paso);
+- grillas nuevas de SMC/ICT (E031 y E038).
