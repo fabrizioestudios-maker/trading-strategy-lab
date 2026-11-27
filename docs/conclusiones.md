@@ -1,5 +1,23 @@
 # Conclusiones (26/11/2026; fase 2 y búsqueda de los últimos 5 años agregadas el 27/11/2026)
 
+## Fase 4b (27/11/2026): qué cambió
+
+- **Candidata única:** oro D1 (E022), nivel B.
+  - Le gana al azar (p = 0,0005).
+  - Alfa sobre una cartera pasiva: IR 0,85 (p 0,001), correlación con el oro 0,03.
+  - +0,33 R con costos conservadores.
+  - Walk-forward: +0,53 R fuera de muestra, pero razón 0,34.
+  - Sin período limpio: E037 bloqueado y F001 en curso.
+- **Rechazadas por evidencia limpia:** SMC e ICT en oro, en 2010–2021 (E038).
+- **Sin ventaja medible:**
+  - COT por participante, tasa real y GVZ (E033);
+  - régimen HMM (E034, débil para ICT 5);
+  - tendencia multiactivo después de 2010 (E036);
+  - selección con GT-Score o meseta (E028).
+- **Ninguna de 297.354 configuraciones sobrevive** a Bonferroni, Holm, BH ni BY (E031).
+- **Componentes del SMC** (E035a): suman la liquidez del día anterior y las killzones; restan las entradas en FVG, OB y OTE.
+- Detalle: `docs/plan_evolucion.md` y `docs/fichas.md`.
+
 **Respuesta corta.** Se encontró una estrategia que cumple los números mínimos de la misión (win rate ≥ 50 %, payoff real ≥ 2, expectancy positiva, más de 100 operaciones) en la muestra de selección y en la de validación. **No es robusta como "ventaja":** gana lo mismo que comprar siempre esos activos con el mismo stop y TP. Su resultado viene de la deriva alcista de índices y metales en 2010–2026, tomada con stops muy anchos y operaciones de 6 a 8 meses.
 
 Con señales técnicas de corto y mediano plazo **no apareció ninguna estrategia con 50 % de acierto y 1:2** en unas 1.560 configuraciones de este laboratorio (fases 1 y 2), más las ~1.600 que ya se habían probado en el proyecto (LuxAlgo, SMC/ICT, Setup A+, scalping). La teoría y los datos explican por qué.

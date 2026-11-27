@@ -11,7 +11,7 @@ Laboratorio para buscar una estrategia con **win rate ≥ 50 % y RR real ≥ 1:2
 ## Cómo reproducir
 
 ```bash
-pip install numpy pandas numba scipy scikit-learn
+pip install -r requirements.txt
 python -m lab.descarga_histdata EURUSD GBPUSD USDJPY AUDUSD SPXUSD NSXUSD GRXEUR --desde 2016 --hasta 2026 --mes-actual 11
 # historia 2010–2015 con --sufijo _2010 y luego lab.datos.unir_historia(<instr>) (ver data/README.md)
 python -m pytest -q tests            # motor: casos a mano y teoría del paseo al azar
@@ -25,11 +25,13 @@ Cada experimento es un script en `experimentos/` que escribe sus resultados en `
 
 | Carpeta | Qué hay |
 | --- | --- |
-| `lab/` | Datos (`datos.py`), descarga (`descarga_histdata.py`), motor numba (`motor.py`), métricas (`metricas.py`), señales (`senales.py`), estrategias operables (`estrategia.py`), COT de la CFTC (`cot.py`) |
-| `experimentos/` | E000 calidad de datos · E001 línea de base · E002 filtros de tendencia · E003 tendencia operable · E004 retrocesos y reversión · E005 intradía · E006 retrocesos en índices · E007 régimen de volatilidad · E008 cartera de tendencia · E009 validación · E010 aprendizaje automático · E011 elección de candidatas · E012 Sharpe y teoría · E013 curva de la candidata · E014 divergencias y multi-temporalidad · E015 máximos de 52 semanas, estacionalidad y momentum transversal (E015b, E015c) · E016 COT · E017 retroceso en los líderes de momentum · E018 historia larga (pausada) · E019 búsqueda exhaustiva en los últimos 5 años · E020 pruebas de las finalistas · E021 sensibilidad · E022 estrategia recomendada · E023 setup SMC en 6 activos y 3 pares de temporalidades · E024 finalistas del setup SMC · E025 los 5 setups ICT del prompt de Google |
+| `lab/` | Datos (`datos.py`, `externos.py` con fecha real de publicación), motor numba (`motor.py`), métricas (`metricas.py`, `ficha.py`), señales (`senales.py`, `grilla.py`, `smc.py`, `ict.py`), validación (`validacion.py`, `multiples.py`, `walkforward.py`, `objetivos.py`), ejecución y riesgo (`ejecucion.py`, `financiacion.py`, `montecarlo.py`, `cartera.py`, `benchmarks.py`), régimen (`regimen.py`), flujo y eventos (`flujo.py`, `eventos.py`), política y registro (`politica.py`, `registro.py`) |
+| `experimentos/` | E000 calidad de datos · E001 línea de base · E002 filtros de tendencia · E003 tendencia operable · E004 retrocesos y reversión · E005 intradía · E006 retrocesos en índices · E007 régimen de volatilidad · E008 cartera de tendencia · E009 validación · E010 aprendizaje automático · E011 elección de candidatas · E012 Sharpe y teoría · E013 curva de la candidata · E014 divergencias y multi-temporalidad · E015 máximos de 52 semanas, estacionalidad y momentum transversal (E015b, E015c) · E016 COT · E017 retroceso en los líderes de momentum · E018 historia larga (pausada) · E019 búsqueda exhaustiva en los últimos 5 años · E020 pruebas de las finalistas · E021 sensibilidad · E022 estrategia recomendada · E023 setup SMC en 6 activos y 3 pares de temporalidades · E024 finalistas del setup SMC · E025 los 5 setups ICT del prompt de Google · E026–E027 auditoría y validación del oro D1 · E028 walk-forward y PBO · E029 alfa sobre benchmarks · E030 perfiles de ejecución · E031 pruebas múltiples y SPA · E032 riesgo y cartera · E033 COT e intermercado · E034 régimen HMM · E035 factores SMC y eventos con placebo · E036 tendencia multiactivo · E037 oro en GLD (pendiente) · E038 historia limpia de SMC/ICT · F001 prueba a futuro |
 | `resultados/` | CSV y JSON de cada experimento |
 | `pine/` | Estrategias en Pine Script v6 para el probador de TradingView: oro D1 Bollinger (`oro_d1_bollinger_sma200.pine`) el setup SMC configurable (`smc_barrido_estructura.pine`) y los 5 setups ICT (`ict_cinco_setups.pine`) |
-| `tests/` | Pruebas del motor |
+| `tests/` | 27 pruebas (motor, fase 4 y fase 4b) |
+| `registro/` | Presupuesto de pruebas, registro de experimentos con hash y prueba a futuro F001 |
+| `herramientas/` | Exportador del tablero y comparador con TradingView |
 | `data/` | No se sube; se regenera con la descarga |
 
 ## Universo
@@ -39,14 +41,38 @@ XAUUSD y XAGUSD; EURUSD, GBPUSD, USDJPY y AUDUSD; SPX500, NAS100, Nikkei 225, FT
 - Selección: 2010–2021.
 - Validación: 2022–2026.
 
-## Estado (27/11/2026)
+## Estado (27/11/2026, fase 4b)
 
-**Fase 4 (rama `phase-4-quantitative-research`):**
-- Auditoría integral en `docs/auditoria_fase0.md` y criterios v2 con categorías A/B/C en `docs/criterios_v2.md` y `lab/politica.py`.
-- Herramientas DSR, PBO y bootstrap en `lab/validacion.py`; presupuesto de pruebas en `registro/`; manifiesto de datos y dependencias fijas.
-- Resultados:
-  - el oro D1 (E022) le gana al azar (p = 0,0005), pero queda en **categoría B** hasta una prueba a futuro;
-  - en SMC e ICT, elegir por el pasado no generaliza (E026).
+**Lo que se sabe hoy:**
+- **Oro D1 (E022) es la única candidata (nivel B).**
+  - Le gana al azar (p = 0,0005).
+  - Agrega alfa sobre una cartera pasiva (IR 0,85).
+  - Resiste costos realistas (+0,33 R conservador).
+  - Su familia de parámetros es positiva fuera de muestra.
+  - Le falta un período limpio: la prueba a futuro F001 corre desde el 27/11/2026, sellada con hash.
+- **Nada sobrevive a la corrección por pruebas múltiples** (E031): 297.354 configuraciones, y la SPA de Hansen da p = 0,21.
+- **SMC e ICT en oro, en su historia nunca usada (2010–2021), son el azar** (E038): −0,03 R y +0,04 R. El barrido no predice la reversión (E035b).
+- **Lo que sí suma dentro del setup SMC** (E035a): barrer la liquidez del día anterior y operar en killzones. Lo que resta: entrar en FVG u OB.
+
+**Dónde mirar:**
+- `docs/plan_evolucion.md` (plan y respuesta a los prompts);
+- `docs/auditoria_fase0.md` (auditoría A–K);
+- `docs/fichas.md` (cada estrategia);
+- `docs/datos_gratuitos.md`;
+- `BITACORA.md`, entradas 25 a 31.
+- **Tablero:** artifact "Tablero del laboratorio". **Reproductor** con red de decisión: link público en `CONTEXTO_PARA_IAS.md`.
+
+```mermaid
+flowchart LR
+  D[Datos gratuitos<br/>HistData · CFTC · FRED · Yahoo] --> H[Hipótesis registrada<br/>en la bitácora]
+  H --> B[Backtest M1<br/>lab/motor · smc · ict]
+  B --> X[Ejecución 2.0<br/>costos por sesión, swaps]
+  X --> V[Validación<br/>azar · DSR · PBO · FDR · SPA · walk-forward]
+  V --> K[Benchmarks<br/>alfa sobre risk parity]
+  K --> N{Nivel R/A/B/C/D/E}
+  N -->|B o más| F[Prueba a futuro sellada<br/>F001]
+  F --> R[Reproductor y TradingView<br/>paridad operación por operación]
+```
 
 **Estrategia recomendada para los últimos 5 años:** oro D1, ruptura de Bollinger (20, 2) a favor de la SMA 200, SL 0,5 ATR(14), TP 2 × SL. Da 55,2 % de acierto y +0,63 R por operación en 2021–2026 (58 operaciones), y 43,6 % y +0,29 R en 2011–2021. Código: `pine/oro_d1_bollinger_sma200.pine`. Operaciones para comparar con el probador: `resultados/E022/operaciones_5a.csv`. Detalle en `BITACORA.md`, entradas 18 y 19.
 

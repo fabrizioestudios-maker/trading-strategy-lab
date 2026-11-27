@@ -25,3 +25,32 @@ Los datos de HistData son precios bid. SL y TP se evalúan sobre esos precios y 
 | Hang Seng (HKXHKD) | 0,04 % del precio (~10 puntos a 25000) | CFD típico 6–10 puntos |
 
 Son costos de broker minorista razonables, algo conservadores. Las estrategias con stops chicos dependen mucho de este número: se reporta siempre también el resultado sin costos.
+
+
+## Perfiles de ejecución 2.0 (`lab/ejecucion.py`, E030)
+
+Se aplican sobre operaciones ya simuladas, sin cambiar señales. Los multiplicadores son **supuestos** (no hay spreads históricos gratuitos del bróker) y se pueden calibrar con un export de MT5 (columna `<SPREAD>`).
+
+| Perfil | Spread | Deslizamiento | Latencia | Swaps |
+| --- | --- | --- | --- | --- |
+| Sin costos | 0 | 0 | 0 | — |
+| Optimista | 0,75 × costos.md | 0 | 0 | base |
+| Base | 0,7 × costos.md × sesión × (volatilidad)^0,5 | entrada 0,10 σ₁ₘ, stop 0,25 σ₁ₘ | 100 ms | base |
+| Conservador (~P75) | × 1,5 | × 1,5 | 250 ms | adverso |
+| Estrés | × 3 | × 3 | 500 ms | adverso |
+
+- **Sesión** (hora de NY):
+  - cambio de día 17:00–17:10: × 4;
+  - 17:10–19:00: × 1,6;
+  - Asia: × 1,4;
+  - Londres: × 1;
+  - Nueva York: × 0,9;
+  - tarde: × 1,1.
+- **Swaps** (% del nominal por noche, largo / corto; miércoles triple):
+  - metales: −0,015 / −0,005 (adverso −0,03 / −0,015);
+  - índices: −0,02 / −0,005 (adverso −0,035 / −0,01);
+  - forex: ±0,005 (adverso ±0,01).
+- **Impacto de mercado:** despreciable con tamaños minoristas.
+- **Clasificación:**
+  - no operable: expectancy ≤ 0 con el perfil base;
+  - frágil: ≤ 0 con el conservador.
