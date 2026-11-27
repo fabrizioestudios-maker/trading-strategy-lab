@@ -5,6 +5,8 @@
 import type {
   CalculoRiesgo,
   CapasReplay,
+  CuentaSimulada,
+  PedidoCuenta,
   ConfigCorrida_Input,
   ContextoInvestigacion,
   CuadroReplay,
@@ -119,6 +121,7 @@ export const api = {
   paso: (simbolo: string, tf: number, limite_ms: number, n: number, unidad: 'velas' | 'minutos' = 'velas', s?: AbortSignal) =>
     pedir<Paso>(`/replay/paso${q({ simbolo, tf, limite_ms, n, unidad })}`, { signal: s }),
   fecha: (simbolo: string, fecha_ny: string, s?: AbortSignal) => pedir<Paso>(`/replay/fecha${q({ simbolo, fecha_ny })}`, { signal: s }),
+  cuenta: (p: PedidoCuenta, s?: AbortSignal) => pedir<CuentaSimulada>('/replay/cuenta', post(p, s)),
   ordenes: (p: PedidoOrdenes, s?: AbortSignal) => pedir<EstadoOrdenSimulada[]>('/replay/ordenes/estado', post(p, s)),
   estrategias: (s?: AbortSignal) => pedir<Estrategia[]>('/estrategias', { signal: s }),
   hipotesis: (s?: AbortSignal) => pedir<Hipotesis[]>('/hipotesis', { signal: s }),

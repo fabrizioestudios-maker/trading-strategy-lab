@@ -558,6 +558,16 @@
       "title": "Hay Mas Atras",
       "type": "boolean"
      },
+     "indicadores": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Indicadores"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
      "limite": {
       "$ref": "#/components/schemas/LimiteReplay"
      },
@@ -567,6 +577,16 @@
       },
       "title": "Niveles",
       "type": "array"
+     },
+     "sesion_dia": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/SesionDia"
+       },
+       {
+        "type": "null"
+       }
+      ]
      },
      "sesiones": {
       "items": {
@@ -602,10 +622,109 @@
      "eventos",
      "decision",
      "niveles",
+     "indicadores",
+     "sesion_dia",
      "hay_mas_atras",
      "al_final_de_los_datos"
     ],
     "title": "CuadroReplay",
+    "type": "object"
+   },
+   "CuentaSimulada": {
+    "additionalProperties": false,
+    "properties": {
+     "abiertas": {
+      "title": "Abiertas",
+      "type": "integer"
+     },
+     "abierto": {
+      "title": "Abierto",
+      "type": "number"
+     },
+     "apalancamiento": {
+      "title": "Apalancamiento",
+      "type": "number"
+     },
+     "capital": {
+      "description": "Capital inicial de la simulación (Ajustes)",
+      "title": "Capital",
+      "type": "number"
+     },
+     "cerradas": {
+      "title": "Cerradas",
+      "type": "integer"
+     },
+     "contrato": {
+      "default": "nexus.v1",
+      "title": "Contrato",
+      "type": "string"
+     },
+     "equidad": {
+      "title": "Equidad",
+      "type": "number"
+     },
+     "margen": {
+      "description": "Nominal de las posiciones abiertas / apalancamiento supuesto",
+      "title": "Margen",
+      "type": "number"
+     },
+     "margen_libre": {
+      "title": "Margen Libre",
+      "type": "number"
+     },
+     "nivel_margen_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Equidad / margen × 100; None sin posiciones abiertas",
+      "title": "Nivel Margen Pct"
+     },
+     "por_orden": {
+      "items": {
+       "$ref": "#/components/schemas/ResultadoOrden"
+      },
+      "title": "Por Orden",
+      "type": "array"
+     },
+     "realizado": {
+      "title": "Realizado",
+      "type": "number"
+     },
+     "sin_tamano": {
+      "description": "Órdenes sin lotes guardados: no entran en la cuenta",
+      "title": "Sin Tamano",
+      "type": "integer"
+     },
+     "supuestos": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Supuestos",
+      "type": "array"
+     }
+    },
+    "required": [
+     "contrato",
+     "capital",
+     "realizado",
+     "abierto",
+     "equidad",
+     "margen",
+     "margen_libre",
+     "nivel_margen_pct",
+     "apalancamiento",
+     "abiertas",
+     "cerradas",
+     "sin_tamano",
+     "por_orden",
+     "supuestos"
+    ],
+    "title": "CuentaSimulada",
     "type": "object"
    },
    "DefinicionEstado": {
@@ -1173,6 +1292,96 @@
     "title": "Hipotesis",
     "type": "object"
    },
+   "Indicadores": {
+    "additionalProperties": false,
+    "properties": {
+     "histograma": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "title": "Histograma",
+      "type": "array"
+     },
+     "macd": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "title": "Macd",
+      "type": "array"
+     },
+     "macd_lenta": {
+      "title": "Macd Lenta",
+      "type": "integer"
+     },
+     "macd_rapida": {
+      "title": "Macd Rapida",
+      "type": "integer"
+     },
+     "macd_senal": {
+      "title": "Macd Senal",
+      "type": "integer"
+     },
+     "rsi": {
+      "description": "Alineado con `velas`; None durante el calentamiento",
+      "items": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "title": "Rsi",
+      "type": "array"
+     },
+     "rsi_n": {
+      "title": "Rsi N",
+      "type": "integer"
+     },
+     "senal": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "title": "Senal",
+      "type": "array"
+     }
+    },
+    "required": [
+     "rsi_n",
+     "macd_rapida",
+     "macd_lenta",
+     "macd_senal",
+     "rsi",
+     "macd",
+     "senal",
+     "histograma"
+    ],
+    "title": "Indicadores",
+    "type": "object"
+   },
    "InformeCalidad": {
     "additionalProperties": false,
     "properties": {
@@ -1618,6 +1827,19 @@
       "title": "Lado",
       "type": "string"
      },
+     "lotes": {
+      "anyOf": [
+       {
+        "exclusiveMinimum": 0.0,
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Tamaño con el que se creó (para la cuenta simulada)",
+      "title": "Lotes"
+     },
      "sl": {
       "exclusiveMinimum": 0.0,
       "title": "Sl",
@@ -1829,6 +2051,47 @@
      "al_final_de_los_datos"
     ],
     "title": "Paso",
+    "type": "object"
+   },
+   "PedidoCuenta": {
+    "additionalProperties": false,
+    "properties": {
+     "apalancamiento": {
+      "default": 50,
+      "maximum": 1000.0,
+      "minimum": 1.0,
+      "title": "Apalancamiento",
+      "type": "number"
+     },
+     "capital": {
+      "exclusiveMinimum": 0.0,
+      "title": "Capital",
+      "type": "number"
+     },
+     "limite_ms": {
+      "title": "Limite Ms",
+      "type": "integer"
+     },
+     "ordenes": {
+      "items": {
+       "$ref": "#/components/schemas/OrdenSimuladaEntrada"
+      },
+      "maxItems": 200,
+      "title": "Ordenes",
+      "type": "array"
+     },
+     "simbolo": {
+      "default": "XAUUSD",
+      "title": "Simbolo",
+      "type": "string"
+     }
+    },
+    "required": [
+     "limite_ms",
+     "capital",
+     "ordenes"
+    ],
+    "title": "PedidoCuenta",
     "type": "object"
    },
    "PedidoOrdenes": {
@@ -2238,6 +2501,38 @@
     "title": "ResultadoCorrida",
     "type": "object"
    },
+   "ResultadoOrden": {
+    "additionalProperties": false,
+    "properties": {
+     "estado": {
+      "title": "Estado",
+      "type": "string"
+     },
+     "id": {
+      "title": "Id",
+      "type": "string"
+     },
+     "resultado_moneda": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Realizado si está cerrada, no realizado si está abierta (con costos)",
+      "title": "Resultado Moneda"
+     }
+    },
+    "required": [
+     "id",
+     "estado",
+     "resultado_moneda"
+    ],
+    "title": "ResultadoOrden",
+    "type": "object"
+   },
    "Resumen": {
     "additionalProperties": false,
     "properties": {
@@ -2467,6 +2762,82 @@
      "hora_servidor_ms"
     ],
     "title": "Salud",
+    "type": "object"
+   },
+   "SesionDia": {
+    "additionalProperties": false,
+    "properties": {
+     "apertura": {
+      "title": "Apertura",
+      "type": "number"
+     },
+     "apertura_ms": {
+      "description": "Apertura de la sesión diaria (cierre 17:00 NY) que contiene el límite",
+      "title": "Apertura Ms",
+      "type": "integer"
+     },
+     "cambio": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Cambio"
+     },
+     "cambio_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Cambio Pct"
+     },
+     "cierre_anterior": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Cierre Anterior"
+     },
+     "en_formacion": {
+      "title": "En Formacion",
+      "type": "boolean"
+     },
+     "maximo": {
+      "title": "Maximo",
+      "type": "number"
+     },
+     "minimo": {
+      "title": "Minimo",
+      "type": "number"
+     },
+     "ultimo": {
+      "title": "Ultimo",
+      "type": "number"
+     }
+    },
+    "required": [
+     "apertura_ms",
+     "apertura",
+     "maximo",
+     "minimo",
+     "ultimo",
+     "cierre_anterior",
+     "cambio",
+     "cambio_pct",
+     "en_formacion"
+    ],
+    "title": "SesionDia",
     "type": "object"
    },
    "Trabajo": {
@@ -3059,6 +3430,45 @@
      }
     },
     "summary": "Replay Cuadro"
+   }
+  },
+  "/api/v1/replay/cuenta": {
+   "post": {
+    "description": "Cuenta simulada en el límite: equidad, margen (apalancamiento supuesto) y resultado de las órdenes con lotes.",
+    "operationId": "replay_cuenta_api_v1_replay_cuenta_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PedidoCuenta"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CuentaSimulada"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Replay Cuenta"
    }
   },
   "/api/v1/replay/fecha": {

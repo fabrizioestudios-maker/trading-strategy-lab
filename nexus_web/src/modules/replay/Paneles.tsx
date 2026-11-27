@@ -5,7 +5,7 @@ import { useAvisos } from '../../app/avisos';
 import { useEspacio, type OrdenGuardada } from '../../app/espacio';
 import { useGlobales } from '../../app/globales';
 import { Icono } from '../../components/iconos';
-import { Boton, BotonIcono, Campo, Insignia, Segmentado, Vacio, type Tono } from '../../components/ui';
+import { Boton, BotonIcono, Campo, Insignia, Vacio, type Tono } from '../../components/ui';
 import { conSigno, fechaHora, numero, precio, tono, type Zona } from '../../lib/formato';
 import { nuevoId, validarOrden, validarOrdenLimite } from '../../lib/replay';
 
@@ -83,6 +83,8 @@ export function PanelOrdenes({
   estados,
   zona,
   ladoInicial,
+  vista = 'ambos',
+  dinero,
 }: {
   cuadro: CuadroReplay;
   limite: number;
@@ -90,6 +92,10 @@ export function PanelOrdenes({
   estados: EstadoOrdenSimulada[];
   zona: Zona;
   ladoInicial?: { lado: 'compra' | 'venta'; n: number } | null;
+  /** 'ticket' (pestaña Operar), 'lista' (pestaña Órdenes) o los dos */
+  vista?: 'ticket' | 'lista' | 'ambos';
+  /** Resultado en dinero por orden (cuenta simulada de la API) */
+  dinero?: Map<string, number | null>;
 }) {
   const { estado, despachar } = useEspacio();
   const { avisar } = useAvisos();
@@ -164,8 +170,8 @@ export function PanelOrdenes({
     if (problema) return;
     const o: OrdenGuardada =
       tipo === 'limite'
-        ? { id: nuevoId(), lado, tipo, entrada: nEnt, vence_minutos: vence, creada_limite_ms: limite, sl: nSl, tp: nTp, simbolo: cuadro.simbolo }
-        : { id: nuevoId(), lado, creada_limite_ms: limite, sl: nSl, tp: nTp, simbolo: cuadro.simbolo };
+        ? { id: nuevoId(), lado, tipo, entrada: nEnt, vence_minutos: vence, creada_limite_ms: limite, sl: nSl, tp: nTp, simbolo: cuadro.simbolo, ...(calculo?.lotes ? { lotes: calculo.lotes } : {}) }
+        : { id: nuevoId(), lado, creada_limite_ms: limite, sl: nSl, tp: nTp, simbolo: cuadro.simbolo, ...(calculo?.lotes ? { lotes: calculo.lotes } : {}) };
     despachar({ tipo: 'ordenes', ordenes: [...estado.replay.ordenes, o] });
     avisar({
       texto:
@@ -186,10 +192,7 @@ export function PanelOrdenes({
 
   return (
     <div className="ordenes">
-      <p className="nota nota--sim">
-        <Icono nombre="info" />
-        <span>Simulación. NEXUS no está conectado a ningún bróker: estas órdenes no salen al mercado.</span>
-      </p>
+      {vista !== 'lista' && (
       <form
         className="ticket"
         onSubmit={(e) => {
@@ -198,36 +201,49 @@ export function PanelOrdenes({
         }}
         aria-label="Nueva orden simulada"
       >
-        <div className="fila fila--entre">
-          <Segmentado
-            etiqueta="Dirección"
-            opciones={[
-              { valor: 'compra', etiqueta: '▲ Compra' },
-              { valor: 'venta', etiqueta: '▼ Venta' },
-            ]}
-            valor={lado}
-            onCambio={(l) => {
-              setLado(l);
-              proponer(l);
-            }}
-          />
-          <span className="tenue" title="Cierre del último minuto revelado">
-            Ref. <span className="num secundario">{precio(referencia, dec)}</span>
-          </span>
+        <div className="ticket__tipos" role="radiogroup" aria-label="Tipo de orden">
+          {(
+            [
+              ['mercado', 'A mercado'],
+              ['limite', 'Límite'],
+            ] as const
+          ).map(([v, t]) => (
+            <button
+              key={v}
+              type="button"
+              role="radio"
+              aria-checked={tipo === v}
+              className={tipo === v ? 'es-activo' : ''}
+              onClick={() => {
+                setTipo(v);
+                proponer(lado, v);
+              }}
+            >
+              {t}
+            </button>
+          ))}
+          <button type="button" role="radio" aria-checked={false} disabled title="Planificado: todavía no hay un modelo de llenado validado para órdenes stop">
+            Stop
+          </button>
         </div>
-        <Segmentado
-          chico
-          etiqueta="Tipo de orden"
-          opciones={[
-            { valor: 'mercado', etiqueta: 'A mercado' },
-            { valor: 'limite', etiqueta: 'Límite' },
-          ]}
-          valor={tipo}
-          onCambio={(t) => {
-            setTipo(t);
-            proponer(lado, t);
-          }}
-        />
+        <div className="ticket__lados" role="radiogroup" aria-label="Dirección">
+          {(['compra', 'venta'] as const).map((l) => (
+            <button
+              key={l}
+              type="button"
+              role="radio"
+              aria-checked={lado === l}
+              className={`ticket__lado ticket__lado--${l}${lado === l ? ' es-activo' : ''}`}
+              onClick={() => {
+                setLado(l);
+                proponer(l);
+              }}
+            >
+              <span>{l === 'compra' ? 'Comprar' : 'Vender'}</span>
+              <strong className="num">{precio(tipo === 'limite' && nEnt ? nEnt : referencia, dec)}</strong>
+            </button>
+          ))}
+        </div>
         {tipo === 'limite' && (
           <div className="ticket__campos">
             <Campo etiqueta="Entrada límite">
@@ -256,8 +272,16 @@ export function PanelOrdenes({
             </Campo>
           </div>
         )}
+        <div className="ticket__tamano">
+          <span className="campo__etiqueta">Tamaño (lotes)</span>
+          <span className="ticket__lotes num">{calculo ? numero(calculo.lotes, 2) : '—'}</span>
+          <span className="tenue">
+            {numero(estado.prefs.riesgoPct, 2)} % de {numero(estado.prefs.capital, 0)} USD
+          </span>
+        </div>
+        <p className="ticket__titulo">Gestión del riesgo</p>
         <div className="ticket__campos">
-          <Campo etiqueta="Stop (precio)">
+          <Campo etiqueta="Stop (SL)">
             {(id) => (
               <input
                 id={id}
@@ -271,7 +295,7 @@ export function PanelOrdenes({
               />
             )}
           </Campo>
-          <Campo etiqueta="Objetivo (precio)">
+          <Campo etiqueta="Objetivo (TP)">
             {(id) => (
               <input
                 id={id}
@@ -295,17 +319,13 @@ export function PanelOrdenes({
           </p>
         ) : calculo ? (
           <dl className="definiciones ticket__calculo">
-            <dt>Tamaño</dt>
-            <dd className="num">
-              {numero(calculo.lotes, 2)} lotes <span className="tenue">({numero(estado.prefs.riesgoPct, 2)} % de {numero(estado.prefs.capital, 0)})</span>
-            </dd>
             <dt>Riesgo real</dt>
             <dd className="num">{numero(calculo.riesgo_real_moneda, 2)} USD</dd>
-            <dt>Relación objetivo/stop</dt>
+            <dt>Objetivo / stop</dt>
             <dd className="num">{calculo.rr ? `${numero(calculo.rr, 2)} : 1` : '—'}</dd>
             <dt>Costo ida y vuelta</dt>
             <dd className="num">
-              {numero(calculo.costo_ida_vuelta_moneda, 2)} USD <span className="tenue">({numero(calculo.costo_en_r, 3)} R)</span>
+              {numero(calculo.costo_ida_vuelta_moneda, 2)} USD ({numero(calculo.costo_en_r, 3)} R)
             </dd>
           </dl>
         ) : errorCalc ? (
@@ -313,16 +333,19 @@ export function PanelOrdenes({
         ) : (
           <p className="tenue">Calculando tamaño y costos…</p>
         )}
-        <Boton type="submit" variante={lado} disabled={!!problema} icono={lado === 'compra' ? 'sube' : 'baja'}>
+        <button type="submit" className="ticket__crear" disabled={!!problema}>
           {tipo === 'limite' ? `Crear orden límite de ${lado}` : `Crear orden simulada de ${lado}`}
-        </Boton>
+        </button>
         <p className="campo__ayuda">
+          <Icono nombre="info" tam={12} /> Simulación: no sale a ningún bróker.{' '}
           {tipo === 'limite'
-            ? 'Se llena cuando el precio toca la entrada (o mejor, si abre del otro lado). Si antes llega al objetivo, se cancela. En el minuto del llenado solo se mira el stop (lab/smc.py).'
-            : 'Se llena a mercado en la apertura del minuto siguiente al límite. Si el stop y el objetivo caen en el mismo minuto, cuenta el stop.'}
+            ? 'Se llena al tocar la entrada; si antes llega al objetivo, se cancela (lab/smc.py).'
+            : 'Se llena en la apertura del minuto siguiente; si stop y objetivo caen en el mismo minuto, cuenta el stop.'}
         </p>
       </form>
-
+      )}
+      {vista !== 'ticket' && (
+      <>
       <div className="fila fila--entre separado">
         <h3 className="subtitulo">Órdenes de {cuadro.simbolo}</h3>
         {lista.length > 0 && (
@@ -341,7 +364,7 @@ export function PanelOrdenes({
             return (
               <li key={o.id}>
                 <div className="fila fila--entre">
-                  <span className={o.lado === 'compra' ? 'tono-pos' : 'tono-neg'}>
+                  <span className={o.lado === 'compra' ? 'tono-alza' : 'tono-baja'}>
                     {o.lado === 'compra' ? '▲ Compra' : '▼ Venta'}
                     <span className="tenue"> · creada {fechaHora(o.creada_limite_ms, zona)}</span>
                   </span>
@@ -366,13 +389,22 @@ export function PanelOrdenes({
                   <span className={e?.r !== null && e?.r !== undefined ? `tono-${tono(e.r)}` : ''}>
                     <span className="tenue">{e?.estado === 'abierta' ? 'R abierto ' : 'R '}</span>
                     {e?.r !== null && e?.r !== undefined ? conSigno(e.r, 2) : '—'}
+                    {dinero?.get(o.id) !== undefined && dinero.get(o.id) !== null && <> ({conSigno(dinero.get(o.id), 2, 'USD')})</>}
                   </span>
+                  {o.lotes && (
+                    <span>
+                      <span className="tenue">Lotes </span>
+                      {numero(o.lotes, 2)}
+                    </span>
+                  )}
                 </div>
                 {e?.explicacion && <p className="lista-ordenes__nota">{e.explicacion}</p>}
               </li>
             );
           })}
         </ul>
+      )}
+      </>
       )}
     </div>
   );
@@ -408,58 +440,5 @@ export function PanelEventos({ eventos, estados, zona }: { eventos: Evento[]; es
         </li>
       ))}
     </ol>
-  );
-}
-
-/* ------------------------------------------------------------------------------------------------ niveles y capas */
-export function PanelNiveles({ cuadro, zona }: { cuadro: CuadroReplay; zona: Zona }) {
-  const { estado, despachar } = useEspacio();
-  const capas = estado.prefs.capas;
-  const fijar = (k: keyof typeof capas, v: boolean) => despachar({ tipo: 'prefs', prefs: { capas: { ...capas, [k]: v } } });
-  return (
-    <div>
-      <h3 className="subtitulo">Capas del gráfico</h3>
-      <div className="capas">
-        {(
-          [
-            ['sesiones', 'Sesiones de Nueva York (franja inferior)'],
-            ['niveles', 'Máximos y mínimos del día y la semana anteriores'],
-            ['senales', 'Señales de E022'],
-            ['ordenes', 'Órdenes simuladas'],
-            ['estructura', 'Estructura: pivotes, BOS y CHOCH (descriptivo)'],
-            ['fvg', 'FVG sin mitigar, los 3 más recientes (descriptivo)'],
-          ] as const
-        ).map(([k, t]) => (
-          <label key={k} className="casilla">
-            <input type="checkbox" checked={capas[k]} onChange={(e) => fijar(k, e.target.checked)} />
-            {t}
-          </label>
-        ))}
-      </div>
-      <h3 className="subtitulo separado">Niveles conocidos en el límite</h3>
-      {cuadro.niveles.length === 0 ? (
-        <p className="tenue">Todavía no hay días o semanas cerradas antes del límite.</p>
-      ) : (
-        <table className="tabla">
-          <thead>
-            <tr>
-              <th>Nivel</th>
-              <th className="der">Precio</th>
-              <th>Conocido desde</th>
-            </tr>
-          </thead>
-          <tbody>
-            {cuadro.niveles.map((n) => (
-              <tr key={n.clave}>
-                <td title={n.nombre}>{n.clave.toUpperCase()}</td>
-                <td className="der num">{precio(n.precio)}</td>
-                <td className="num tenue">{fechaHora(n.conocido_desde_ms, zona)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-      {cuadro.niveles[0] && <p className="campo__ayuda separado">{cuadro.niveles[0].nota}</p>}
-    </div>
   );
 }

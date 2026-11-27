@@ -12,8 +12,8 @@ from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import CONTRATO, VERSION, capas as CAPAS, catalogo, estrategias as E022, referencias, riesgo, sesiones as SE, simulacion
-from .contratos import (CalculoRiesgo, CapasReplay, ConfigCorrida, ContextoInvestigacion, CuadroReplay, EstadoOrdenSimulada, Estrategia,
+from . import CONTRATO, VERSION, capas as CAPAS, catalogo, estrategias as E022, indicadores as IND, referencias, riesgo, sesiones as SE, simulacion
+from .contratos import (CalculoRiesgo, CapasReplay, ConfigCorrida, CuentaSimulada, PedidoCuenta, ContextoInvestigacion, CuadroReplay, EstadoOrdenSimulada, Estrategia,
                         Hipotesis, InformeCalidad, Instrumento, Paso, PedidoOrdenes, PedidoRiesgo, Referencias, Resumen, Salud,
                         Trabajo)
 from .datos import TEMPORALIDADES, DatosNoDisponibles, ServicioDatos
@@ -111,6 +111,7 @@ def crear_app(svc: ServicioDatos | None = None, gestor: GestorTrabajos | None = 
                     limite=dict(limite_ms=t_lim, limite_iso=SE.iso(t_lim), limite_ny=SE.texto_ny(t_lim), sesion=SE.sesion(t_lim)),
                     velas=velas, sesiones=ses, eventos=ev, decision=E022.panel(svc, simbolo, t_lim) if simbolo == "XAUUSD" else None,
                     niveles=E022.niveles(svc, simbolo, t_lim),
+                    indicadores=IND.calcular(svc, simbolo, tf, t_lim, cantidad), sesion_dia=IND.sesion_dia(svc, simbolo, t_lim),
                     hay_mas_atras=mas, al_final_de_los_datos=t_lim >= ultimo)
 
     @app.get("/api/v1/replay/paso", response_model=Paso)
@@ -145,6 +146,15 @@ def crear_app(svc: ServicioDatos | None = None, gestor: GestorTrabajos | None = 
         if not (20 <= cantidad <= 1500):
             raise ValueError("cantidad fuera de rango (20 a 1500)")
         return CAPAS.capas(svc, simbolo, tf, limite_ms, cantidad)
+
+    @app.post("/api/v1/replay/cuenta", response_model=CuentaSimulada)
+    def replay_cuenta(p: PedidoCuenta):
+        """Cuenta simulada en el límite: equidad, margen (apalancamiento supuesto) y resultado de las órdenes con lotes."""
+        ordenes = [o.model_dump() for o in p.ordenes]
+        for o in ordenes:
+            if o["tipo"] == "limite":
+                simulacion.validar_limite(o)
+        return simulacion.cuenta(svc, p.simbolo, p.limite_ms, p.capital, p.apalancamiento, ordenes)
 
     @app.post("/api/v1/replay/ordenes/estado", response_model=list[EstadoOrdenSimulada])
     def ordenes_estado(p: PedidoOrdenes):

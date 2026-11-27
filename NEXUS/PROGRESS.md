@@ -51,6 +51,20 @@ Branch: `nexus/rebuild-ux-foundation`. `main` untouched.
 3. Explicit date-range selection in the replay.
 4. Deployment plan (container + mounted `data/`, authentication) — only with explicit authorization.
 
+### Update — visual direction from Fabrizio's reference (gold terminal)
+- Fabrizio supplied a reference screenshot of the desired look. The user's direction overrides the brief's palette: gold/amber
+  is now the accent (cyan removed), candles gold (up) / red-orange (down), validated for colour-blind separation (deutan ΔE 19.6).
+- Shell: left icon rail with labels (no top bar); the market header (instrument, last revealed price, change vs previous daily
+  close, session high/low/open/range, replay boundary) sits on each screen.
+- Replay screen rebuilt as the reference terminal: header, timeframe tabs, indicators menu, replay transport; candles with
+  **RSI(14)** and **MACD(12,26,9)** panes synchronised to the main chart (computed by the API with `lab/senales.py` on revealed
+  candles only, 300-candle warm-up, prefix-invariance tested); right column with **level map** and **trade ticket**
+  (market/limit, stop shown as planned); bottom **simulated account** (capital, equity, margin at an assumed 1:50, free margin,
+  margin level, result) computed by the API from simulated orders that store their lots.
+- Honest adaptations of the reference: there is **no order book** (the data is bid M1 without depth) — the slot shows the
+  level map of known prices instead; there is **no volume** in the data, so no volume bars; the account is explicitly simulated.
+- Tests: pytest **73 passed**; Vitest **29 passed**; Playwright **9 passed** (updated to the new layout).
+
 ### Update — robustness and limit orders
 - Every research run now adds a robustness stage (code fingerprint includes `nexus_api/robustez.py` and the lab modules it uses,
   so older runs are not reused). Older stored runs show an honest "rerun to get robustness" state.

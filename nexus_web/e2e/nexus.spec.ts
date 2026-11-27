@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-const MODULOS = ['Resumen', 'Replay de mercado', 'Laboratorio', 'Herramientas', 'Ejecución', 'Analítica', 'Centro de datos', 'Ajustes'];
+const MODULOS = ['Resumen', 'Replay', 'Lab', 'Capas', 'Ejecución', 'Analítica', 'Datos', 'Ajustes'];
 
 function vigilarErrores(page: Page) {
   const errores: string[] = [];
@@ -24,8 +24,8 @@ test('los ocho módulos se abren desde la navegación, con un título y sin erro
   await page.goto('/');
   const nav = page.getByRole('navigation', { name: 'Módulos' }).first();
   for (const m of MODULOS) {
-    await nav.getByRole('link', { name: m }).click();
-    await expect(nav.getByRole('link', { name: m })).toHaveAttribute('aria-current', 'page');
+    await nav.getByRole('link', { name: m, exact: true }).click();
+    await expect(nav.getByRole('link', { name: m, exact: true })).toHaveAttribute('aria-current', 'page');
     await expect(page.locator('h1')).toHaveCount(1);
   }
   expect(errores).toEqual([]);
@@ -63,11 +63,22 @@ test('replay: ninguna respuesta trae datos posteriores al límite y los pasos so
     if (!r.url().includes('/api/v1/replay/cuadro')) return;
     const c = await r.json();
     const lim = c.limite.limite_ms;
-    cuadros.push({ limite: lim, ultima: c.velas[c.velas.length - 1].t, todas: c.velas.every((v: { t: number }) => v.t <= lim) && c.eventos.every((e: { t: number }) => e.t <= lim) && c.niveles.every((n: { conocido_desde_ms: number }) => n.conocido_desde_ms <= lim + 60_000) });
+    cuadros.push({
+      limite: lim,
+      ultima: c.velas[c.velas.length - 1].t,
+      todas:
+        c.velas.every((v: { t: number }) => v.t <= lim) &&
+        c.eventos.every((e: { t: number }) => e.t <= lim) &&
+        c.niveles.every((n: { conocido_desde_ms: number }) => n.conocido_desde_ms <= lim + 60_000) &&
+        c.indicadores.rsi.length === c.velas.length &&
+        c.sesion_dia.apertura_ms <= lim,
+    });
   });
   await page.goto('/#/replay');
   await expect(page.locator('.grafico__etiqueta-limite')).toBeVisible();
-  await page.locator('.replay__grafico').click({ position: { x: 200, y: 200 } });
+  await expect(page.getByRole('img', { name: /^RSI 14/ })).toBeVisible();
+  await expect(page.getByRole('img', { name: /^MACD/ })).toBeVisible();
+  await page.locator('.terminal__velas').click({ position: { x: 200, y: 200 } });
   const n0 = cuadros.length;
   for (let i = 0; i < 3; i++) {
     await page.keyboard.press('ArrowRight');
@@ -90,31 +101,36 @@ test('replay: ninguna respuesta trae datos posteriores al límite y los pasos so
 test('replay: una orden simulada espera el llenado y después cambia de estado', async ({ page }) => {
   await page.goto('/#/replay');
   await expect(page.locator('.grafico__etiqueta-limite')).toBeVisible();
-  await page.locator('.replay__grafico').click({ position: { x: 200, y: 200 } });
+  await page.locator('.terminal__velas').click({ position: { x: 200, y: 200 } });
   await page.keyboard.press('b');
-  await expect(page.getByRole('tab', { name: /Órdenes/ })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('tab', { name: 'Operar' })).toHaveAttribute('aria-selected', 'true');
   const crear = page.getByRole('button', { name: 'Crear orden simulada de compra' });
   await expect(crear).toBeEnabled();
   await expect(page.getByText(/lotes/).first()).toBeVisible();
   await crear.click();
+  await page.getByRole('tab', { name: /Órdenes/ }).click();
   await expect(page.locator('.lista-ordenes .insignia').filter({ hasText: 'Esperando llenado' })).toBeVisible();
-  await page.locator('.replay__grafico').click({ position: { x: 200, y: 200 } });
+  await page.locator('.terminal__velas').click({ position: { x: 200, y: 200 } });
   await page.keyboard.press('ArrowRight');
   await expect(page.locator('.lista-ordenes .insignia').filter({ hasText: /Abierta|Cerrada|Rechazada/ })).toBeVisible();
-  await expect(page.getByText('Simulación. NEXUS no está conectado a ningún bróker')).toBeVisible();
+  // la cuenta simulada refleja la orden (la calcula la API) y se aclara que es simulación
+  await expect(page.getByRole('region', { name: 'Cuenta simulada' })).toContainText('cerrada');
+  await page.getByRole('tab', { name: 'Operar' }).click();
+  await expect(page.getByText(/Simulación: no sale a ningún bróker/)).toBeVisible();
 });
 
 test('replay: una orden límite queda pendiente y se resuelve con el simulador del laboratorio', async ({ page }) => {
   await page.goto('/#/replay');
   await expect(page.locator('.grafico__etiqueta-limite')).toBeVisible();
-  await page.locator('.replay__grafico').click({ position: { x: 200, y: 200 } });
+  await page.locator('.terminal__velas').click({ position: { x: 200, y: 200 } });
   await page.keyboard.press('v');
   await page.getByRole('radio', { name: 'Límite' }).click();
   const crear = page.getByRole('button', { name: 'Crear orden límite de venta' });
   await expect(crear).toBeEnabled();
   await crear.click();
+  await page.getByRole('tab', { name: /Órdenes/ }).click();
   await expect(page.locator('.lista-ordenes .insignia').filter({ hasText: 'Esperando llenado' })).toBeVisible();
-  await page.locator('.replay__grafico').click({ position: { x: 200, y: 200 } });
+  await page.locator('.terminal__velas').click({ position: { x: 200, y: 200 } });
   for (let i = 0; i < 4; i++) await page.keyboard.press('Shift+ArrowRight');
   await expect(page.locator('.lista-ordenes .insignia').filter({ hasText: /Esperando llenado|Abierta|Cerrada|Cancelada|Vencida/ })).toBeVisible();
 });
@@ -155,7 +171,7 @@ test.describe('teléfono', () => {
     await page.goto('/#/resumen');
     const abajo = page.locator('.nav-movil');
     await expect(abajo).toBeVisible();
-    await expect(page.locator('.nav')).toBeHidden();
+    await expect(page.locator('.riel')).toBeHidden();
     for (const ruta of ['resumen', 'replay', 'laboratorio', 'analitica', 'ejecucion', 'datos', 'ajustes', 'herramientas']) {
       await page.goto(`/#/${ruta}`);
       await page.waitForLoadState('networkidle');

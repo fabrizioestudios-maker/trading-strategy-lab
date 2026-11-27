@@ -5,41 +5,47 @@
  * (vela hueca/llena, signo, ícono o texto).
  */
 :root {
-  --obsidian: #080b12;
-  --graphite: #111827;
-  --gold: #c6a15b;
-  --cyan: #36c9d6;
-  --white: #f4f6fa;
+  /* referencia visual de Fabrizio (27/11/2026): terminal oscuro con oro/ámbar como acento */
+  --obsidian: #07090d;
+  --graphite: #0d1118;
+  --gold: #e8a83a;
+  --gold-claro: #f2c46b;
+  --white: #eef1f6;
 
   --bg: var(--obsidian);
   --surface: var(--graphite);
-  --surface-2: #161f31;
-  --surface-3: #1c2740;
-  --chart-bg: #0c111b;
-  --line: #212c40;
-  --line-strong: #2f3c55;
-  --scrim: rgb(4 6 10 / 72%);
+  --surface-2: #131925;
+  --surface-3: #1a2130;
+  --chart-bg: #0a0d13;
+  --line: #1a212d;
+  --line-strong: #283141;
+  --scrim: rgb(3 4 7 / 74%);
 
   --text: var(--white);
-  --text-2: #b3bccb;
-  --text-3: #8590a3;
-  --text-off: #5b6577;
+  --text-2: #a9b2c1;
+  --text-3: #7f889a;
+  --text-off: #555e6f;
 
-  --accent: var(--cyan);
-  --accent-ink: #062126;
-  --accent-soft: rgb(54 201 214 / 12%);
+  --accent: var(--gold);
+  --accent-ink: #1b1306;
+  --accent-soft: rgb(232 168 58 / 13%);
   --identity: var(--gold);
-  --identity-soft: rgb(198 161 91 / 14%);
+  --identity-soft: rgb(232 168 58 / 14%);
 
-  --pos: #2bae95;
-  --neg: #e06b4a;
-  --warn: #e3b341;
-  --pos-soft: rgb(43 174 149 / 14%);
-  --neg-soft: rgb(224 107 74 / 14%);
-  --warn-soft: rgb(227 179 65 / 13%);
+  /* velas y botones de operar: alza dorada, baja rojo anaranjado (ΔE deután 19,6 sobre --chart-bg) */
+  --alza: #e8b44a;
+  --baja: #d9442f;
+  --pos: #45c17e;
+  --neg: #e0533a;
+  --warn: #f2c94c;
+  --pos-soft: rgb(69 193 126 / 13%);
+  --neg-soft: rgb(224 83 58 / 13%);
+  --warn-soft: rgb(242 201 76 / 11%);
+  --limite: rgb(238 241 246 / 72%);
 
-  --focus: 0 0 0 2px var(--bg), 0 0 0 4px var(--cyan);
-  --shadow-pop: 0 18px 48px rgb(0 0 0 / 45%), 0 0 0 1px var(--line-strong);
+  --focus: 0 0 0 2px var(--bg), 0 0 0 4px var(--gold);
+  --shadow-pop: 0 18px 48px rgb(0 0 0 / 55%), 0 0 0 1px var(--line-strong);
+  --sombra-panel: 0 1px 0 rgb(255 255 255 / 2%) inset, 0 8px 24px rgb(0 0 0 / 28%);
 
   --font: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --fs-1: 11px;
@@ -63,9 +69,9 @@
 
   --control-h: 30px;
   --row-h: 30px;
-  --topbar-h: 48px;
-  --nav-w: 212px;
-  --nav-w-collapsed: 56px;
+  --topbar-h: 0px;
+  --nav-w: 76px;
+  --nav-w-collapsed: 76px;
 
   --t-fast: 120ms;
   --t-med: 200ms;

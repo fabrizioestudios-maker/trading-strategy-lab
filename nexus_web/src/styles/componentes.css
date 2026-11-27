@@ -43,8 +43,8 @@
 }
 
 .boton--primario:hover:not(:disabled) {
-  background: #5ad6e0;
-  border-color: #5ad6e0;
+  background: var(--gold-claro);
+  border-color: var(--gold-claro);
 }
 
 .boton--texto {
@@ -190,7 +190,7 @@
 
 .insignia--activo {
   color: var(--accent);
-  border-color: rgb(54 201 214 / 40%);
+  border-color: rgb(232 168 58 / 40%);
   background: var(--accent-soft);
 }
 
@@ -382,7 +382,7 @@
 .entrada:focus-visible,
 .selector:focus-visible {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgb(54 201 214 / 22%);
+  box-shadow: 0 0 0 3px rgb(232 168 58 / 22%);
 }
 
 .campo--error .entrada {
@@ -413,7 +413,7 @@
 .casilla input {
   width: 15px;
   height: 15px;
-  accent-color: var(--cyan);
+  accent-color: var(--gold);
   margin: 0;
 }
 
@@ -794,7 +794,7 @@
 }
 
 .nota--sim {
-  border-color: rgb(54 201 214 / 28%);
+  border-color: rgb(232 168 58 / 28%);
   background: var(--accent-soft);
   color: var(--text);
 }

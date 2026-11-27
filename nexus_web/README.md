@@ -40,10 +40,12 @@ cd nexus_web && npm run dev    # Vite en :5173, /api va a :8800
 
 ## Decisiones de diseño
 
-- Paleta del brief: Obsidian, Graphite, Gold (identidad: marca, módulo activo, nivel de evidencia), Neural Cyan (estado
-  activo, foco, límite del replay), White. Sin brillos, neón, vidrio ni degradados decorativos.
-- Lo propio de NEXUS es el **límite**: una línea cian donde termina lo revelado y, a la derecha, una zona rayada vacía.
-  Se repite en el chip de la barra superior. Comunica la regla central del producto: no hay datos futuros.
-- Alza y baja validadas para daltonismo (protán/deután ΔE ≥ 10) y con una segunda señal: vela hueca o llena, signo escrito, ▲/▼.
+- Dirección visual de la referencia de Fabrizio (27/11/2026): terminal oscuro con oro/ámbar como acento, riel de íconos
+  con etiquetas, gráfico con RSI y MACD debajo, mapa de niveles y ticket a la derecha, cuenta simulada abajo.
+- Lo propio de NEXUS es el **límite**: una línea punteada donde termina lo revelado y, a la derecha, una zona rayada vacía.
+  Comunica la regla central del producto: no hay datos futuros.
+- Velas doradas (alza) y rojo anaranjado (baja), validadas para daltonismo (deután ΔE 19,6), con signo escrito y ▲/▼.
+- Donde la referencia muestra datos que no existen (libro de órdenes, volumen, una cuenta real) NEXUS muestra lo que sí
+  hay: el mapa de precios conocidos y una cuenta simulada calculada por la API.
 - Las cifras de una candidata no se pintan de verde: el nivel de evidencia y los avisos van al lado del número.
 - IBM Plex Sans: legible en tamaños chicos y con cifras de ancho fijo (las columnas de precios se alinean).

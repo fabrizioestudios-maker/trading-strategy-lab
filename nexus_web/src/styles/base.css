@@ -72,7 +72,7 @@ button {
 }
 
 ::selection {
-  background: rgb(54 201 214 / 30%);
+  background: rgb(232 168 58 / 30%);
 }
 
 code,
@@ -134,4 +134,20 @@ code,
 
 ::-webkit-scrollbar-track {
   background: transparent;
+}
+
+.tono-alza {
+  color: var(--alza);
+}
+
+.tono-baja {
+  color: var(--baja);
+}
+
+.tono-neutro {
+  color: var(--text);
+}
+
+.tono-acento {
+  color: var(--gold);
 }

@@ -227,3 +227,70 @@ def test_orden_limite_del_lado_equivocado_se_rechaza_con_422():
     mala = dict(id="x", lado="compra", tipo="limite", entrada=2000, creada_limite_ms=t, sl=2010, tp=2020)
     r = c.post("/api/v1/replay/ordenes/estado", json=dict(limite_ms=t, ordenes=[mala]))
     assert r.status_code == 422 and "stop va debajo" in r.json()["detalle"]
+
+
+# ------------------------------------------------------------------ indicadores, sesión del día y cuenta simulada
+@pytest.mark.parametrize("tf", [5, 15, 60])
+def test_indicadores_sin_futuro_alineados_y_como_el_laboratorio(svc, tf):
+    from lab import senales as S
+    from nexus_api import indicadores as IND
+
+    for lim in _limites(6, semilla=21):
+        a = IND.calcular(svc, "XAUUSD", tf, lim, 200)
+        j = svc.indice_limite("XAUUSD", lim)
+        assert a == IND.calcular(ServicioDatos(m1_inyectado={"XAUUSD": truncar(M1, j)}), "XAUUSD", tf, lim, 200)
+        velas, _ = svc.velas_hasta("XAUUSD", tf, lim, 200)
+        assert len(a["rsi"]) == len(a["macd"]) == len(a["histograma"]) == len(velas)
+    # con todas las velas, el RSI es el de lab/senales.py
+    todas, _ = svc.velas_hasta("XAUUSD", 15, int(M1["t"][-1]), 2000)
+    c = np.array([v["c"] for v in todas], float)
+    ref = S.rsi(c, 14)[-100:]
+    got = IND.calcular(svc, "XAUUSD", 15, int(M1["t"][-1]), 100)["rsi"]
+    assert np.allclose(np.array(got, float), np.round(ref, 4), atol=1e-6)
+
+
+def test_el_calentamiento_hace_que_el_valor_no_dependa_de_cuantas_velas_se_piden(svc):
+    from nexus_api import indicadores as IND
+
+    lim = int(M1["t"][-500])
+    a = IND.calcular(svc, "XAUUSD", 15, lim, 300)
+    b = IND.calcular(svc, "XAUUSD", 15, lim, 120)
+    assert a["macd"][-120:] == pytest.approx(b["macd"], abs=1e-3)
+    assert a["rsi"][-120:] == pytest.approx(b["rsi"], abs=1e-3)
+
+
+def test_sesion_del_dia_solo_con_lo_revelado(svc):
+    from nexus_api import indicadores as IND
+
+    for lim in _limites(10, semilla=22):
+        a = IND.sesion_dia(svc, "XAUUSD", lim)
+        j = svc.indice_limite("XAUUSD", lim)
+        assert a == IND.sesion_dia(ServicioDatos(m1_inyectado={"XAUUSD": truncar(M1, j)}), "XAUUSD", lim)
+        assert a["apertura_ms"] <= lim and a["minimo"] <= a["ultimo"] <= a["maximo"]
+        assert a["ultimo"] == pytest.approx(round(float(M1["c"][j]), 2))
+
+
+def test_cuenta_simulada_suma_el_resultado_de_las_ordenes(svc):
+    from nexus_api import simulacion as SIM
+
+    j0 = 5000
+    t0 = int(M1["t"][j0])
+    ref = float(M1["c"][j0])
+    ordenes = [dict(id="a", lado="compra", creada_limite_ms=t0, sl=ref - 3, tp=ref + 6, lotes=0.5),
+               dict(id="b", lado="venta", creada_limite_ms=t0, sl=ref + 3, tp=ref - 6, lotes=0.2),
+               dict(id="c", lado="compra", creada_limite_ms=t0, sl=ref - 3, tp=ref + 6)]
+    for j in (j0, j0 + 40, j0 + 3000):
+        lim = int(M1["t"][j])
+        cta = SIM.cuenta(svc, "XAUUSD", lim, 10_000, 50, ordenes)
+        est = {e["id"]: e for e in SIM.estados(svc, "XAUUSD", lim, ordenes)}
+        esperado = {"cerrada": 0.0, "abierta": 0.0}
+        for o in ordenes[:2]:
+            e = est[o["id"]]
+            if e["r"] is not None and e["estado"] in esperado:
+                esperado[e["estado"]] += e["r"] * abs(e["precio_entrada"] - o["sl"]) * o["lotes"] * 100
+        assert cta["realizado"] == pytest.approx(esperado["cerrada"], abs=0.02)
+        assert cta["abierto"] == pytest.approx(esperado["abierta"], abs=0.02)
+        assert cta["equidad"] == pytest.approx(10_000 + cta["realizado"] + cta["abierto"], abs=0.02)
+        assert cta["sin_tamano"] == 1 and cta["margen_libre"] == pytest.approx(cta["equidad"] - cta["margen"], abs=0.02)
+        if cta["abiertas"] == 0:
+            assert cta["margen"] == 0 and cta["nivel_margen_pct"] is None

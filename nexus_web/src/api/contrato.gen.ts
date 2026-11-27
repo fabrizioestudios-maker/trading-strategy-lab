@@ -102,8 +102,31 @@ export interface CuadroReplay {
   eventos: Array<Evento>;
   decision: PanelDecision | null;
   niveles: Array<Nivel>;
+  indicadores: Indicadores | null;
+  sesion_dia: SesionDia | null;
   hay_mas_atras: boolean;
   al_final_de_los_datos: boolean;
+}
+
+export interface CuentaSimulada {
+  contrato: string;
+  /** Capital inicial de la simulación (Ajustes) */
+  capital: number;
+  realizado: number;
+  abierto: number;
+  equidad: number;
+  /** Nominal de las posiciones abiertas / apalancamiento supuesto */
+  margen: number;
+  margen_libre: number;
+  /** Equidad / margen × 100; None sin posiciones abiertas */
+  nivel_margen_pct: number | null;
+  apalancamiento: number;
+  abiertas: number;
+  cerradas: number;
+  /** Órdenes sin lotes guardados: no entran en la cuenta */
+  sin_tamano: number;
+  por_orden: Array<ResultadoOrden>;
+  supuestos: Array<string>;
 }
 
 export interface DefinicionEstado {
@@ -188,6 +211,18 @@ export interface Hipotesis {
   estado: "pasa" | "falla" | "informativo" | "pendiente" | "registrado";
   resumen: string;
   fuente: string;
+}
+
+export interface Indicadores {
+  rsi_n: number;
+  macd_rapida: number;
+  macd_lenta: number;
+  macd_senal: number;
+  /** Alineado con `velas`; None durante el calentamiento */
+  rsi: Array<number | null>;
+  macd: Array<number | null>;
+  senal: Array<number | null>;
+  histograma: Array<number | null>;
 }
 
 export interface InformeCalidad {
@@ -285,6 +320,8 @@ export interface OrdenSimuladaEntrada {
   entrada?: number | null;
   /** Solo límite: minutos de mercado hasta que vence sin llenarse */
   vence_minutos?: number;
+  /** Tamaño con el que se creó (para la cuenta simulada) */
+  lotes?: number | null;
 }
 
 export interface PanelDecision {
@@ -315,6 +352,14 @@ export interface Paso {
   limite_ms: number;
   avanzo_minutos: number;
   al_final_de_los_datos: boolean;
+}
+
+export interface PedidoCuenta {
+  simbolo?: string;
+  limite_ms: number;
+  capital: number;
+  apalancamiento?: number;
+  ordenes: Array<OrdenSimuladaEntrada>;
 }
 
 export interface PedidoOrdenes {
@@ -394,6 +439,13 @@ export interface ResultadoCorrida {
   robustez: Robustez | null;
 }
 
+export interface ResultadoOrden {
+  id: string;
+  estado: string;
+  /** Realizado si está cerrada, no realizado si está abierta (con costos) */
+  resultado_moneda: number | null;
+}
+
 export interface Resumen {
   contrato: string;
   simbolo: string;
@@ -436,6 +488,19 @@ export interface Salud {
   datos: Record<string, unknown>;
   pruebas: string;
   hora_servidor_ms: number;
+}
+
+export interface SesionDia {
+  /** Apertura de la sesión diaria (cierre 17:00 NY) que contiene el límite */
+  apertura_ms: number;
+  apertura: number;
+  maximo: number;
+  minimo: number;
+  ultimo: number;
+  cierre_anterior: number | null;
+  cambio: number | null;
+  cambio_pct: number | null;
+  en_formacion: boolean;
 }
 
 export interface Trabajo {

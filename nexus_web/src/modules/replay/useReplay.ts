@@ -4,7 +4,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '../../api/cliente';
-import type { CapasReplay, CuadroReplay, EstadoOrdenSimulada } from '../../api/contrato.gen';
+import type { CapasReplay, CuadroReplay, CuentaSimulada, EstadoOrdenSimulada } from '../../api/contrato.gen';
 import { useEspacio, type OrdenGuardada } from '../../app/espacio';
 import { useGlobales } from '../../app/globales';
 
@@ -16,6 +16,7 @@ export interface Replay {
   limite: number | null;
   cuadro: CuadroReplay | null;
   capas: CapasReplay | null;
+  cuenta: CuentaSimulada | null;
   estadosOrdenes: EstadoOrdenSimulada[];
   ordenes: OrdenGuardada[];
   error: unknown;
@@ -42,6 +43,9 @@ export function useReplay(): Replay {
 
   const [cuadro, setCuadro] = useState<CuadroReplay | null>(null);
   const [capas, setCapas] = useState<CapasReplay | null>(null);
+  const [cuenta, setCuenta] = useState<CuentaSimulada | null>(null);
+  const capital = estado.prefs.capital;
+  const apalancamiento = estado.prefs.apalancamiento;
   const conCapas = estado.prefs.capas.estructura || estado.prefs.capas.fvg;
   const [estadosOrdenes, setEstadosOrdenes] = useState<EstadoOrdenSimulada[]>([]);
   const [error, setError] = useState<unknown>(null);
@@ -78,12 +82,14 @@ export function useReplay(): Replay {
       api.cuadro(simbolo, tf, limite, cantidad, ctl.signal),
       pedido.length ? api.ordenes({ simbolo, limite_ms: limite, ordenes: pedido }, ctl.signal) : Promise.resolve([] as EstadoOrdenSimulada[]),
       conCapas ? api.capas(simbolo, tf, limite, cantidad, ctl.signal) : Promise.resolve(null),
+      api.cuenta({ simbolo, limite_ms: limite, capital, apalancamiento, ordenes: pedido }, ctl.signal),
     ])
-      .then(([c, eo, cp]) => {
+      .then(([c, eo, cp, cta]) => {
         if (ctl.signal.aborted) return;
         setCuadro(c);
         setEstadosOrdenes(eo);
         setCapas(cp);
+        setCuenta(cta);
         setError(null);
         setCargando(false);
         setLatencia(Math.round(performance.now() - t0));
@@ -101,7 +107,7 @@ export function useReplay(): Replay {
         esperas.current.clear();
       });
     return () => ctl.abort();
-  }, [simbolo, tf, limite, cantidad, ordenes, vuelta, setReplay, conCapas]);
+  }, [simbolo, tf, limite, cantidad, ordenes, vuelta, setReplay, conCapas, capital, apalancamiento]);
 
   // último replay visto (para el Resumen)
   useEffect(() => {
@@ -203,6 +209,7 @@ export function useReplay(): Replay {
     limite,
     cuadro: cuadro && cuadro.simbolo === simbolo ? cuadro : null,
     capas: capas && capas.simbolo === simbolo && capas.temporalidad === tf ? capas : null,
+    cuenta,
     estadosOrdenes,
     ordenes,
     error,

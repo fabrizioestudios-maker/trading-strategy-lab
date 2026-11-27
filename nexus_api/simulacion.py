@@ -105,3 +105,36 @@ def _limite(simbolo, o, base, trunc, j0, j):
     salida = px_in + d * (float(r[0]) * riesgo + costo)
     return dict(fila, estado="cerrada", salida_ms=int(trunc["t"][io]), motivo="TP" if e == 1 else "SL", precio_salida=round(salida, 2),
                 explicacion=f"Llenada al tocar la entrada; cerrada en {'el objetivo' if e == 1 else 'el stop'} el {SE.texto_ny(int(trunc['t'][io]))}.")
+
+
+def cuenta(svc, simbolo: str, limite_ms: int, capital: float, apalancamiento: float, ordenes: list[dict]) -> dict:
+    """Cuenta simulada en el límite: resultado en dinero de cada orden con lotes, equidad y margen supuesto."""
+    est = estados(svc, simbolo, limite_ms, ordenes)
+    contrato = float(svc.meta(simbolo)["contrato"])
+    realizado = abierto = margen = 0.0
+    abiertas = cerradas = sin = 0
+    por = []
+    for o, e in zip(ordenes, est):
+        lot = o.get("lotes")
+        dinero = None
+        if not lot:
+            sin += 1
+        elif e["r"] is not None and e["precio_entrada"] is not None:
+            entrada_plan = float(o["entrada"]) if o.get("tipo") == "limite" else float(e["precio_entrada"])
+            dinero = float(e["r"]) * abs(entrada_plan - float(o["sl"])) * float(lot) * contrato
+            if e["estado"] == "cerrada":
+                realizado += dinero
+                cerradas += 1
+            elif e["estado"] == "abierta":
+                abierto += dinero
+                abiertas += 1
+                margen += float(e["precio_entrada"]) * float(lot) * contrato / apalancamiento
+        por.append(dict(id=e["id"], estado=e["estado"], resultado_moneda=None if dinero is None else round(dinero, 2)))
+    equidad = capital + realizado + abierto
+    return dict(capital=round(capital, 2), realizado=round(realizado, 2), abierto=round(abierto, 2), equidad=round(equidad, 2),
+                margen=round(margen, 2), margen_libre=round(equidad - margen, 2),
+                nivel_margen_pct=round(equidad / margen * 100, 2) if margen > 0 else None, apalancamiento=apalancamiento,
+                abiertas=abiertas, cerradas=cerradas, sin_tamano=sin, por_orden=por,
+                supuestos=[f"Apalancamiento supuesto 1:{apalancamiento:g} (FTMO usa 1:50 en metales; cambialo en Ajustes).",
+                           "Resultados con los costos de docs/costos.md, el mismo motor que las órdenes (SL primero).",
+                           f"Contrato de {contrato:g} unidades por lote. Sin swaps: el replay no cobra financiación nocturna."])

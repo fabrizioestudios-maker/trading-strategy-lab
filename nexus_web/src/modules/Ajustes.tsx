@@ -31,6 +31,7 @@ export default function Ajustes({ params }: { params: Record<string, string> }) 
   const [capital, setCapital] = useState(String(prefs.capital));
   const [riesgo, setRiesgo] = useState(String(prefs.riesgoPct));
   const [lote, setLote] = useState(String(prefs.pasoLote));
+  const [apal, setApal] = useState(String(prefs.apalancamiento));
 
   useEffect(() => {
     if (params.seccion) document.getElementById(`ajustes-${params.seccion}`)?.scrollIntoView({ block: 'start' });
@@ -78,10 +79,11 @@ export default function Ajustes({ params }: { params: Record<string, string> }) 
     setCapital(String(PREFS_INICIALES.capital));
     setRiesgo(String(PREFS_INICIALES.riesgoPct));
     setLote(String(PREFS_INICIALES.pasoLote));
+    setApal(String(PREFS_INICIALES.apalancamiento));
     avisar({ texto: 'Preferencias restablecidas.', deshacer: () => fijar(antes) });
   };
   const n = (s: string) => Number(s.replace(',', '.'));
-  const riesgoValido = n(capital) > 0 && n(riesgo) > 0 && n(riesgo) <= 10 && n(lote) > 0;
+  const riesgoValido = n(capital) > 0 && n(riesgo) > 0 && n(riesgo) <= 10 && n(lote) > 0 && n(apal) >= 1 && n(apal) <= 1000;
   const atajos = comandos.filter((c) => c.atajo);
 
   return (
@@ -239,7 +241,7 @@ export default function Ajustes({ params }: { params: Record<string, string> }) 
                 onSubmit={(e) => {
                   e.preventDefault();
                   if (!riesgoValido) return;
-                  fijar({ capital: n(capital), riesgoPct: n(riesgo), pasoLote: n(lote) });
+                  fijar({ capital: n(capital), riesgoPct: n(riesgo), pasoLote: n(lote), apalancamiento: n(apal) });
                   avisar({ texto: 'Riesgo predeterminado guardado.' });
                 }}
               >
@@ -249,6 +251,9 @@ export default function Ajustes({ params }: { params: Record<string, string> }) 
                     {(id, d) => <input id={id} aria-describedby={d} className="entrada" inputMode="decimal" value={riesgo} onChange={(e) => setRiesgo(e.target.value)} />}
                   </Campo>
                   <Campo etiqueta="Paso de lote">{(id) => <input id={id} className="entrada" inputMode="decimal" value={lote} onChange={(e) => setLote(e.target.value)} />}</Campo>
+                  <Campo etiqueta="Apalancamiento supuesto (1:N)" ayuda="Solo para el margen de la cuenta simulada. FTMO usa 1:50 en metales.">
+                    {(id, d) => <input id={id} aria-describedby={d} className="entrada" inputMode="numeric" value={apal} onChange={(e) => setApal(e.target.value)} />}
+                  </Campo>
                 </div>
                 <div>
                   <Boton type="submit" disabled={!riesgoValido}>

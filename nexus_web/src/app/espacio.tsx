@@ -17,9 +17,10 @@ export interface Preferencias {
   capital: number;
   riesgoPct: number;
   pasoLote: number;
+  apalancamiento: number;
   navColapsada: boolean;
-  panelReplay: { visible: boolean; ancho: number; pestana: 'decision' | 'ordenes' | 'eventos' | 'niveles' };
-  capas: { sesiones: boolean; niveles: boolean; ordenes: boolean; senales: boolean; estructura: boolean; fvg: boolean };
+  panelReplay: { visible: boolean; ancho: number; pestana: 'operar' | 'ordenes' | 'decision' | 'eventos' };
+  capas: { sesiones: boolean; niveles: boolean; ordenes: boolean; senales: boolean; estructura: boolean; fvg: boolean; rsi: boolean; macd: boolean };
 }
 
 export const PREFS_INICIALES: Preferencias = {
@@ -33,9 +34,10 @@ export const PREFS_INICIALES: Preferencias = {
   capital: 10_000,
   riesgoPct: 0.5,
   pasoLote: 0.01,
+  apalancamiento: 50,
   navColapsada: false,
-  panelReplay: { visible: true, ancho: 340, pestana: 'decision' },
-  capas: { sesiones: true, niveles: true, ordenes: true, senales: true, estructura: false, fvg: false },
+  panelReplay: { visible: true, ancho: 340, pestana: 'operar' },
+  capas: { sesiones: true, niveles: true, ordenes: true, senales: true, estructura: false, fvg: false, rsi: true, macd: true },
 };
 
 export interface ReplayReciente {
@@ -97,7 +99,9 @@ export function sanear(x: unknown): EstadoEspacio {
     capas: { ...PREFS_INICIALES.capas, ...(p.capas ?? {}) },
   };
   prefs.velasPorCuadro = Math.min(800, Math.max(100, Number(prefs.velasPorCuadro) || 300));
+  prefs.apalancamiento = Math.min(1000, Math.max(1, Number(prefs.apalancamiento) || 50));
   prefs.panelReplay.ancho = Math.min(560, Math.max(260, Number(prefs.panelReplay.ancho) || 340));
+  if (!['operar', 'ordenes', 'decision', 'eventos'].includes(prefs.panelReplay.pestana)) prefs.panelReplay.pestana = 'operar';
   const r = (e.replay ?? {}) as Partial<EstadoEspacio['replay']>;
   const ordenes = Array.isArray(r.ordenes)
     ? r.ordenes
@@ -111,6 +115,7 @@ export function sanear(x: unknown): EstadoEspacio {
           tp: o.tp,
           simbolo: typeof o.simbolo === 'string' ? o.simbolo : 'XAUUSD',
           ...(o.tipo === 'limite' ? { tipo: 'limite' as const, entrada: Number(o.entrada), vence_minutos: Math.min(10080, Math.floor(Number(o.vence_minutos))) } : {}),
+          ...(Number(o.lotes) > 0 ? { lotes: Number(o.lotes) } : {}),
         }))
     : [];
   return {

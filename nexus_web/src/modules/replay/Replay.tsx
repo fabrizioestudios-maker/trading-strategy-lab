@@ -2,27 +2,50 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAvisos } from '../../app/avisos';
 import { useAtajos, useRegistrarComandos, type Comando } from '../../app/comandos';
 import { useEspacio } from '../../app/espacio';
-import { Divisor } from '../../components/Divisor';
+import { useGlobales } from '../../app/globales';
+import { CabeceraMercado } from '../../components/CabeceraMercado';
 import { Atribucion, GraficoVelas, type LineaPrecio, type Marca } from '../../components/GraficoVelas';
 import { Icono } from '../../components/iconos';
-import { Boton, BotonIcono, Cargando, ErrorEstado, Pestanas, Segmentado, copiarTexto } from '../../components/ui';
+import { Menu } from '../../components/Menu';
+import { PanelIndicador } from '../../components/PanelIndicador';
+import { Boton, BotonIcono, Cargando, ErrorEstado, Pestanas, copiarTexto } from '../../components/ui';
 import { entero, entradaNy, etiquetaTf, fechaHora, nombreTf } from '../../lib/formato';
 import { PASOS_N, TEMPORALIDADES, VELOCIDADES, cambiarVelocidad, leerEstadoCompartible } from '../../lib/replay';
 import { armarRuta } from '../../lib/rutas';
-import { PanelDecision, PanelEventos, PanelNiveles, PanelOrdenes } from './Paneles';
+import { BarraCuenta } from './BarraCuenta';
+import { MapaNiveles } from './MapaNiveles';
+import { PanelDecision, PanelEventos, PanelOrdenes } from './Paneles';
 import { useReplay } from './useReplay';
 
-type Pestana = 'decision' | 'ordenes' | 'eventos' | 'niveles';
+type Pestana = 'operar' | 'ordenes' | 'decision' | 'eventos';
+
+const CAPAS: [keyof ReturnType<typeof useEspacio>['estado']['prefs']['capas'], string][] = [
+  ['rsi', 'RSI (14)'],
+  ['macd', 'MACD (12, 26, 9)'],
+  ['sesiones', 'Sesiones de Nueva York'],
+  ['niveles', 'Día y semana anteriores'],
+  ['senales', 'Señales de E022'],
+  ['ordenes', 'Órdenes simuladas'],
+  ['estructura', 'Estructura: BOS y CHOCH'],
+  ['fvg', 'FVG sin mitigar'],
+];
 
 export default function Replay({ params }: { params: Record<string, string> }) {
   const { estado, despachar } = useEspacio();
   const { avisar } = useAvisos();
   const r = useReplay();
+  const { instrumentos } = useGlobales();
+  const dec = instrumentos.datos?.find((i) => i.simbolo === r.simbolo)?.decimales ?? 2;
+  const [rango, setRango] = useState<{ from: number; to: number } | null>(null);
   const prefs = estado.prefs;
   const zona = prefs.zona;
   const panel = prefs.panelReplay;
   const [fechaSalto, setFechaSalto] = useState('');
   const [errorSalto, setErrorSalto] = useState<string | null>(null);
+  const [saltoAbierto, setSaltoAbierto] = useState(false);
+  useEffect(() => {
+    if (saltoAbierto) requestAnimationFrame(() => entradaFecha.current?.focus());
+  }, [saltoAbierto]);
   const [ticket, setTicket] = useState<{ lado: 'compra' | 'venta'; n: number } | null>(null);
   const entradaFecha = useRef<HTMLInputElement>(null);
 
@@ -43,7 +66,7 @@ export default function Replay({ params }: { params: Record<string, string> }) {
 
   const fijarPanel = (p: Partial<typeof panel>) => despachar({ tipo: 'prefs', prefs: { panelReplay: { ...panel, ...p } } });
   const abrirTicket = (lado: 'compra' | 'venta') => {
-    fijarPanel({ visible: true, pestana: 'ordenes' });
+    fijarPanel({ visible: true, pestana: 'operar' });
     setTicket((t) => ({ lado, n: (t?.n ?? 0) + 1 }));
   };
   const pasoN = estado.replay.pasoN;
@@ -61,6 +84,7 @@ export default function Replay({ params }: { params: Record<string, string> }) {
     if (!fechaSalto) return;
     const err = await r.saltar(fechaSalto);
     setErrorSalto(err);
+    if (!err) setSaltoAbierto(false);
   };
 
   const comandos = useMemo<Comando[]>(
@@ -80,7 +104,7 @@ export default function Replay({ params }: { params: Record<string, string> }) {
           void r.paso(1, 'minutos');
         },
       },
-      { id: 'rp-salto', titulo: 'Saltar a una fecha (hora de Nueva York)', grupo: 'Replay', atajo: 'J', ejecutar: () => entradaFecha.current?.focus() },
+      { id: 'rp-salto', titulo: 'Saltar a una fecha (hora de Nueva York)', grupo: 'Replay', atajo: 'J', ejecutar: () => setSaltoAbierto(true) },
       { id: 'rp-reinicio', titulo: 'Reiniciar el replay (7 días antes del final de los datos)', grupo: 'Replay', atajo: 'Inicio', ejecutar: () => void r.reiniciar() },
       { id: 'rp-vel-mas', titulo: 'Más velocidad', grupo: 'Replay', atajo: '+', ejecutar: () => despachar({ tipo: 'velocidad', velocidad: cambiarVelocidad(velocidad, 1) }) },
       { id: 'rp-vel-menos', titulo: 'Menos velocidad', grupo: 'Replay', atajo: '-', ejecutar: () => despachar({ tipo: 'velocidad', velocidad: cambiarVelocidad(velocidad, -1) }) },
@@ -149,107 +173,164 @@ export default function Replay({ params }: { params: Record<string, string> }) {
   }, [c, prefs.capas.senales, prefs.capas.ordenes, prefs.capas.estructura, r.estadosOrdenes, r.capas]);
 
   const pestanas: { id: Pestana; etiqueta: string; contador?: number }[] = [
-    { id: 'decision', etiqueta: 'Decisión' },
+    { id: 'operar', etiqueta: 'Operar' },
     { id: 'ordenes', etiqueta: 'Órdenes', contador: r.ordenes.length },
+    { id: 'decision', etiqueta: 'Decisión' },
     { id: 'eventos', etiqueta: 'Eventos', contador: c?.eventos.length },
-    { id: 'niveles', etiqueta: 'Capas' },
   ];
+  const capas = prefs.capas;
+  const verRsi = capas.rsi && !!c?.indicadores;
+  const verMacd = capas.macd && !!c?.indicadores;
+  const dinero = useMemo(() => new Map((r.cuenta?.por_orden ?? []).map((x) => [x.id, x.resultado_moneda ?? null])), [r.cuenta]);
+  const pestana: Pestana = (['operar', 'ordenes', 'decision', 'eventos'] as Pestana[]).includes(panel.pestana as Pestana) ? (panel.pestana as Pestana) : 'operar';
 
   return (
-    <div className="replay" data-panel={panel.visible ? 'visible' : 'oculto'}>
+    <div className="terminal" data-panel={panel.visible ? 'visible' : 'oculto'}>
       <h1 className="visualmente-oculto">Replay de mercado</h1>
-      <div className="replay__barra" role="toolbar" aria-label="Controles del replay">
-        <div className="fila">
-          <BotonIcono etiqueta={`Retroceder ${pasoN} velas (Shift ←)`} icono="atrasN" onClick={() => pasar(-pasoN)} disabled={!c} />
-          <BotonIcono etiqueta="Retroceder una vela (←)" icono="pasoAtras" onClick={() => pasar(-1)} disabled={!c} />
-          <Boton
-            variante={r.reproduciendo ? 'secundario' : 'primario'}
-            icono={r.reproduciendo ? 'pausa' : 'play'}
-            onClick={() => r.setReproduciendo(!r.reproduciendo)}
-            disabled={!c || (r.alFinal && !r.reproduciendo)}
-            aria-keyshortcuts="Space"
-          >
-            {r.reproduciendo ? 'Pausar' : 'Reproducir'}
-          </Boton>
-          <BotonIcono etiqueta="Avanzar una vela (→)" icono="pasoAdelante" onClick={() => pasar(1)} disabled={!c || r.alFinal} />
-          <BotonIcono etiqueta={`Avanzar ${pasoN} velas (Shift →)`} icono="adelanteN" onClick={() => pasar(pasoN)} disabled={!c || r.alFinal} />
-        </div>
-        <div className="fila">
-          <label className="replay__rotulo" htmlFor="rp-vel">
-            Velocidad
-          </label>
-          <select id="rp-vel" className="selector selector--chico" value={velocidad} onChange={(e) => despachar({ tipo: 'velocidad', velocidad: Number(e.target.value) })}>
-            {VELOCIDADES.map((v) => (
-              <option key={v} value={v}>
-                {v} {v === 1 ? 'vela' : 'velas'}/s
-              </option>
+      <section className="terminal__central" aria-label="Gráfico">
+        <header className="terminal__cabeza">
+          <CabeceraMercado cuadro={c} modo="replay" />
+        </header>
+        <div className="terminal__herramientas" role="toolbar" aria-label="Controles del gráfico y del replay">
+          <div className="tf-tabs" role="radiogroup" aria-label="Temporalidad">
+            {TEMPORALIDADES.map((tf) => (
+              <button
+                key={tf}
+                type="button"
+                role="radio"
+                aria-checked={r.tf === tf}
+                className={r.tf === tf ? 'es-activo' : ''}
+                title={`Velas de ${nombreTf(tf)}`}
+                onClick={() => despachar({ tipo: 'tf', tf })}
+              >
+                {tf === 1440 ? '1D' : etiquetaTf(tf).toUpperCase().replace('M', 'm')}
+              </button>
             ))}
-          </select>
-          <label className="replay__rotulo" htmlFor="rp-n">
-            Paso N
-          </label>
-          <select id="rp-n" className="selector selector--chico" value={pasoN} onChange={(e) => despachar({ tipo: 'pasoN', pasoN: Number(e.target.value) })}>
-            {PASOS_N.map((n) => (
-              <option key={n} value={n}>
-                {n} velas
-              </option>
-            ))}
-          </select>
-        </div>
-        <form
-          className="fila replay__salto"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void saltar();
-          }}
-        >
-          <label className="replay__rotulo" htmlFor="rp-fecha">
-            Ir a (NY)
-          </label>
-          <input
-            id="rp-fecha"
-            ref={entradaFecha}
-            type="datetime-local"
-            className="entrada selector--chico"
-            value={fechaSalto}
-            onChange={(e) => setFechaSalto(e.target.value)}
-            aria-invalid={!!errorSalto}
-            aria-describedby={errorSalto ? 'rp-fecha-error' : undefined}
-          />
-          <Boton type="submit" chico disabled={!fechaSalto}>
-            Ir
-          </Boton>
-          {errorSalto && (
-            <span id="rp-fecha-error" className="campo__error" role="alert">
-              {errorSalto}
-            </span>
-          )}
-        </form>
-        <div className="fila replay__extremo">
-          <div className="solo-movil">
-            <Segmentado chico etiqueta="Temporalidad" opciones={TEMPORALIDADES.map((tf) => ({ valor: tf, etiqueta: etiquetaTf(tf) }))} valor={r.tf} onCambio={(tf) => despachar({ tipo: 'tf', tf })} />
           </div>
-          <BotonIcono etiqueta="Reiniciar el replay (Inicio)" icono="reiniciar" onClick={() => void r.reiniciar()} />
-          <BotonIcono etiqueta="Copiar enlace a este instante" icono="enlace" onClick={() => void compartir()} disabled={!c} />
-          <BotonIcono etiqueta={panel.visible ? 'Ocultar panel lateral (P)' : 'Mostrar panel lateral (P)'} icono="panelDer" activo={panel.visible} onClick={() => fijarPanel({ visible: !panel.visible })} />
+          <Menu
+            etiqueta="Indicadores y capas"
+            items={CAPAS.map(([k, t]) => ({
+              id: k,
+              texto: (
+                <>
+                  <span className="menu__marca" aria-hidden="true">
+                    {capas[k] ? '✓' : ''}
+                  </span>
+                  {t}
+                </>
+              ),
+              detalle: capas[k] ? 'visible' : 'oculto',
+              alElegir: () => despachar({ tipo: 'prefs', prefs: { capas: { ...capas, [k]: !capas[k] } } }),
+            }))}
+            boton={(p) => (
+              <button type="button" className="boton boton--chico boton--fantasma" {...p}>
+                <Icono nombre="capas" />
+                Indicadores
+              </button>
+            )}
+          />
+          <span className="terminal__separador" aria-hidden="true" />
+          <div className="fila transporte">
+            <BotonIcono etiqueta={`Retroceder ${pasoN} velas (Shift ←)`} icono="atrasN" onClick={() => pasar(-pasoN)} disabled={!c} />
+            <BotonIcono etiqueta="Retroceder una vela (←)" icono="pasoAtras" onClick={() => pasar(-1)} disabled={!c} />
+            <Boton
+              chico
+              variante={r.reproduciendo ? 'secundario' : 'primario'}
+              icono={r.reproduciendo ? 'pausa' : 'play'}
+              onClick={() => r.setReproduciendo(!r.reproduciendo)}
+              disabled={!c || (r.alFinal && !r.reproduciendo)}
+              aria-keyshortcuts="Space"
+            >
+              {r.reproduciendo ? 'Pausar' : 'Reproducir'}
+            </Boton>
+            <BotonIcono etiqueta="Avanzar una vela (→)" icono="pasoAdelante" onClick={() => pasar(1)} disabled={!c || r.alFinal} />
+            <BotonIcono etiqueta={`Avanzar ${pasoN} velas (Shift →)`} icono="adelanteN" onClick={() => pasar(pasoN)} disabled={!c || r.alFinal} />
+            <label className="visualmente-oculto" htmlFor="rp-vel">
+              Velocidad
+            </label>
+            <select id="rp-vel" className="selector selector--chico" title="Velocidad" value={velocidad} onChange={(e) => despachar({ tipo: 'velocidad', velocidad: Number(e.target.value) })}>
+              {VELOCIDADES.map((v) => (
+                <option key={v} value={v}>
+                  {v}×
+                </option>
+              ))}
+            </select>
+            <label className="visualmente-oculto" htmlFor="rp-n">
+              Paso N
+            </label>
+            <select id="rp-n" className="selector selector--chico" title="Velas por paso largo" value={pasoN} onChange={(e) => despachar({ tipo: 'pasoN', pasoN: Number(e.target.value) })}>
+              {PASOS_N.map((n) => (
+                <option key={n} value={n}>
+                  N = {n}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="fila terminal__extremo">
+            <div className="selector-instrumento">
+              <BotonIcono etiqueta="Ir a una fecha (J)" icono="calendario" activo={saltoAbierto} onClick={() => setSaltoAbierto((x) => !x)} aria-expanded={saltoAbierto} />
+              {saltoAbierto && (
+                <form
+                  className="salto menu"
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    await saltar();
+                  }}
+                  onKeyDown={(e) => e.key === 'Escape' && setSaltoAbierto(false)}
+                >
+                  <label className="campo__etiqueta" htmlFor="rp-fecha">
+                    Ir a una fecha (hora de Nueva York)
+                  </label>
+                  <div className="fila">
+                    <input
+                      id="rp-fecha"
+                      ref={entradaFecha}
+                      type="datetime-local"
+                      className="entrada selector--chico"
+                      value={fechaSalto}
+                      onChange={(e) => setFechaSalto(e.target.value)}
+                      aria-invalid={!!errorSalto}
+                      aria-describedby={errorSalto ? 'rp-fecha-error' : undefined}
+                    />
+                    <Boton type="submit" chico variante="primario" disabled={!fechaSalto}>
+                      Ir
+                    </Boton>
+                  </div>
+                  {errorSalto && (
+                    <span id="rp-fecha-error" className="campo__error" role="alert">
+                      {errorSalto}
+                    </span>
+                  )}
+                </form>
+              )}
+            </div>
+            <BotonIcono etiqueta="Reiniciar el replay (Inicio)" icono="reiniciar" onClick={() => void r.reiniciar()} />
+            <BotonIcono etiqueta="Copiar enlace a este instante" icono="enlace" onClick={() => void compartir()} disabled={!c} />
+            <BotonIcono etiqueta={panel.visible ? 'Ocultar panel lateral (P)' : 'Mostrar panel lateral (P)'} icono="panelDer" activo={panel.visible} onClick={() => fijarPanel({ visible: !panel.visible })} />
+          </div>
         </div>
-      </div>
-
-      <div className="replay__cuerpo" style={{ ['--ancho-panel' as string]: `${panel.ancho}px` }}>
-        <div className="replay__grafico">
+        <div className="terminal__graficos">
           {c ? (
-            <GraficoVelas
-              velas={c.velas}
-              tf={c.temporalidad}
-              zona={zona}
-              limiteMs={c.limite.limite_ms}
-              etiquetaLimite={fechaHora(c.limite.limite_ms, zona)}
-              sesiones={prefs.capas.sesiones ? c.sesiones : []}
-              lineas={lineas}
-              marcas={marcas}
-              alto="100%"
-              etiqueta={`Velas de ${nombreTf(c.temporalidad)} de ${c.simbolo} hasta el límite ${fechaHora(c.limite.limite_ms, 'ny')}`}
-            />
+            <>
+              <div className="terminal__velas">
+                <GraficoVelas
+                  velas={c.velas}
+                  tf={c.temporalidad}
+                  zona={zona}
+                  limiteMs={c.limite.limite_ms}
+                  etiquetaLimite={fechaHora(c.limite.limite_ms, zona)}
+                  sesiones={capas.sesiones ? c.sesiones : []}
+                  lineas={lineas}
+                  marcas={marcas}
+                  alto="100%"
+                  ejeTiempo={!verRsi && !verMacd}
+                  onRango={setRango}
+                  etiqueta={`Velas de ${nombreTf(c.temporalidad)} de ${c.simbolo} hasta el límite ${fechaHora(c.limite.limite_ms, 'ny')}`}
+                />
+              </div>
+              {verRsi && <PanelIndicador tipo="rsi" velas={c.velas} ind={c.indicadores!} rango={rango} zona={zona} alto={104} ejeTiempo={!verMacd} />}
+              {verMacd && <PanelIndicador tipo="macd" velas={c.velas} ind={c.indicadores!} rango={rango} zona={zona} alto={verRsi ? 132 : 150} ejeTiempo />}
+            </>
           ) : r.error ? (
             <ErrorEstado error={r.error} reintentar={r.reintentar} />
           ) : (
@@ -261,58 +342,57 @@ export default function Replay({ params }: { params: Record<string, string> }) {
             </div>
           ) : null}
         </div>
-        {panel.visible && (
-          <>
-            <Divisor ancho={panel.ancho} min={280} max={560} etiqueta="Ancho del panel lateral" onCambio={(a) => fijarPanel({ ancho: a })} />
-            <aside className="replay__lateral" aria-label="Panel del replay">
-              <Pestanas idBase="rp" etiqueta="Paneles del replay" pestanas={pestanas} activa={panel.pestana} onCambio={(p) => fijarPanel({ pestana: p })} />
-              <div className="replay__contenido" role="tabpanel" id={`rp-panel-${panel.pestana}`} aria-labelledby={`rp-pestana-${panel.pestana}`} tabIndex={0}>
-                {!c ? (
-                  <Cargando />
-                ) : panel.pestana === 'decision' ? (
-                  <PanelDecision cuadro={c} />
-                ) : panel.pestana === 'ordenes' ? (
-                  <PanelOrdenes cuadro={c} limite={c.limite.limite_ms} ordenes={r.ordenes} estados={r.estadosOrdenes} zona={zona} ladoInicial={ticket} />
-                ) : panel.pestana === 'eventos' ? (
-                  <PanelEventos eventos={c.eventos} estados={r.estadosOrdenes} zona={zona} />
-                ) : (
-                  <PanelNiveles cuadro={c} zona={zona} />
-                )}
-              </div>
-            </aside>
-          </>
-        )}
-      </div>
-
-      <footer className="replay__estado" aria-live="polite">
-        {c ? (
-          <>
-            <span className="replay__limite">
-              <span className="chip-limite__marca" aria-hidden="true" />
-              Límite <strong className="num">{fechaHora(c.limite.limite_ms, 'ny')}</strong>
-              <span className="num tenue">{fechaHora(c.limite.limite_ms, 'utc')}</span>
-            </span>
-            <span>
-              Sesión <strong>{c.limite.sesion}</strong>
-            </span>
-            <span className="ocultar-movil">
-              {entero(c.velas.length)} velas de {nombreTf(c.temporalidad)}
-              {c.velas[c.velas.length - 1]?.parcial ? ', la última en formación' : ''}
-            </span>
-            {c.al_final_de_los_datos && (
-              <span className="tono-aviso">
-                <Icono nombre="alerta" tam={13} /> Fin de los datos históricos
+        <footer className="terminal__estado" aria-live="polite">
+          {c ? (
+            <>
+              <span className="replay__limite">
+                <span className="chip-limite__marca" aria-hidden="true" />
+                Límite <strong className="num">{fechaHora(c.limite.limite_ms, 'ny')}</strong>
+                <span className="num tenue">{fechaHora(c.limite.limite_ms, 'utc')}</span>
               </span>
+              <span className="ocultar-movil">
+                {entero(c.velas.length)} velas de {nombreTf(c.temporalidad)}
+                {c.velas[c.velas.length - 1]?.parcial ? ', la última en formación' : ''}
+              </span>
+              {c.al_final_de_los_datos && (
+                <span className="tono-aviso">
+                  <Icono nombre="alerta" tam={13} /> Fin de los datos históricos
+                </span>
+              )}
+              <span className="ocultar-movil tenue replay__latencia">{r.cargando ? 'Actualizando…' : r.latenciaMs !== null ? `Respuesta en ${r.latenciaMs} ms` : ''}</span>
+              <Atribucion />
+            </>
+          ) : (
+            <span className="tenue">Sin cuadro cargado</span>
+          )}
+        </footer>
+      </section>
+
+      {panel.visible && (
+        <aside className="terminal__lateral" aria-label="Operar y paneles del replay">
+          <Pestanas idBase="rp" etiqueta="Paneles del replay" pestanas={pestanas} activa={pestana} onCambio={(p) => fijarPanel({ pestana: p })} />
+          <div className="terminal__contenido" role="tabpanel" id={`rp-panel-${pestana}`} aria-labelledby={`rp-pestana-${pestana}`}>
+            {!c ? (
+              <Cargando />
+            ) : pestana === 'operar' ? (
+              <>
+                <MapaNiveles cuadro={c} capas={r.capas} ordenes={r.ordenes} estados={r.estadosOrdenes} dec={dec} mostrarFvg={capas.fvg} />
+                <PanelOrdenes cuadro={c} limite={c.limite.limite_ms} ordenes={r.ordenes} estados={r.estadosOrdenes} zona={zona} ladoInicial={ticket} vista="ticket" />
+              </>
+            ) : pestana === 'ordenes' ? (
+              <PanelOrdenes cuadro={c} limite={c.limite.limite_ms} ordenes={r.ordenes} estados={r.estadosOrdenes} zona={zona} vista="lista" dinero={dinero} />
+            ) : pestana === 'decision' ? (
+              <PanelDecision cuadro={c} />
+            ) : (
+              <PanelEventos eventos={c.eventos} estados={r.estadosOrdenes} zona={zona} />
             )}
-            <span className="ocultar-movil tenue replay__latencia">
-              {r.cargando ? 'Actualizando…' : r.latenciaMs !== null ? `Respuesta en ${r.latenciaMs} ms` : ''}
-            </span>
-            <Atribucion />
-          </>
-        ) : (
-          <span className="tenue">Sin cuadro cargado</span>
-        )}
-      </footer>
+          </div>
+        </aside>
+      )}
+
+      <div className="terminal__cuenta">
+        <BarraCuenta cuenta={r.cuenta} />
+      </div>
     </div>
   );
 }

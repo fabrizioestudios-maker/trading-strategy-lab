@@ -16,12 +16,15 @@ export function Menu({
   boton,
   alinear = 'izq',
   marcado,
+  arriba,
 }: {
   etiqueta: string;
   items: ItemMenu[];
   boton: (props: { onClick: () => void; 'aria-haspopup': 'menu'; 'aria-expanded': boolean; 'aria-controls': string }) => ReactNode;
   alinear?: 'izq' | 'der';
   marcado?: string;
+  /** Se abre hacia arriba y a la derecha del botón (riel de navegación). */
+  arriba?: boolean;
 }) {
   const [abierto, setAbierto] = useState(false);
   const [foco, setFoco] = useState(0);
@@ -62,7 +65,7 @@ export function Menu({
           role="menu"
           id={id}
           aria-label={etiqueta}
-          style={{ top: 'calc(100% + 6px)', [alinear === 'izq' ? 'left' : 'right']: 0 }}
+          style={arriba ? { bottom: 0, left: 'calc(100% + 8px)' } : { top: 'calc(100% + 6px)', [alinear === 'izq' ? 'left' : 'right']: 0 }}
           onKeyDown={(e) => {
             if (e.key === 'ArrowDown') {
               e.preventDefault();

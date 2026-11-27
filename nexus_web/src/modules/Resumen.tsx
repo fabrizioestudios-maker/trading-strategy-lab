@@ -5,6 +5,7 @@ import { useRecurso } from '../api/recurso';
 import { useEspacio, espaciosGuardados } from '../app/espacio';
 import { useGlobales } from '../app/globales';
 import { describirConfig, EstadoTrabajo, NivelEvidencia, ResumenCorrida } from '../components/Evidencia';
+import { SelectorInstrumento } from '../components/CabeceraMercado';
 import { Atribucion, GraficoVelas } from '../components/GraficoVelas';
 import { Icono } from '../components/iconos';
 import { Cargando, ErrorEstado, Insignia, Panel, Vacio } from '../components/ui';
@@ -258,6 +259,7 @@ function Cabeza({ simbolo, hasta }: { simbolo: string; hasta?: number }) {
   return (
     <header className="pagina__cabeza">
       <div>
+        <SelectorInstrumento />
         <h1>Resumen</h1>
         <p>
           {simbolo} con datos históricos{hasta ? ` hasta el ${fechaHora(hasta, 'utc')}` : ''}. No hay feed en vivo: ningún número de esta pantalla es de hoy.

@@ -38,6 +38,8 @@ export interface Marca {
 }
 
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+export const ANCHO_ESCALA = 78;
+
 const css = (v: string) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 const conAlfa = (hex: string, a: number) => {
   const h = hex.replace('#', '');
@@ -73,6 +75,8 @@ export function GraficoVelas({
   alto = 420,
   mostrarLimite = true,
   etiqueta,
+  ejeTiempo = true,
+  onRango,
 }: {
   velas: Vela[];
   tf: number;
@@ -85,12 +89,18 @@ export function GraficoVelas({
   alto?: number | string;
   mostrarLimite?: boolean;
   etiqueta: string;
+  /** false cuando abajo hay paneles de indicadores que muestran el eje de tiempo */
+  ejeTiempo?: boolean;
+  /** Rango lógico visible, para sincronizar los paneles de indicadores */
+  onRango?: (r: { from: number; to: number } | null) => void;
 }) {
   const caja = useRef<HTMLDivElement>(null);
   const grafico = useRef<IChartApi | null>(null);
   const serie = useRef<ISeriesApi<'Candlestick'> | null>(null);
   const lineasRef = useRef<Map<string, IPriceLine>>(new Map());
   const estadoRef = useRef({ tf: 0, n: 0 });
+  const onRangoRef = useRef(onRango);
+  onRangoRef.current = onRango;
   const velasRef = useRef<Vela[]>(velas);
   velasRef.current = velas;
   const sesionesRef = useRef<VentanaSesion[]>(sesiones);
@@ -106,7 +116,7 @@ export function GraficoVelas({
     const g = createChart(caja.current, {
       autoSize: true,
       grid: { vertLines: { color: 'rgba(255,255,255,0.03)' }, horzLines: { color: 'rgba(255,255,255,0.035)' } },
-      rightPriceScale: { borderColor: linea, scaleMargins: { top: 0.12, bottom: 0.12 } },
+      rightPriceScale: { borderColor: linea, scaleMargins: { top: 0.1, bottom: 0.1 }, minimumWidth: ANCHO_ESCALA },
       timeScale: { borderColor: linea, rightOffset: 14, barSpacing: 7, minBarSpacing: 1.5, timeVisible: true, secondsVisible: false },
       crosshair: {
         mode: CrosshairMode.Normal,
@@ -118,12 +128,12 @@ export function GraficoVelas({
       layout: { background: { type: ColorType.Solid, color: css('--chart-bg') }, textColor: texto, fontFamily: css('--font'), fontSize: 11, attributionLogo: false },
     });
     const s = g.addCandlestickSeries({
-      upColor: 'rgba(0,0,0,0)',
-      downColor: css('--neg'),
-      borderUpColor: css('--pos'),
-      borderDownColor: css('--neg'),
-      wickUpColor: css('--pos'),
-      wickDownColor: css('--neg'),
+      upColor: css('--alza'),
+      downColor: css('--baja'),
+      borderUpColor: css('--alza'),
+      borderDownColor: css('--baja'),
+      wickUpColor: css('--alza'),
+      wickDownColor: css('--baja'),
       priceLineColor: css('--text-3'),
       priceLineStyle: LineStyle.Dotted,
     });
@@ -168,7 +178,10 @@ export function GraficoVelas({
       setGeo({ limiteX, anchoTrazado: ancho, altoTrazado: altoT, sesiones: ses });
     };
     const diferido = () => requestAnimationFrame(() => vivo && requestAnimationFrame(recalcular));
-    g.timeScale().subscribeVisibleLogicalRangeChange(recalcular);
+    g.timeScale().subscribeVisibleLogicalRangeChange((r) => {
+      recalcular();
+      onRangoRef.current?.(r ? { from: r.from, to: r.to } : null);
+    });
     g.timeScale().subscribeSizeChange(diferido);
     const ro = new ResizeObserver(diferido);
     ro.observe(caja.current);
@@ -187,6 +200,10 @@ export function GraficoVelas({
       lineasRef.current.clear();
     };
   }, []);
+
+  useEffect(() => {
+    grafico.current?.applyOptions({ timeScale: { visible: ejeTiempo } });
+  }, [ejeTiempo]);
 
   // ---------------------------------------------------------------- formato del eje según la zona elegida
   useEffect(() => {
@@ -210,8 +227,8 @@ export function GraficoVelas({
     const g = grafico.current;
     const s = serie.current;
     if (!g || !s) return;
-    const pos = css('--pos');
-    const neg = css('--neg');
+    const pos = css('--alza');
+    const neg = css('--baja');
     const ts = g.timeScale();
     const pegadoALaDerecha = ts.scrollPosition() > 2;
     const cambioTf = estadoRef.current.tf !== tf;
@@ -220,7 +237,7 @@ export function GraficoVelas({
         const base = { time: (v.t / 1000) as UTCTimestamp, open: v.o, high: v.h, low: v.l, close: v.c };
         if (!v.parcial) return base;
         const c = v.c >= v.o ? pos : neg;
-        return { ...base, color: v.c >= v.o ? 'rgba(0,0,0,0)' : conAlfa(c, 0.45), borderColor: conAlfa(c, 0.6), wickColor: conAlfa(c, 0.6) };
+        return { ...base, color: conAlfa(c, 0.35), borderColor: conAlfa(c, 0.75), wickColor: conAlfa(c, 0.75) };
       }),
     );
     if (cambioTf || estadoRef.current.n === 0) {
@@ -271,8 +288,8 @@ export function GraficoVelas({
   useEffect(() => {
     const s = serie.current;
     if (!s) return;
-    const pos = css('--pos');
-    const neg = css('--neg');
+    const pos = css('--alza');
+    const neg = css('--baja');
     const txt = css('--text-2');
     const m: SeriesMarker<Time>[] = [];
     for (const x of marcas) {

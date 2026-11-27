@@ -116,6 +116,29 @@ class LimiteReplay(Modelo):
     sesion: str
 
 
+class Indicadores(Modelo):
+    rsi_n: int
+    macd_rapida: int
+    macd_lenta: int
+    macd_senal: int
+    rsi: list[Optional[float]] = Field(description="Alineado con `velas`; None durante el calentamiento")
+    macd: list[Optional[float]]
+    senal: list[Optional[float]]
+    histograma: list[Optional[float]]
+
+
+class SesionDia(Modelo):
+    apertura_ms: int = Field(description="Apertura de la sesión diaria (cierre 17:00 NY) que contiene el límite")
+    apertura: float
+    maximo: float
+    minimo: float
+    ultimo: float
+    cierre_anterior: Optional[float]
+    cambio: Optional[float]
+    cambio_pct: Optional[float]
+    en_formacion: bool
+
+
 class CuadroReplay(Modelo):
     contrato: str = CONTRATO
     simbolo: str
@@ -126,6 +149,8 @@ class CuadroReplay(Modelo):
     eventos: list[Evento]
     decision: Optional[PanelDecision] = None
     niveles: list[Nivel] = Field(default_factory=list)
+    indicadores: Optional[Indicadores] = None
+    sesion_dia: Optional[SesionDia] = None
     hay_mas_atras: bool
     al_final_de_los_datos: bool
 
@@ -139,6 +164,7 @@ class OrdenSimuladaEntrada(Modelo):
     tipo: Literal["mercado", "limite"] = Field(default="mercado", description="Límite: se llena al tocar `entrada` (lab/smc.simular_ordenes)")
     entrada: Optional[float] = Field(default=None, gt=0, description="Solo límite: precio de la orden")
     vence_minutos: int = Field(default=240, ge=1, le=10080, description="Solo límite: minutos de mercado hasta que vence sin llenarse")
+    lotes: Optional[float] = Field(default=None, gt=0, description="Tamaño con el que se creó (para la cuenta simulada)")
 
 
 class PedidoOrdenes(Modelo):
@@ -449,3 +475,35 @@ class CapasReplay(Modelo):
     fvg: list[ZonaFVG]
     definiciones: list[str]
     nota: str
+
+
+# --------------------------------------------------------------------------------------------- cuenta simulada
+class PedidoCuenta(Modelo):
+    simbolo: str = "XAUUSD"
+    limite_ms: int
+    capital: float = Field(gt=0)
+    apalancamiento: float = Field(default=50, ge=1, le=1000)
+    ordenes: list[OrdenSimuladaEntrada] = Field(max_length=200)
+
+
+class ResultadoOrden(Modelo):
+    id: str
+    estado: str
+    resultado_moneda: Optional[float] = Field(description="Realizado si está cerrada, no realizado si está abierta (con costos)")
+
+
+class CuentaSimulada(Modelo):
+    contrato: str = CONTRATO
+    capital: float = Field(description="Capital inicial de la simulación (Ajustes)")
+    realizado: float
+    abierto: float
+    equidad: float
+    margen: float = Field(description="Nominal de las posiciones abiertas / apalancamiento supuesto")
+    margen_libre: float
+    nivel_margen_pct: Optional[float] = Field(description="Equidad / margen × 100; None sin posiciones abiertas")
+    apalancamiento: float
+    abiertas: int
+    cerradas: int
+    sin_tamano: int = Field(description="Órdenes sin lotes guardados: no entran en la cuenta")
+    por_orden: list[ResultadoOrden]
+    supuestos: list[str]
