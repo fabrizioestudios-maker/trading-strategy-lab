@@ -977,3 +977,47 @@ Mejor win rate de los 5 años por activo y par, entre las combinaciones con al m
 **Hallazgo.** La operación distinta de ICT 1 muestra una simplificación del laboratorio. Una orden límite que se llena con hueco más allá de su propio stop se cerraba en el precio del stop (como ganadora). En la realidad y en TradingView se cierra en la apertura. Afecta muy pocas operaciones (1 de 144 acá). Con la corrección, ICT 1 da 44,4 % y +0,278 R.
 
 **Comprobado en el navegador:** oro D1 da 58 operaciones, 55,2 % y PF 2,38; ICT 5 da 82 y 45,1 %; el indicador propio se dibuja; no hay errores de consola.
+
+---
+
+## 2026-11-27 07:42 UTC — Entrada 25: fase 4 · auditoría con otras IAs y experimentos E026–E027 (registrados antes de correr)
+
+**Pedido.** Fabrizio compartió el proyecto con otras IAs y trajo tres prompts con sus propuestas. Los tres piden una auditoría del repositorio real y un plan. El tercero pide empezar por las mejoras críticas que no dependen de proveedores externos, sin alterar resultados históricos. El trabajo va en la rama `phase-4-quantitative-research`.
+
+**Verificado contra el repositorio**
+- Las 6 pruebas pasan.
+- Datos: 17 archivos sin duplicados, sin tiempos desordenados y sin velas OHLC incoherentes. Los CFD de índices tienen huecos de más de 4 días: feriados y bloques faltantes de HistData; Hang Seng tiene 39.
+- Tamaño de las búsquedas: E019 = 171.850 simuladas + 13.517 sin señales; E023 = 171.072; E025 = 19.908.
+
+**Afirmaciones de los prompts que no coinciden con el repositorio**
+- La estrategia de stop de 6 ATR (51,0 % / 55,6 %) es la candidata B de la fase 1 (E009), no de E019.
+- US30 no tiene datos.
+- No hay integración continua (workflows) y las pruebas automáticas cubren solo el motor de `lab/motor.py`.
+
+**Hallazgo principal (confirma la sospecha del tercer prompt).** La confirmación sí intervino en la elección de las recomendadas:
+- E019 ordenó a las que pasaron los dos pasos por el límite de Wilson de los **5 años completos** (elección + confirmación).
+- E023 hizo lo mismo con la expectancy de los 5 años.
+- E022 se eligió después de mirar 2011–2021 (E020/E021).
+
+En consecuencia, **para el oro D1 ya no queda ningún período de 2010–2026 sin tocar**. Las únicas pruebas limpias posibles son a futuro (desde el 27/11/2026) o con datos que no tenemos.
+
+**E026 — auditoría de la selección y del sobreajuste (fijado ahora)**
+- **A.** Volver a ordenar a las que pasaron el paso 2 de E019 y E023 **solo con métricas de elección**. Informar a quién habría elegido la regla corregida y cómo le fue en la confirmación. Medir el proceso honesto completo: las 10 mejores por elección, sin filtro de confirmación, y su expectancy promedio en la confirmación.
+- **B.** Probabilidad de sobreajuste del backtest (PBO, con validación cruzada combinatoria simétrica, CSCV):
+  - bloques: los 3 años de la elección y la confirmación, con la expectancy por bloque y al menos 10 operaciones por bloque;
+  - por familia de búsqueda: E019 por temporalidad, E023 por par de temporalidades y E025 por setup;
+  - **si PBO > 0,5, el proceso de búsqueda no sirve para elegir.**
+- **C.** Llenado realista: si una orden límite se llena con hueco más allá de su propio stop, sale en el precio del llenado (hoy los simuladores de `lab/smc.py` y `lab/ict.py` la cierran en el stop). Va como opción `realista`, apagada por defecto, para no cambiar los resultados históricos. Se mide su efecto en las finalistas de E024 y E025.
+
+**E027 — validación a fondo de E022 (oro D1 Bollinger + SMA 200) con criterios fijados ahora.** Categoría A (ventaja robusta) solo si cumple **todo**:
+1. **Contra entradas al azar:** le gana con p < 0,05 a 2.000 simulaciones con entradas al azar en velas diarias del mismo año, con la misma cantidad de compras y ventas, del lado de la SMA 200 y con el mismo SL/TP. Aísla lo que aporta la ruptura de Bollinger por encima del filtro de tendencia.
+2. **Intervalo de confianza:** el límite inferior del intervalo bootstrap del 95 % de la expectancy de 15 años (2011–2026) es mayor que 0.
+3. **Deflated Sharpe Ratio ≥ 0,95**, con N efectivo igual a la cantidad de combinaciones distintas de instrumento, temporalidad, familia y dirección probadas en E019, y la varianza de los Sharpe de E019. También se informa con otros N.
+4. **Swaps** (sin datos del bróker, escenarios explícitos): base de −0,015 % por noche en compras y −0,005 % en ventas, y adverso de −0,03 % y −0,015 %, con triple el miércoles. En el escenario adverso, expectancy > 0 y al menos 50 % de la base.
+5. **Costos × 3:** expectancy > 0.
+6. **Datos sin usar:** un período sin tocar o una prueba a futuro con al menos 30 operaciones y expectancy > 0. **No existe**, así que E022 queda como máximo en **categoría B** hasta completar la prueba a futuro.
+
+**Además**
+- Política de aceptación centralizada y versionada (`lab/politica.py`, `docs/criterios_v2.md`). La misión original (50 % y 1:2) se conserva como "Misión A". Las categorías A/B/C son la escala para ventajas con otro perfil de acierto.
+- Herramientas estadísticas en `lab/validacion.py` (PSR, DSR, PBO/CSCV, bootstrap), con pruebas.
+- Registro del presupuesto de pruebas, manifiesto de datos con huellas sha256 y dependencias con versiones fijas.
