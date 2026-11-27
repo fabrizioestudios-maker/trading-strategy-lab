@@ -39,7 +39,8 @@ def huella_config(cfg: dict) -> str:
 def procedencia(svc) -> dict:
     cod = {a: REG.sha256(os.path.join(RAIZ, a)) for a in CODIGO if os.path.exists(os.path.join(RAIZ, a))}
     datos = next((i.get("huella_sha256") for i in svc.instrumentos() if i["simbolo"] == "XAUUSD"), None)
-    return dict(commit=REG.commit(), codigo=cod, datos_xauusd_sha256=datos,
+    # en un contenedor sin .git (Hugging Face Spaces) el commit viene del Dockerfile
+    return dict(commit=REG.commit() or os.environ.get("NEXUS_COMMIT"), codigo=cod, datos_xauusd_sha256=datos,
                 huella_codigo=hashlib.sha256(json.dumps(cod, sort_keys=True).encode()).hexdigest()[:16])
 
 
