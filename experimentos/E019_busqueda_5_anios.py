@@ -2,7 +2,7 @@
 E019 — Búsqueda exhaustiva en los últimos 5 años (BITACORA, entrada 18).
 
 Uso:
-  python experimentos/E019_busqueda_5_anios.py grilla [INSTR,...]   # corre la grilla (4 procesos) → resultados/E019/grilla.csv.gz
+  python experimentos/E019_busqueda_5_anios.py grilla [INSTR,...]   # corre la grilla (4 procesos) → resultados/E019/grilla_<INSTR>.csv.gz
   python experimentos/E019_busqueda_5_anios.py elegir                # aplica la regla registrada → resultados/E019/elegidas.csv
 
 Períodos: elección 15/11/2021–14/11/2024, confirmación 15/11/2024 en adelante (datos hasta 13/11/2026).
@@ -122,8 +122,7 @@ def correr_grilla(instrs):
             partes.append(df)
             sin += s
             df.to_csv(f"{SALIDA}/grilla_{df.instr.iloc[0]}.csv.gz", index=False)
-    g = pd.concat(partes, ignore_index=True)
-    g.to_csv(f"{SALIDA}/grilla.csv.gz", index=False)
+    g = pd.concat(partes, ignore_index=True)  # un archivo por instrumento (grilla_<INSTR>.csv.gz); elegir() los une
     print(f"\nCOMBINACIONES SIMULADAS: {len(g)} · sin señales suficientes (< 45 entradas posibles): {sin} · "
           f"total probadas: {len(g) + sin} · {time.time() - t0:.0f} s", flush=True)
 
