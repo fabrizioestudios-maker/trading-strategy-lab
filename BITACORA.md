@@ -944,3 +944,36 @@ Mejor win rate de los 5 años por activo y par, entre las combinaciones con al m
 - Lo único con algo de persistencia es el setup 5 en 15M en la killzone de NY, sobre todo en oro, y queda en 41–48 % de acierto.
 
 **Entregable:** `pine/ict_cinco_setups.pine`, con los 5 setups activables, las killzones y el cierre forzoso como inputs, tamaño por riesgo, máximo diario, stop diario y dibujos limitados a 20. Por defecto viene con la configuración del prompt.
+
+---
+
+## 2026-11-27 07:02 UTC — Entrada 24: el reproductor queda con las mejores estrategias y un motor compatible con TradingView
+
+**Pedido.** Fabrizio no puede abrir archivos .pine. Pidió que todo se pruebe en el reproductor de velas, que quede solo lo mejor y que el reproductor pueda replicar estrategias e indicadores de TradingView.
+
+**Qué se hizo** (en `senales-vip/backtest/reproductor`, rama ccr-47b7af70-05ostp-whatsapp, artefacto privado "Reproductor XAUUSD", versión 7):
+- **Motor nuevo `js/tv.js`:**
+  - funciones ta.* con las fórmulas de Pine;
+  - request.security sin repintado;
+  - sesiones en hora de Nueva York;
+  - emulador de órdenes como el Strategy Tester, con lupa de 1 minuto, modo sin lupa y modo laboratorio.
+- **El probador quedó con 5 estrategias**, más "Mi estrategia":
+  - oro D1 Bollinger + SMA 200 (E022);
+  - SMC mejor en oro y SMC común (E023/E024);
+  - ICT 5 en NY e ICT 1 en Londres (E025).
+  - Se retiraron Silver Bullet, Silver Bullet TI, Bias V4, Setup A+ y los 26 modelos de LuxAlgo. Sus indicadores siguen disponibles.
+- **Código propio en formato TradingView:** estrategias con `function preparar` e indicadores con `function indicador`. El botón Pine traduce las dos cosas con Claude.
+
+**Validación** (motor en modo laboratorio contra los resultados del laboratorio, oro, últimos 5 años):
+
+| Estrategia | Resultado |
+| --- | --- |
+| Oro D1 | 58 de 58 operaciones con la misma entrada y salida (diferencia de R < 0,001) |
+| SMC oro | 302 operaciones, 43,4 %, +0,259 R: igual |
+| SMC común | 84 operaciones, 40,5 %, +0,190 R: igual |
+| ICT 5 | 82 operaciones, 45,1 %, +0,304 R: igual |
+| ICT 1 | 143 de 144 iguales |
+
+**Hallazgo.** La operación distinta de ICT 1 muestra una simplificación del laboratorio. Una orden límite que se llena con hueco más allá de su propio stop se cerraba en el precio del stop (como ganadora). En la realidad y en TradingView se cierra en la apertura. Afecta muy pocas operaciones (1 de 144 acá). Con la corrección, ICT 1 da 44,4 % y +0,278 R.
+
+**Comprobado en el navegador:** oro D1 da 58 operaciones, 55,2 % y PF 2,38; ICT 5 da 82 y 45,1 %; el indicador propio se dibuja; no hay errores de consola.
