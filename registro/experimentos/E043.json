@@ -1,0 +1,262 @@
+{
+ "id": "E043",
+ "corridas": [
+  {
+   "fecha_utc": "2026-11-27 11:14",
+   "commit": "45ed0d4688ee8f724a79f45e4d451a180b47d9d7",
+   "codigo": {
+    "experimentos/E043_e022_intradia.py": "d475a7a89629f88739a20fde6ffb22fb6220ea32d15e6ce67074dc00d0267832",
+    "lab/__init__.py": "17ba61a2f2e271944152a961fb00be4a6205078aae71abcb9f46c121b5aab06d",
+    "lab/benchmarks.py": "cc4ba82df2e450ade153d7f3274654858b851db50fb63a67c196009cd34dec5d",
+    "lab/cartera.py": "61ea90316f23a0c3bf85d7f2028e3dafdc563a4b6c7a360a4686bba3d5e2bbfd",
+    "lab/cot.py": "1f57a0614f5e85d2da196d154f8e7e1cd5b327ffd90f8281c66d32b7c4896df7",
+    "lab/datos.py": "30f685e23732a518b1f10ebba08b4ba1c1ec3cbda83e693351c9816d188017be",
+    "lab/descarga_histdata.py": "d08f0944b9970592798a5335d9c32b663233a8d7bf11e2f8bf5a60a28af29fec",
+    "lab/descarga_yahoo.py": "cc86315076461f49a48811e59e7f0d659733c34ad128a78b28c8e2e04f7fd4da",
+    "lab/diario.py": "1ab381c5df74ed89973d65ce5a8b783d5ede1fa2ad175bdbf0fa52882b63e218",
+    "lab/ejecucion.py": "f34220bf91db410ad108ad19701231687d1f0facd2891cdba1732e5e6a17d0eb",
+    "lab/estrategia.py": "d4b3976481a4b5957247ed0523e0e69cf4a653450b568617101f1724c6ada19d",
+    "lab/eventos.py": "e4a6f2024a83aec55b48b9163df909333f4726a4138b08a703ec01d06c5d7d53",
+    "lab/externos.py": "67b9b40fca63425576ee32c1a7df02dfc6de43fa903adbe9e1fa62aabaaac25e",
+    "lab/ficha.py": "82ae9ce1b4cf9736793f17fb7e6879fd05f2e4fe66fa963244233a976eb36f41",
+    "lab/financiacion.py": "10e12ac27cf028a0ce5508da5150e8ec44dbefa3bb87acbf534fd732bf5e21d6",
+    "lab/flujo.py": "ca8916c99d174d087627dd27463a1dbb9da469d806461b780d3845e8d3c442fb",
+    "lab/grilla.py": "f669ba27cfb978d7f9648c4fca076c60e0d15c6f3a8260978b5ebad4f351df3e",
+    "lab/ict.py": "a70575281455f2b0862cd615aa556783ed24e08de4dc3ab8309f6a2755632387",
+    "lab/metricas.py": "9811067e5635b9e6a87066e7ea863ef0503adc16265993837ee38d6858f21f44",
+    "lab/montecarlo.py": "1fbd2fc85e9a47ac528a6024dff53e330251483e0be895aeaf2d0c27b76749ad",
+    "lab/motor.py": "9a90d3a533c25b5f6eb90f9a71fed7ac848ade199e6a18f4a3a220d3b4ed9616",
+    "lab/multiples.py": "33eace40f2cdcca41cd985cb9337b65bc02c0d15af043e30a187d82c8978aa61",
+    "lab/objetivos.py": "433ee392ed6ef6589fa05e4456018c20e548b5939d8ed3e2ebd6d64a3b0a7ce1",
+    "lab/politica.py": "355b9a17c7210f8376bae33b6b8dce6528ae480508521a45289bed50fb3055e9",
+    "lab/regimen.py": "8c661eec67023288e911742218151edcef967301b05d3cf08a20ccc89330b473",
+    "lab/registro.py": "0a3620629d1604ce72543548514759efe9e7baaf343109fec89150e43f39727d",
+    "lab/senales.py": "99a220ff5630daf1fac7e5f2780600bfa3a3590e579148352423150789d4efc0",
+    "lab/smc.py": "4134acc02700147543c7005015476c7b40d10b5c976c6a305715da3de52822eb",
+    "lab/validacion.py": "e214c5f7bc6d8e9af59117174e1cbbe1ee0ae99eebb0bbc7f7c1b2955a616185",
+    "lab/walkforward.py": "b5a99ab3cf864be2e53d25a734a17e82eb50293b5189d8fc4e6d0af0b49b38bf"
+   },
+   "manifiesto_datos": "a10f53917d02ade5e0efc02ab2434b5c6ccad96b9b212bc150f422d76c811630",
+   "hipotesis": "La regla de E022 en H4/H1 a favor de la tendencia",
+   "universo": "XAUUSD",
+   "resultados": [
+    {
+     "index": 0,
+     "variante": "H4·FD",
+     "dev_n": 550,
+     "dev_wr": 0.39454545454545453,
+     "dev_exp_base": 0.07297393006756338,
+     "dev_p_base": 0.12787674344806294,
+     "dev_exp_costosmd": 0.11719816245259974,
+     "dev_exp_cons": 0.014286725619943371,
+     "dev_compras": 0.12445415399624309,
+     "dev_ventas": 0.009822076422259915,
+     "conf_n": 268,
+     "conf_wr": 0.3582089552238806,
+     "conf_exp_base": -0.05301497035930798,
+     "conf_p_base": 0.7198734343869577,
+     "conf_exp_costosmd": 0.003265829699883495,
+     "conf_exp_cons": -0.11558704847329215,
+     "conf_compras": -0.026252799669071705,
+     "conf_ventas": -0.1457904954187937,
+     "conf_anios_pos": 1,
+     "conf_anios_n": 5,
+     "conf_anios": "{2021: (-0.065, 52), 2022: (-0.46, 49), 2023: (-0.113, 54), 2024: (0.33, 61), 2025: (-0.044, 52)}",
+     "holm_dev": false,
+     "pasa": false
+    },
+    {
+     "index": 1,
+     "variante": "H4·FX",
+     "dev_n": 708,
+     "dev_wr": 0.3926553672316384,
+     "dev_exp_base": 0.0717714839676165,
+     "dev_p_base": 0.10073212271120371,
+     "dev_exp_costosmd": 0.11728752118693249,
+     "dev_exp_cons": 0.012167156576164937,
+     "dev_compras": 0.12583067285440624,
+     "dev_ventas": 0.01259426536373422,
+     "conf_n": 342,
+     "conf_wr": 0.3508771929824561,
+     "conf_exp_base": -0.06288831360404049,
+     "conf_p_base": 0.7854594018395902,
+     "conf_exp_costosmd": -0.008201003963040467,
+     "conf_exp_cons": -0.12503683588484227,
+     "conf_compras": -0.007804789259204272,
+     "conf_ventas": -0.14944813757449735,
+     "conf_anios_pos": 2,
+     "conf_anios_n": 5,
+     "conf_anios": "{2021: (-0.087, 68), 2022: (-0.219, 68), 2023: (-0.244, 66), 2024: (0.144, 75), 2025: (0.071, 65)}",
+     "holm_dev": false,
+     "pasa": false
+    },
+    {
+     "index": 2,
+     "variante": "H1·FD",
+     "dev_n": 2060,
+     "dev_wr": 0.3466019417475728,
+     "dev_exp_base": -0.14601480176213816,
+     "dev_p_base": 0.9999969748511771,
+     "dev_exp_costosmd": -0.07270827730101054,
+     "dev_exp_cons": -0.24338441623390275,
+     "dev_compras": -0.12506949562147898,
+     "dev_ventas": -0.17131529481736102,
+     "conf_n": 905,
+     "conf_wr": 0.35027624309392263,
+     "conf_exp_base": -0.1269552735637283,
+     "conf_p_base": 0.9952523247900895,
+     "conf_exp_costosmd": -0.04897956006986496,
+     "conf_exp_cons": -0.21909493546970132,
+     "conf_compras": -0.1297219193925275,
+     "conf_ventas": -0.11732679822884784,
+     "conf_anios_pos": 1,
+     "conf_anios_n": 5,
+     "conf_anios": "{2021: (-0.196, 190), 2022: (-0.269, 143), 2023: (-0.152, 197), 2024: (0.02, 204), 2025: (-0.077, 171)}",
+     "holm_dev": false,
+     "pasa": false
+    }
+   ],
+   "detalle": {
+    "H4·FD": {
+     "dev": {
+      "n": 550,
+      "wr": 0.39454545454545453,
+      "exp_base": 0.07297393006756338,
+      "p_base": 0.12787674344806294,
+      "exp_costosmd": 0.11719816245259974,
+      "exp_cons": 0.014286725619943371,
+      "compras": 0.12445415399624309,
+      "ventas": 0.009822076422259915
+     },
+     "conf": {
+      "n": 268,
+      "wr": 0.3582089552238806,
+      "exp_base": -0.05301497035930798,
+      "p_base": 0.7198734343869577,
+      "exp_costosmd": 0.003265829699883495,
+      "exp_cons": -0.11558704847329215,
+      "compras": -0.026252799669071705,
+      "ventas": -0.1457904954187937,
+      "anios": {
+       "2021": [
+        -0.065,
+        52
+       ],
+       "2022": [
+        -0.46,
+        49
+       ],
+       "2023": [
+        -0.113,
+        54
+       ],
+       "2024": [
+        0.33,
+        61
+       ],
+       "2025": [
+        -0.044,
+        52
+       ]
+      },
+      "anios_pos": 1,
+      "anios_n": 5
+     }
+    },
+    "H4·FX": {
+     "dev": {
+      "n": 708,
+      "wr": 0.3926553672316384,
+      "exp_base": 0.0717714839676165,
+      "p_base": 0.10073212271120371,
+      "exp_costosmd": 0.11728752118693249,
+      "exp_cons": 0.012167156576164937,
+      "compras": 0.12583067285440624,
+      "ventas": 0.01259426536373422
+     },
+     "conf": {
+      "n": 342,
+      "wr": 0.3508771929824561,
+      "exp_base": -0.06288831360404049,
+      "p_base": 0.7854594018395902,
+      "exp_costosmd": -0.008201003963040467,
+      "exp_cons": -0.12503683588484227,
+      "compras": -0.007804789259204272,
+      "ventas": -0.14944813757449735,
+      "anios": {
+       "2021": [
+        -0.087,
+        68
+       ],
+       "2022": [
+        -0.219,
+        68
+       ],
+       "2023": [
+        -0.244,
+        66
+       ],
+       "2024": [
+        0.144,
+        75
+       ],
+       "2025": [
+        0.071,
+        65
+       ]
+      },
+      "anios_pos": 2,
+      "anios_n": 5
+     }
+    },
+    "H1·FD": {
+     "dev": {
+      "n": 2060,
+      "wr": 0.3466019417475728,
+      "exp_base": -0.14601480176213816,
+      "p_base": 0.9999969748511771,
+      "exp_costosmd": -0.07270827730101054,
+      "exp_cons": -0.24338441623390275,
+      "compras": -0.12506949562147898,
+      "ventas": -0.17131529481736102
+     },
+     "conf": {
+      "n": 905,
+      "wr": 0.35027624309392263,
+      "exp_base": -0.1269552735637283,
+      "p_base": 0.9952523247900895,
+      "exp_costosmd": -0.04897956006986496,
+      "exp_cons": -0.21909493546970132,
+      "compras": -0.1297219193925275,
+      "ventas": -0.11732679822884784,
+      "anios": {
+       "2021": [
+        -0.196,
+        190
+       ],
+       "2022": [
+        -0.269,
+        143
+       ],
+       "2023": [
+        -0.152,
+        197
+       ],
+       "2024": [
+        0.02,
+        204
+       ],
+       "2025": [
+        -0.077,
+        171
+       ]
+      },
+      "anios_pos": 1,
+      "anios_n": 5
+     }
+    }
+   },
+   "solidez": {}
+  }
+ ]
+}

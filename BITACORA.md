@@ -1592,3 +1592,64 @@ a favor de la tendencia diaria. E019 ya barrió H1 (sin corrección que sobreviv
 - Es **informativo**: E022 no llega a 100 operaciones en 5 años, así que no puede pasar el criterio de la entrada 32.
 - Una salida por tiempo solo se propone como alternativa (sin reemplazar la regla de E022) si supera al TP fijo en las
   dos muestras con costos base.
+
+---
+
+## 2026-11-27 11:16 UTC — Entrada 37: E043 falla, E044 (informativo) y E045, momentum intradía (registrado antes de correr)
+
+**E043 (la regla de E022 en H4 y H1): FALLA.** Ninguna variante pasa Holm en desarrollo, y las tres pierden en los
+últimos 5 años con costos base:
+
+| Variante | Desarrollo: n / expectancy base / p | Últimos 5 años: n / expectancy base / años positivos | Conservador (desarrollo / 5 años) |
+| --- | --- | --- | --- |
+| H4·FD | 550 / +0,073 R / 0,13 | 268 / −0,053 R / 1 de 5 | +0,014 / −0,116 |
+| H4·FX | 708 / +0,072 R / 0,10 | 342 / −0,063 R / 2 de 5 | +0,012 / −0,125 |
+| H1·FD | 2.060 / −0,146 R / 1,00 | 905 / −0,127 R / 1 de 5 | −0,243 / −0,219 |
+
+- La ventaja de E022 **no se traslada** a velas intradía: en H4 queda un resto débil en desarrollo que desaparece
+  después, y en H1 se pierde siempre.
+- No se corren la meseta ni el placebo, porque ninguna variante pasó.
+
+**E044 (E022 con salida por tiempo, informativo).** Entrada a las 18:15 NY, SL 0,5·ATR diario, costos base:
+
+| Salida | Desarrollo (n 123) | p | Últimos 5 años (n 58) | p | Conservador, 5 años | Horas promedio |
+| --- | --- | --- | --- | --- | --- | --- |
+| TP fijo 2·SL (regla de E022) | +0,233 R | 0,043 | +0,494 R | 0,008 | +0,452 R | 36 |
+| 1 día (16:55 NY del día siguiente) | +0,197 R | 0,059 | +0,408 R | 0,019 | +0,390 R | 18 |
+| 2 días | +0,416 R | 0,009 | +0,277 R | 0,097 | +0,236 R | 41 |
+| 5 días | +0,544 R | 0,013 | +0,726 R | 0,039 | +0,641 R | 82 |
+
+- **La salida a 5 días supera al TP fijo en las dos muestras.** Por el criterio de la entrada 36 queda **propuesta como
+  alternativa**, sin reemplazar la regla de E022. Hay que tener en cuenta que se eligió entre 3 salidas y que acierta
+  33–35 %.
+- **La salida a 1 día** convierte a E022 en una operación de unas 18 horas, de 18:15 a 16:55 NY: lo más parecido a
+  daytrading que tiene ventaja demostrada. Es positiva en las dos muestras, también con costos conservadores, pero
+  hace unas 12 operaciones por año.
+
+**E045 · momentum intradía (registrado ahora, antes de correr).**
+- **Literatura:**
+  - Gao, Han, Li y Zhou (2018): el retorno de la primera media hora predice el de la última;
+  - Baltussen, Da, Lammers y Martens (2021): el efecto aparece en más de 60 futuros, por la cobertura de gamma antes
+    del cierre.
+  - En el oro, el cierre relevante es el **settlement del COMEX, a las 13:30 NY**.
+- **Variantes (3, sin grilla):**
+  - **A30:** señal = signo del retorno del cierre anterior (16:59 NY) a las 08:50 NY; operación de 13:00 a 13:29 NY;
+  - **B30:** señal = signo del retorno de 08:20 a 08:50 NY (primera media hora del COMEX); operación de 13:00 a
+    13:29 NY;
+  - **A60:** la señal de A; operación de 12:30 a 13:29 NY.
+- **Ejecución:** a mercado en la apertura del primer minuto y salida al cierre del último. Se saltean los días sin los
+  minutos necesarios.
+- **Medida:** retorno neto en % por operación. Costos base (principal) y conservador con `lab/ejecucion.py`, y los de
+  `docs/costos.md`.
+- **Pasa:** el criterio de la entrada 32.
+  - desarrollo: retorno medio > 0 con p < 0,05 de una cola, y Holm entre las 3 variantes;
+  - confirmación: retorno medio > 0 con p < 0,10;
+  - al menos 4 de 5 años positivos;
+  - al menos 100 operaciones;
+  - positiva con costos conservadores en las dos muestras.
+- **Si una pasa, antes de declararla candidata (fijado ahora):**
+  - **placebo:** 200 juegos con la dirección al azar en los mismos días; la estrategia tiene que superar el percentil
+    95 en la confirmación;
+  - **meseta:** entrada a las 12:55 y a las 13:05, y salida a las 13:25 y a las 13:35. Los 4 vecinos tienen que seguir
+    positivos con costos base en las dos muestras.
+- **Informativo:** la pendiente β de la regresión del retorno de la ventana sobre el retorno de la señal.
