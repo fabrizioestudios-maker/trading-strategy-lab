@@ -1511,10 +1511,37 @@ El momentum diario de E022 no se transmite a entradas de M15 con stops de 1 ATR 
 
 **E042 · la misma prueba sobre la candidata (fijada ahora).**
 - E022 entra en el primer minuto después del cierre diario, que es justamente la reapertura de las 18:00 NY.
-- **Prueba:** se repite E022 en 2011-11 a 2026-11 con la entrada retrasada al primer minuto **en o después** de 18:05, 18:15, 18:30 y 19:00 NY. Las reglas no cambian (SL 0,5·ATR, TP 2·SL desde la nueva entrada). Costos de  y perfil base.
+- **Prueba:** se repite E022 en 2011-11 a 2026-11 con la entrada retrasada al primer minuto **en o después** de 18:05, 18:15, 18:30 y 19:00 NY. Las reglas no cambian (SL 0,5·ATR, TP 2·SL desde la nueva entrada). Costos de `docs/costos.md` y perfil base.
 - **Pasa:**
   - expectancy > 0 en todos los retrasos;
   - con 18:15 y 19:00, al menos la mitad de la original (+0,407 R);
   - IC 95 % del retraso de 18:15 > 0.
   - Se informan compras y ventas por separado, porque el artefacto favorece las compras y castiga las ventas.
 - **Si falla:** E022 baja de nivel y se informa a Fabrizio que la única candidata dependía del precio de reapertura.
+
+---
+
+## 2026-11-27 10:43 UTC — Entrada 35: E042 pasa (E022 no depende de la reapertura) y estado de la línea intradía
+
+**E042: PASA los tres criterios de la entrada 34.**
+
+| Entrada | n | Acierto | Expectancy (costos.md) | IC 95 % | Base | Compras | Ventas |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Reapertura (original) | 167 | 47,3 % | +0,397 R | [+0,165; +0,631] | +0,360 | +0,417 | +0,368 |
+| 18:05 | 167 | 46,1 % | +0,358 R | [+0,133; +0,591] | +0,327 | +0,358 | +0,357 |
+| 18:15 | 168 | 45,2 % | +0,332 R | [+0,105; +0,564] | +0,299 | +0,315 | +0,357 |
+| 18:30 | 167 | 43,1 % | +0,273 R | [+0,057; +0,505] | +0,238 | +0,208 | +0,368 |
+| 19:00 | 168 | 44,6 % | +0,314 R | [+0,095; +0,546] | +0,278 | +0,284 | +0,359 |
+
+- El artefacto de la reapertura le daba unos 0,1 R a las compras. Las ventas no cambian.
+- **Recomendación operativa: entrar a las 18:15 NY**, ya con el spread normal. Expectancy esperada ≈ +0,30 R con costos base.
+- E022 sigue en **nivel B**.
+
+**Línea XAUUSD scalping/daytrading, estado:**
+- **Fallaron** E039 (sesgo diario + M15), E040/E041 (deriva horaria: artefacto) y todo lo anterior (E038, E031).
+- **La única ventaja del oro sigue siendo E022.**
+  - Es un daytrade/swing corto: dura en promedio menos de un día, con 0,96 noches.
+  - No es scalping.
+- **Próximas hipótesis de la línea** (a registrar antes de correr):
+  - E022 con más operaciones: la misma regla en H4, en vez de D1, a favor de la SMA 200 diaria;
+  - salidas por tiempo de E022 (1 día) en lugar de TP fijo.
