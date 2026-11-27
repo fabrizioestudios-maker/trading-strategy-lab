@@ -1261,7 +1261,7 @@ E031 no agrega configuraciones.
 
 ---
 
-## 2026-11-27 09:55 UTC — Entrada 28: agregado al registro · E038, historia nunca usada de los dos setups intradía del oro (registrado antes de correr)
+## 2026-11-27 09:01 UTC — Entrada 28: agregado al registro · E038, historia nunca usada de los dos setups intradía del oro (registrado antes de correr)
 
 **Por qué.** E023 (SMC) y E025 (ICT) cargaron datos desde 2021: ninguna operación de esas estrategias en 2010–2021 se miró nunca. Es un período limpio para las dos candidatas intradía del oro, como E037 lo es para E022.
 
@@ -1284,3 +1284,27 @@ E031 no agrega configuraciones.
 **Decisión:**
 - Si falla, la estrategia queda en R o A, según su expectancy en la confirmación.
 - Si pasa, sigue en B hasta cumplir el resto del nivel C.
+
+---
+
+## 2026-11-27 09:41 UTC — Entrada 29: E035b · el placebo registrado mira adelante; placebo corregido (registrado antes de correrlo)
+
+**Qué pasó.** Corrí E035b con el placebo de la entrada 27 (velas al azar del mismo día a ± 60 minutos del evento, con la misma dirección).
+
+**El error.** Ese placebo tiene un sesgo de mirar adelante: los placebos anteriores al evento usan una dirección que define el evento, que todavía no ocurrió.
+- Un placebo de "barrido del máximo" (venta) puesto antes de la excursión sufre primero la subida que la forma. Los placebos de barrido dan entre −0,23 y −0,41 R.
+- Un placebo de "aceptación" (compra) puesto antes de la ruptura gana con ella. Dan entre +0,13 y +0,30 R.
+- Por eso el resultado (barridos > placebo en los 4 niveles, aceptaciones < placebo) **no es válido** y no se usa.
+- Igual informo su resultado crudo: la operación del evento en sí, sin placebo.
+
+| Evento | Expectancy en desarrollo | Expectancy en confirmación |
+| --- | --- | --- |
+| Barridos | −0,05 a −0,16 R | −0,03 a −0,14 R |
+| Aceptaciones | −0,06 a +0,01 R | −0,09 a +0,07 R |
+
+**Placebo corregido (fijado ahora, antes de correrlo).**
+- **Diseño:** para cada evento, 20 días al azar de la misma muestra (desarrollo o confirmación), sin el día del evento, con la misma hora de Nueva York de la entrada y la misma dirección.
+- **Operación:** SL de 0,25 ATR(14) del día anterior de ese día, TP 2·SL y cierre a las 16:00 NY.
+- **Qué mide:** si el evento agrega información sobre la dirección frente a operar a esa hora sin evento.
+- **Pasa:** Δ > 0 con p < 0,05 con Holm entre 8 en desarrollo, y Δ > 0 con p < 0,10 en la confirmación.
+- **Prueba económica:** además, la expectancy del evento con IC 95 % > 0.
