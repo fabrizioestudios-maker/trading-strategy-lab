@@ -724,3 +724,69 @@ Para las tres: TP = 2,1·SL, k de 3 a 6 ATR, la misma regla de elección de la e
 - Correr la estrategia en el probador de TradingView (OANDA:XAUUSD, 1D) y comparar operación por operación con `resultados/E022/operaciones_5a.csv`.
 - Si se usa MT5, escribir el EA.
 - Seguirla en demo antes de usar dinero real.
+
+---
+
+## 2026-11-27 00:47 UTC — Entrada 20: el setup SMC de Fabrizio para scalping y daytrading (registrada antes de correr)
+
+**Pedido.** Encontrar los parámetros correctos para hacer scalping o daytrading con el setup de Fabrizio:
+- **Pasos:** barrido, cambio de estructura, zona de descuento, zona de reacción y liquidez, a veces con EMA 50/200.
+- **Dirección y ejecución:** dirección en 1H con ejecución en 5M, 4H con 15M, o 15M con 1M.
+- **Activos:** XAUUSD, EURUSD, GBPUSD, USDCAD, US100, US30 y US500.
+- **Condiciones:** RR 1:2 y todas las pruebas en los **últimos 5 años**.
+
+**Datos**
+- USDCAD se baja de HistData (2020–2026).
+- **US30 no está disponible:** HistData no lo tiene, y Dukascopy y Stooq cortan la conexión desde este entorno. Queda pendiente: se puede sumar con un export de M1 del MT5 de Fabrizio.
+- US100 = NSXUSD y US500 = SPXUSD (CFD de HistData).
+
+**El setup como reglas exactas (alcistas; las bajistas son el espejo)**
+1. **Liquidez a barrer** (`fuente`), según el caso:
+   - el último mínimo de swing confirmado de la temporalidad de ejecución (pivote de L velas a cada lado);
+   - el último mínimo de swing de la temporalidad mayor (pivote de 3);
+   - el mínimo del día anterior.
+2. **Barrido:** una vela perfora ese nivel. Con `recupera = sí`, además tiene que cerrar de vuelta por encima. Cada nivel se usa una sola vez.
+3. **Cambio de estructura:** dentro de las W velas siguientes, un cierre por encima del último máximo de swing (pivote de L) confirmado al momento del barrido.
+4. **Rango:** desde el extremo del barrido hasta el máximo del tramo. **Descuento** = por debajo del 50 % del rango.
+5. **Zona de reacción y entrada** (orden límite dentro del descuento, válida V velas; se cancela si antes toca el TP):
+   - FVG del tramo (borde o 50 %);
+   - order block (máximo de la última vela bajista del tramo);
+   - OTE 61,8 %;
+   - equilibrio 50 %.
+   - Control: entrada a mercado en la apertura siguiente al cambio de estructura, sin esperar el descuento.
+6. **SL y TP:** SL debajo del extremo del barrido, con un margen de 0,1 × ATR(14). TP = entrada + 2 × riesgo (RR 1:2). Se descartan los setups con un riesgo menor a 3 veces el costo.
+7. **Liquidez a favor** (`liquidez = sí`): se descarta el setup si hay un máximo de swing de la temporalidad mayor entre la entrada y el TP.
+8. **Dirección** (`sesgo`) en la temporalidad mayor, con su última vela cerrada:
+   - EMA 50 sobre EMA 200;
+   - precio sobre EMA 200;
+   - estructura (último quiebre de swing de la temporalidad mayor);
+   - control: sin sesgo.
+9. **Sesión:** todas las horas, o solo las killzones de Londres (02:00–05:00 NY) y Nueva York (07:00–11:00 NY).
+10. Una operación a la vez, con salidas en M1 y costos de `docs/costos.md`.
+
+**Grilla (E023).** Pares de temporalidades: 1H–5M, 4H–15M y 15M–1M. Por cada par se combinan:
+- L ∈ {2, 3, 5};
+- fuente ∈ {swing de ejecución, swing mayor, día anterior};
+- W ∈ {12, 24, 48};
+- recupera ∈ {sí, no};
+- sesgo ∈ {4 opciones};
+- entrada ∈ {mercado, 50 %, OTE, FVG, FVG 50 %, OB};
+- V ∈ {12, 36};
+- sesión ∈ {todas, killzones};
+- liquidez ∈ {no, sí}.
+
+Son unas 9.500 combinaciones por activo y par, unas 171.000 en total.
+
+**Regla de elección (fijada antes de correr)**
+1. **Elección** (15/11/2021–14/11/2024):
+   - al menos 60 operaciones y expectancy > 0;
+   - expectancy > 0 en cada uno de los 3 años, con al menos 10 operaciones por año;
+   - al menos un vecino de W con expectancy > 0.
+2. **Confirmación** (15/11/2024–13/11/2026): al menos 30 operaciones y expectancy > 0.
+3. **Orden:** límite inferior (95 %) de la expectancy de los 5 años. Se marca aparte la que llegue a win rate ≥ 50 %.
+4. **Siempre se informan:**
+   - la versión más literal del setup de Fabrizio (1H–5M, EMA 50/200, barrido de swing, cambio de estructura y entrada en el FVG en descuento);
+   - la mejor combinación por activo;
+   - los parámetros que funcionan en más activos a la vez.
+
+**Antecedente que se registra.** Los 1.584 modelos SMC/ICT de LuxAlgo y el Setup A+ ya probados en oro dieron como máximo 44 % y 42 % de acierto. Con stops intradía chicos, la teoría pide una ventaja muy grande para llegar a 50 % con 1:2.
