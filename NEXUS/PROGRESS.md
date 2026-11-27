@@ -1,5 +1,26 @@
 # NEXUS — Progress log
 
+## 2026-11-27 — Published static version, consistency pass, new layers and replay range
+
+### Completed
+- **Published version without a server.** Hugging Face no longer runs Docker Spaces on the free tier (402, PRO
+  required) and the full API needs about 2,2 GB of RAM. The free alternative is a private static Space
+  (`FabrizioDalleva/nexus`): the UI is built with `VITE_ESTATICO=1` and reads recorded API responses
+  (`instantanea/<key>.json`, key from `src/api/clave.ts`). `scripts/grabar-instantanea.mjs` walks every module and
+  200 replay candles of XAUUSD 15m against the real API. Anything not recorded says «Disponible en la versión
+  completa»; orders and runs are disabled; the market-hours chip is hidden (it would be frozen).
+- **Consistency pass** (desktop and phone screenshots of the 8 modules): E022 figures labelled by definition
+  (+0,30 R with the 18:15 entry and base costs, the run Resumen/Analítica show; +0,41 R is the original reopening
+  entry); reference costs in Spanish number format; phone banner and limit label fixed.
+- **New layers:** iFVG (FVG crossed by a close), BPR (overlap of opposite FVGs within 20 candles), premium/discount
+  and OTE 62–79 % on the current leg. Contract `ZonaIFVG`, `ZonaBPR`, `RangoOperativo`; prefix-invariance test covers them.
+- **Replay range:** «Desde/Hasta» in the date popover; playback stops on the last candle before the end.
+- Tests: pytest (NEXUS files) **50 passed**; Vitest **33 passed**; Playwright **11 passed**.
+
+### Not done / limits
+- The published version cannot place orders, change replay dates, timeframes or instruments, or run strategies.
+- F001/F002 forward tests start on 27/11/2026 22:00 UTC; the monthly task updates them.
+
 ## 2026-11-27 — Phases 0–5: working terminal on the research engine
 
 Branch: `nexus/rebuild-ux-foundation`. `main` untouched.

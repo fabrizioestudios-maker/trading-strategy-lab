@@ -73,7 +73,7 @@ const ir = async (hash) => {
 // (la app lee el espacio al cargar: se recarga la página después de escribirlo)
 const espacio = async (extra) => {
   await p.evaluate((e) => localStorage.setItem('nexus.espacio.v1', JSON.stringify(e)), {
-    prefs: { capas: { sesiones: true, niveles: true, ordenes: true, senales: true, estructura: true, fvg: true, barridos: true, ob: true, rsi: true, macd: true } },
+    prefs: { capas: { sesiones: true, niveles: true, ordenes: true, senales: true, estructura: true, fvg: true, barridos: true, ob: true, ifvg: true, ote: true, rsi: true, macd: true } },
     ...extra,
   });
   await p.reload();
