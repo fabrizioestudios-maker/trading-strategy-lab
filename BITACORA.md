@@ -1063,3 +1063,198 @@ En consecuencia, **para el oro D1 ya no queda ningún período de 2010–2026 si
 **Auditoría completa:** `docs/auditoria_fase0.md` (14 hallazgos por gravedad, afirmaciones de los prompts corregidas, plan E028–E032, qué no hacer y lista de control).
 
 **Próximo paso:** prueba a futuro de E022 y del setup 5 ICT en el reproductor desde el 27/11/2026, y E028 (walk-forward de la familia de E022).
+
+---
+
+## 2026-11-27 08:45 UTC — Entrada 27: fase 4 completa · experimentos E028–E037, reanudación de E018 y prueba a futuro F001 (registrados antes de correr)
+
+**Pedido.** Fabrizio trajo tres prompts más de otras IAs y pidió hacerlo todo, sin gastar dinero y sin perder efectividad, y rediseñar la parte visual (el reproductor, con estética de redes neuronales). Respondió que no hay presupuesto para datos pagos.
+
+**Datos gratuitos (decisión).**
+- **Habilitados con su permiso:** `fred.stlouisfed.org` y `arxiv.org`.
+- **Ya bajados:**
+  - FRED (8 series): VIX desde 1990, GVZ desde 2008, OVX, DGS10, DGS2, DFII10 y T10YIE desde 2003;
+  - COT de la CFTC por tipo de participante, de 2006 a 2026: desagregado en oro, plata y crudo, y TFF en 5 divisas y 3 índices.
+- **Limitados:**
+  - Yahoo responde 429 (límite de pedidos): se reintenta más tarde, sin insistir.
+  - Dukascopy también responde 429 y no se insiste.
+  - Stooq corta la conexión.
+- **Disponibilidad real de cada dato** (`lab/externos.py`, columna `disponible_ms`):
+  - VIX y GVZ: 16:15 NY del mismo día.
+  - Tesoro (H.15): día hábil siguiente, 17:00 NY.
+  - COT: viernes 17:00 NY; lunes si hubo feriado; cierres del gobierno de 2013, 2018–19 y 2025 con fecha posterior a la recuperación.
+
+**Corrección a la auditoría (entrada 26).**
+- Los papers citados existen y los leí: GT-Score (arXiv 2602.00080, un autor, resultados propios sin réplica) y AlgoXpert (arXiv 2603.09219).
+- Se implementan sus definiciones tal cual:
+  - **GT-Score** = μ·ln(z)·r²/σ_d, con z = (μ − μ_m)/(σ/√N), r² de la curva y σ_d el desvío a la baja, por partes según z. El paper exige n ≥ 50.
+  - **Meseta de AlgoXpert:** Ω = {θ : SR(θ) ≥ 0,9·SR_opt}.
+  - **Veto de acantilado:** se descarta θ si algún vecino a un paso pierde más de τ de Sharpe.
+  - **Walk-forward con purga** de 5 días y aprobación por mayoría q = 2/3.
+
+**Escala de estados (reemplaza la A/B/C de `docs/criterios_v2.md`, que nunca pasó a main).** Las letras siguen al prompt maestro. `docs/criterios.md` no cambia.
+
+| Nivel | Significado | Condiciones (todas) |
+| --- | --- | --- |
+| R | Rechazada | Expectancy ≤ 0 en la confirmación con costos base, o solo gana sin costos |
+| A | Exploratoria | Resultado interesante sin controles superados |
+| B | Candidata | Expectancy > 0 en elección y confirmación; n ≥ 50; le gana al azar con p < 0,10; positiva con costos base |
+| C | Validada estadísticamente | Las de B, más: expectancy ≥ +0,15 R; IC 95 % > 0; PF ≥ 1,3; n ≥ 150; azar p < 0,05; DSR ≥ 0,95 con el N efectivo; walk-forward con GR ≥ 0,5 y mayoría de ventanas positivas; positiva con costos conservadores; ≥ 70 % de años positivos; período nunca usado con ≥ 30 operaciones y expectancy > 0 |
+| D | Validada a futuro | C, más una prueba a futuro con ≥ 30 operaciones, expectancy > 0 y dentro del intervalo de predicción del backtest |
+| E | Operativa | D, más paridad Python ↔ reproductor ↔ TradingView dentro de tolerancia, protocolo de riesgo escrito y aprobación de Fabrizio |
+
+La **Misión A** (≥ 50 % y payoff ≥ 2 después de costos, n ≥ 100, n_val ≥ 30) se informa siempre aparte, como marca.
+
+**Protocolo común para hipótesis nuevas (no son búsquedas de reglas de precio).**
+- **Muestras:**
+  - desarrollo: 15/11/2010–14/11/2021;
+  - confirmación: 15/11/2021–13/11/2026;
+  - a futuro: desde el 27/11/2026.
+  - Para el oro D1, ningún tramo de 2010–2026 es limpio: solo la historia remota (E037) y la prueba a futuro lo son.
+- **Costos:** los de `docs/costos.md` (perfil "base" de E030), siempre también sin costos y con el perfil conservador.
+
+### Experimentos
+
+**E018 (reanuda la fase 3, entrada 17, sin cambiar configuraciones ni criterios).**
+- Datos de Yahoo en lugar de Stooq, que sigue bloqueado.
+- El oro y la plata quedan fuera de 1990–2009: sus velas de Yahoo anteriores a 2012 no tienen rango o son incoherentes (calidad, entrada 18). Por eso:
+  - universo 8 → los 6 índices;
+  - universo 9 → los 7 índices, con sus controles en el mismo universo.
+- Primero `solape` (Yahoo frente a HistData en 2010–2021: diferencia de expectancy ≤ 0,10 R y de acierto ≤ 3 puntos, o el método no sirve), y después `prueba`.
+
+**E028 · walk-forward con purga (familia del oro D1 y universo D1 de E019).**
+- **a) Familia de E022:** XAUUSD D1, ruptura de Bollinger.
+  - Parámetros: n ∈ {10, 15, 20, 25, 30}, desvíos ∈ {1,5; 2; 2,5}, filtro SMA ∈ {ninguno, 100, 200}, SL ∈ {0,25; 0,5; 0,75; 1} ATR y RR ∈ {1,5; 2; 2,5; 3}: **720 configuraciones**, motor M1.
+  - Esquemas: 3 años de entrenamiento / 1 de prueba (principal), 5/1, 5/2 y expansivo/1. Años de laboratorio desde el 15/11, con purga de 5 días hábiles y sin operaciones de entrenamiento que crucen al tramo de prueba.
+  - **Reglas de elección** (solo con el entrenamiento):
+    - R1: máximo de media − 1 EE, con n ≥ 15;
+    - R2: GT-Score del paper, con μ_m = 0 en R y n_min = 15 (el paper usa 50; el oro D1 hace ~11 por año: desvío documentado);
+    - R3: meseta y acantilado de AlgoXpert, con α = 0,9, τ = 50 % del Sharpe de θ y vecinos a un paso en cada parámetro; entre las que quedan, gana el mayor Sharpe promedio de θ y sus vecinos.
+  - **Referencias:** E022 fija (contaminada) y la media de las 720 (elegir al azar).
+  - **Pasa (3/1 con R1):** expectancy fuera de muestra > 0 con el límite inferior del IC 95 % > 0, **GR = prueba/entrenamiento ≥ 0,5** y ≥ 2/3 de ventanas positivas.
+- **b) Universo D1 de E019:** 13 activos, unas 15.900 configuraciones, de nuevo en 2010–2026 y guardadas por año de laboratorio (16 bloques).
+  - PBO por CSCV con 16 bloques: reemplaza la estimación de 4 bloques de E026.
+  - Walk-forward 3/1 con R1, R2 y R3: las 10 mejores por ventana y su "supervivencia" (expectancy > 0 al año siguiente).
+  - **Una regla sirve si** su supervivencia supera en ≥ 15 puntos a la de configuraciones al azar **y** sus elegidas suman expectancy > 0 con IC > 0. Es la pregunta del prompt 1 ("¿sube la supervivencia a ≥ 40 %?").
+
+**E029 · benchmarks y alfa incremental.**
+- **Benchmarks diarios con los mismos costos:**
+  - comprar y mantener;
+  - comprar y mantener con volatilidad objetivo del 10 % (EWMA, peso con un día de rezago, tope 3×);
+  - risk parity solo compras (7 índices + oro, inverso de la volatilidad, 10 % objetivo, mensual);
+  - tendencia simple (precio > SMA 200, misma volatilidad objetivo).
+- **Estrategias:** E022, la candidata B (E009), el momentum de líderes (E017), el setup 5 ICT en oro (E025) y la cartera de E036. Se miden con su resultado diario marcado a mercado.
+- **Métrica principal:** el **information ratio de tasación** (α/σ_ε·√252 de la regresión contra el benchmark, error estándar de Newey-West con 10 rezagos), que no depende del tamaño de posición. También se informan el IR activo del prompt, el tracking error y la beta.
+- **Pasa:** IR ≥ 0,3 con p < 0,05.
+- **Si nada pasa:** el prompt 1 propone girar a "asignación con overlays tácticos". Eso **cambia la misión**: queda como recomendación para Fabrizio, no se ejecuta.
+
+**E030 · perfiles de ejecución (motor de ejecución 2.0, aplicado sobre listas de operaciones ya simuladas).**
+- **Perfiles:** optimista, base, conservador (~P75) y estrés.
+- **Qué modela cada uno:**
+  - spread por sesión: Asia ×1,5, Londres ×1, NY ×0,9, tarde de NY ×1,1, cambio de día ×4;
+  - spread por volatilidad: (ATR1h/mediana)^0,5;
+  - deslizamiento: entradas a mercado y salidas por SL, proporcional al σ de 1 minuto; el TP límite no desliza;
+  - latencia: σ₁ₘ·√(L/60 s);
+  - comisión y swaps (`lab/financiacion.py`);
+  - impacto: raíz cuadrada con volumen supuesto. Para tamaños minoristas es despreciable y así se documenta.
+- **Costo de equilibrio por operación** (C_max de AlgoXpert): si es menor que el costo base, la estrategia es frágil.
+- **Clasificación:**
+  - no operable: expectancy ≤ 0 con el perfil base;
+  - frágil: ≤ 0 con el conservador.
+
+**E031 · pruebas múltiples.**
+- Sobre las grillas de E019, E023 y E025 (muestra de elección):
+  - valor p de expectancy > 0, con desvío de dos resultados 3·√(p(1−p)) en E019;
+  - Bonferroni, Holm, Benjamini–Hochberg (FDR 5 % y 10 %) y Benjamini–Yekutieli;
+  - cuántos "descubrimientos" hay y qué fracción replica en la confirmación, frente a los no descubiertos.
+- **Prueba SPA de Hansen (2005)** sobre el universo D1 de E028b en 15 años: resultado diario en R, bootstrap estacionario con bloques medios de 20 días y 2.000 repeticiones. ¿La mejor regla D1 supera a no operar después de corregir por toda la búsqueda?
+
+**E032 · Monte Carlo, riesgo y cartera.**
+- **Bootstrap por bloques** (5 operaciones) de cada candidata: distribución del drawdown máximo, rachas, tiempo de recuperación, probabilidad de caer 20 % y de ruina (−50 %) en 10 años, con riesgos de 0,25, 0,5 y 1 % por operación.
+- **Cartera** E022 + ICT 5 + E036: correlaciones diarias, riesgo simultáneo, drawdown conjunto y ratio de diversificación.
+- **Regla descriptiva** (Fabrizio decide): el riesgo sugerido es el mayor con P(DD > 20 % en 5 años) < 5 % con costos conservadores.
+
+**E033 · posicionamiento y flujo (datos gratuitos).**
+- **Señales por mercado** (8 mercados con precio en el lab), siempre con su `disponible_ms`:
+  - F1: z de 156 semanas de la posición neta/OI de los fondos (managed money / leveraged funds). Contraria: se espera IC < 0.
+  - F2: z de los comerciales (productores + swap; dealers en TFF). Se espera IC > 0.
+  - F3: cambio semanal de la posición de los fondos. Se espera IC > 0.
+- **Medida:**
+  - IC de Spearman con el retorno a 1 y 4 semanas;
+  - la prueba principal es el IC promedio entre mercados (6 pruebas: 3 señales × 2 horizontes);
+  - error estándar por bootstrap de bloques de semanas, Holm entre las 6.
+- **Intermercado para el oro** (diario): cambio del rendimiento real y del GVZ frente al retorno del día siguiente.
+- **Volumen real de futuros** (GC=F de Yahoo, con roles): ¿las rupturas de E022 con volumen relativo alto rinden más? Se adopta solo si la diferencia en desarrollo da p < 0,05 (permutación) y sigue positiva en la confirmación.
+- **Pasa:** signo esperado con p < 0,05 en desarrollo y el mismo signo con p < 0,10 en la confirmación.
+
+**E034 · régimen con HMM causal.**
+- **Modelo:** HMM gaussiano de 2 y 3 estados sobre log de la volatilidad realizada diaria del oro (retornos de 5 minutos) y log del GVZ. Se entrena solo con el desarrollo y se congela.
+- **Estado de cada día:** probabilidad **filtrada** (algoritmo forward, solo pasado), nunca suavizada ni Viterbi sobre toda la muestra.
+- **Uso:** E022 y el setup 5 ICT. Se permiten los estados con expectancy > 0 en desarrollo **solo si** la diferencia entre estados da p < 0,05 (permutación); si no, no hay filtro.
+- **En la confirmación:**
+  - expectancy filtrada ≥ 0,9 × la sin filtro;
+  - se informa la varianza del acierto entre regímenes (la métrica del prompt).
+
+**E035 · línea A, institucional en XAUUSD: ¿el barrido agrega información?**
+- **a) Análisis de factores de las 171.072 variantes de E023**, sin correr nada nuevo.
+  - Para cada componente (fuente de liquidez, recuperación, sesgo, entrada FVG/OB/OTE/mercado, ventana, sesión, liquidez), se mide la expectancy marginal frente a su nivel de referencia, en elección y en confirmación.
+  - **"Agrega valor"** si es > 0 en las dos muestras y en al menos 5 de los 6 activos en la elección.
+- **b) Estudio de eventos con placebo en XAUUSD M1:**
+  - **Niveles:** máximo y mínimo del día anterior, de la semana anterior, de Asia (20:00–00:00 NY) y de Londres (02:00–05:00 NY).
+  - **Evento:** primera excursión del día entre las 02:00 y las 12:00 NY.
+  - **Clasificación** en las 6 velas M5 siguientes:
+    - "barrido": cierre de vuelta dentro del nivel. Se opera la reversión.
+    - "aceptación": dos cierres afuera sin volver. Se opera la continuación.
+  - **Operación:** SL 0,25 ATR(14) diario, TP 2·SL, cierre a las 16:00 NY.
+  - **Placebo:** misma dirección, en velas M5 al azar del mismo día a ± 60 min (20 por evento).
+  - **Medida:** diferencia de expectancy evento − placebo, con IC por bootstrap de días.
+  - **Pasa:** p < 0,05 en desarrollo con Holm entre 8 pruebas y diferencia > 0 con p < 0,10 en la confirmación.
+
+**E036 · línea B, cuantitativa multiactivo: tendencia de series de tiempo con volatilidad objetivo.**
+- **Universo:** 13 instrumentos con M1 (sin DAX, WTI ni USDCAD).
+- **Reglas:** signo del retorno de 12 meses, cada activo a 10 %/√N de volatilidad, rebalanceo semanal con costos por rotación.
+- **Benchmark:** el risk parity de E029.
+- **Historia remota limpia:** los 7 índices de Yahoo en 1990–2010.
+- **Pasa:**
+  - Sharpe > 0 en la confirmación;
+  - IR de tasación ≥ 0,3 con p < 0,05 en 2010–2026;
+  - Sharpe > 0,3 en 1990–2010.
+
+**E037 · historia remota del oro D1 con otro instrumento: GLD de Yahoo, 2005–2011.**
+- **Por qué es limpia:** antes del 15/11/2011 ninguna operación de E022 se miró. El M1 de 2010–2011 solo sirvió de calentamiento.
+- **Simulación:**
+  - velas diarias de GLD (cierre 16:00 NY), mismas reglas de E022, entrada en la apertura siguiente;
+  - si el SL y el TP caen el mismo día cuenta el SL (principal); con TP primero se informa la cota optimista;
+  - costo 0,02 % ida y vuelta.
+- **Calibración antes de mirar 2005–2011:**
+  - GLD en 2011-11 a 2026-11 debe quedar a ± 0,25 R de la expectancy del spot (+0,407 R);
+  - ≥ 70 % de sus operaciones deben coincidir en el día (± 1) con las del spot.
+  - Si no calibra, el resultado remoto se informa como "no comparable".
+- **Pasa (cuenta como "período nunca usado" del nivel C):** ≥ 30 operaciones, expectancy > 0 y p < 0,10 (t de una cola).
+
+**F001 · prueba a futuro registrada hoy.**
+- **Estrategias:** E022 y el setup 5 ICT en oro, con los parámetros exactos de `resultados/E022` y `resultados/E025`.
+- **Compromiso sellado:** hash sha256 del código y de los parámetros en `registro/forward/F001.json`. Cuentan las señales desde el primer cierre diario posterior a este commit.
+- **Datos:** HistData mensual + Dukascopy cuando responda.
+- **Evaluación:**
+  - informe trimestral;
+  - decisión al llegar a 30 operaciones de cada una. A ~11 por año, E022 tarda unos 3 años: así se dice.
+
+**Presupuesto de pruebas nuevo** (se suma a `registro/presupuesto_pruebas.csv`):
+
+| Experimento | Configuraciones |
+| --- | --- |
+| E028a | 720 |
+| E028b | ~15.900, re-simulación de E019 |
+| E033 | 3 × 2 × 8 + intermercado |
+| E034 | 2 modelos × 2 estrategias |
+| E035b | 8 pruebas |
+| E036 | 1 |
+| E037 | 1 |
+
+E031 no agrega configuraciones.
+
+**Lo que no se hace:**
+- tocar los resultados de E000–E027;
+- ordenar con la confirmación;
+- agregar filtros después de mirar.
