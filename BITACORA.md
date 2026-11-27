@@ -1355,3 +1355,41 @@ E031 no agrega configuraciones.
 - reintentar E037 cuando Yahoo deje de limitar;
 - informe trimestral de F001;
 - todo nuevo experimento, con hipótesis de flujo o eventos registrada y sin búsqueda masiva.
+
+---
+
+## 2026-11-27 10:23 UTC — Entrada 31: parte visual, tablero, auditoría K y documentación de la fase 4b
+
+**Reproductor** (`senales-vip`, rama `ccr-47b7af70-05ostp-whatsapp`, commit 1213a32):
+- **Rediseño «red neuronal»:** cian de sinapsis para la estructura, naranja de la marca para la activación, glifo de red y fondo animado apagable.
+- **Red de decisión en vivo** (`js/red.js`):
+  - para la estrategia del probador dibuja entradas → condiciones → decisión → gestión con las velas ya reveladas;
+  - la decisión sale de correr la estrategia exacta.
+  - Verificada: el 18/11/2026 a las 17:00 NY muestra la venta del oro D1 que también da E022.
+- **Veredicto del laboratorio** en el probador (`js/fichas.js`).
+- **El motor no cambió:** `validar_tv.js` da lo mismo que antes (58/58, 302, 84, 82, 143/144).
+- **Publicado:** privado (versión 8) y público (versión 5). La reversión está escrita en el LEEME.
+
+**Tablero del laboratorio:**
+- artifact de tipo "Data", con 4 fuentes exportadas por `herramientas/exportar_tablero.py`, que lleva su propio código en los metadatos;
+- muestra la candidata, la curva de E022, los perfiles de costos, los niveles y los experimentos.
+
+**Auditoría K** (`docs/auditoria_fase0.md`):
+- criterios por documento: E019 relajó n de validación a 15 y no exigió payoff, y **E022 nunca cumplió la Misión A**;
+- períodos y fugas;
+- motor por tipo de orden: E022 tiene 0 operaciones con SL y TP en el mismo minuto;
+- Pine v6: sin repintado; vela diaria de 17:00 NY según el feed; sin Bar Magnifier; no compilado;
+- paridad: el tramo TradingView queda pendiente del export de Fabrizio (`herramientas/comparar_tradingview.py`);
+- clasificación de cada estrategia.
+
+**Documentos:**
+- `docs/plan_evolucion.md`: respuesta a los prompts 1 y 2;
+- `docs/criterios_v2.md`: escala R–E;
+- `docs/datos_gratuitos.md`;
+- `docs/fichas.md`;
+- README con diagrama del flujo, conclusiones, costos (perfiles 2.0) y `CONTEXTO_PARA_IAS.md`.
+
+**Sigue pendiente:**
+- E037: Yahoo responde 429 a las 10:23 UTC;
+- F001 en curso;
+- paridad con TradingView, que necesita el export.

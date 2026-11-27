@@ -1,50 +1,66 @@
 # Contexto del proyecto (para pedir opinión a otras IAs)
 
-Este documento resume en una página lo que estamos construyendo e investigando. El detalle completo, con fechas, números y decisiones, está en `BITACORA.md` (entradas 1 a 24) y en `docs/conclusiones.md`.
+Esta página resume el proyecto al 27/11/2026 (fase 4b). El detalle, con fechas y números, está en:
+- `BITACORA.md`, entradas 1 a 31;
+- `docs/plan_evolucion.md`;
+- `docs/auditoria_fase0.md` (secciones A–K);
+- `docs/fichas.md`.
 
 ## Quiénes y qué
-Fabrizio opera y da señales de trading (servicio de señales VIP). Sus activos son XAUUSD, EURUSD, GBPUSD, USDCAD, US100, US30 y US500. Busca una estrategia **rentable con win rate ≥ 50 % y RR 1:2**, preferiblemente probada en los **últimos 5 años**, para scalping o daytrading.
+Fabrizio opera y da señales de trading (servicio de señales VIP) en XAUUSD, EURUSD, GBPUSD, USDCAD, US100, US30 y US500.
+- **El objetivo original:** una estrategia **rentable con win rate ≥ 50 % y RR 1:2**, probada en los últimos 5 años, para scalping o daytrading.
+- **Desde la fase 4:** ese objetivo se informa como "Misión A". Las decisiones se toman con la **ventaja medible**: expectancy contra el azar, alfa sobre benchmarks, costos realistas y período limpio.
+- **Restricción actual:** todo sin gastar dinero.
 
 ## Herramientas
-- **Laboratorio** (`lab/`, `experimentos/`, Python + numba). Simula con velas de 1 minuto de 2010–2026 (HistData y Dukascopy), costos realistas, SL primero si el SL y el TP caen en el mismo minuto, y una operación a la vez.
-- **Método:**
-  - criterios fijados antes de probar (`docs/criterios.md`);
-  - elección en 15/11/2021–14/11/2024 y confirmación en 15/11/2024–13/11/2026;
-  - prueba aparte en 2011–2021;
-  - comparación contra "comprar siempre" (la deriva).
-- **Reproductor de velas** (página web, JavaScript; código en el repo `senales-vip`, `backtest/reproductor`):
-  - bar replay estilo TradingView con datos de oro en M1 de 2018 a 2026;
-  - motor compatible con TradingView: funciones `ta.*`, `request.security` y un emulador de órdenes con lupa de 1 minuto;
-  - probador con las 5 mejores estrategias;
-  - traducción de estrategias e indicadores desde Pine Script.
+- **Laboratorio** (`lab/`, `experimentos/`, Python + numba):
+  - velas de 1 minuto 2010–2026, costos por sesión y swaps, SL primero en el mismo minuto;
+  - validación con DSR, PBO, FDR, SPA de Hansen y walk-forward con purga;
+  - benchmarks risk parity con IR de tasación;
+  - prueba a futuro sellada con hash;
+  - 27 pruebas automáticas.
+- **Datos gratuitos:** HistData; CFTC (COT por tipo de participante); FRED (tasas, tasa real, VIX, GVZ); Yahoo, con límite de pedidos.
+- **Reproductor de velas** (repo `senales-vip`, `backtest/reproductor`):
+  - bar replay estilo TradingView con oro M1 2018–2026;
+  - motor compatible con TradingView, validado operación por operación contra el laboratorio;
+  - **red de decisión en vivo:** muestra, vela por vela, qué condiciones de la estrategia están activas;
+  - veredicto del laboratorio para cada estrategia del probador.
   - Link público: https://claude.ai/artifact/PErYePwzYdNSR5EaHavBh2
+- **Tablero del laboratorio** (artifact privado): candidata, costos, niveles y experimentos.
 
-## Qué se probó y qué dio (resumen honesto)
-| Búsqueda | Tamaño | Resultado |
+## Qué se sabe (resumen honesto)
+
+| Pregunta | Respuesta | Dónde |
 | --- | --- | --- |
-| Indicadores clásicos, momentum, retrocesos, reversión, intradía, divergencias, multi-temporalidad, aprendizaje automático, COT, estacionalidad | ~1.560 configuraciones, 2010–2021 | Con stops chicos, el acierto con 1:2 ronda el 33 % (el azar). Solo los stops muy anchos en activos con deriva alcista llegan a 50 %, y comprar siempre da lo mismo. |
-| Búsqueda exhaustiva en los últimos 5 años (E019) | 185.367 combinaciones, 13 activos, M5 a D1 | 11 pasan elección y confirmación; 10 caen al azar en 2011–2021. |
-| Setup SMC de Fabrizio (barrido → cambio de estructura → descuento → FVG/OB, con sesgo de temporalidad mayor) | 171.072 variantes, 6 activos, 1H–5M, 4H–15M y 15M–1M | Promedio de 33 % de acierto. La versión literal pierde. Las elegidas en 2021–2024 dieron −0,10 R en 2024–2026. |
-| 5 setups ICT (prompt de Google: barrido a OB/FVG, breaker, continuación FVG, AMD, sesgo mayor en NY) | 19.908 pruebas | Pierden con la configuración del prompt. Ninguno llega a 50 % de forma estable. |
+| ¿Alguna regla de precio sobrevive a corregir por la búsqueda? | No: 0 de 297.354 con Bonferroni, Holm, BH o BY; SPA de Hansen en D1 p = 0,21 | E031 |
+| ¿SMC e ICT funcionan en oro? | No. En su historia nunca usada (2010–2021): SMC −0,03 R, ICT 5 +0,04 R. Igual que el azar con RR 1:2 | E038 |
+| ¿Un barrido de liquidez predice la reversión? | No: contra operar a la misma hora otro día, la diferencia es ≈ 0 en PDH/PDL, semana, Asia y Londres | E035b |
+| ¿Qué componentes del SMC suman? | Liquidez del día anterior (+0,09 R) y killzones (+0,03 R). Restan las entradas en FVG, OB y OTE (−0,05 a −0,08 R) | E035a |
+| ¿Hay alguna ventaja? | **Oro D1** (ruptura de Bollinger a favor de la SMA 200, SL 0,5 ATR, TP 2R): ver el detalle abajo | E022, E027–E032 |
+| ¿El COT, la tasa real o el GVZ predicen? | No, con los datos gratuitos | E033 |
+| ¿Tendencia multiactivo con volatilidad objetivo? | Sharpe 0,21 desde 2010, contra 0,61 del risk parity | E036 |
 
-**La única estrategia con ventaja sostenida:** oro D1.
-- **Reglas:** primera vela que cierra fuera de la banda de Bollinger (20, 2) a favor de la SMA 200. SL de 0,5 ATR(14), TP 2R, entrada en la apertura siguiente.
-- **Últimos 5 años:** 58 operaciones, 55,2 % de acierto, +0,63 R.
-- **2011–2021:** 43,6 % de acierto, +0,29 R.
-- Solo funciona en oro.
+**Oro D1, en detalle:**
+- 168 operaciones en 2011–2026, 47,6 % de acierto y +0,41 R, con IC [+0,18; +0,64].
+- Le gana al azar del mismo lado (p = 0,0005).
+- IR de tasación 0,85 sobre el oro y el risk parity; correlación con el oro 0,03.
+- +0,33 R con costos conservadores.
+- Toda su familia de parámetros es positiva fuera de muestra.
+- **Nivel B (candidata).**
 
-**Explicación teórica.** Con RR 1:2, un precio al azar acierta 1/3. Para llegar al 50 % hace falta Sharpe diario × (stop en desvíos diarios) ≥ 0,24. Con stops intradía eso exige un Sharpe anual de ~4, que casi ninguna señal técnica tiene.
+**Qué le falta al oro D1:**
+- DSR de 0,24 por la búsqueda que la eligió;
+- walk-forward principal con razón prueba/elección de 0,34;
+- un período limpio: prueba a futuro F001 desde el 27/11/2026 y E037 (GLD 2005–2011), bloqueado por Yahoo.
 
 ## Preguntas para otras IAs
-1. ¿Ven errores de método (sesgo de mirar adelante, sobreajuste, costos, datos) en `lab/motor.py`, `lab/smc.py`, `lab/ict.py` o en la regla de elección?
-2. ¿Qué familia de ideas **no** probamos que tenga fundamento para superar el 50 % con 1:2 en intradía? Por ejemplo, datos que no sean precio: volumen real, order book, opciones o noticias.
-3. ¿Conviene cambiar el objetivo a expectancy y profit factor (40 % de acierto con 1:2 ya es rentable) en lugar de exigir 50 %?
-4. ¿Cómo harían más robusta la estrategia de oro D1 (sizing, filtros de régimen, cartera con otras ideas)?
-5. ¿Qué le falta al reproductor para replicar exactamente el Strategy Tester de TradingView?
+1. ¿Ven errores en el protocolo de la fase 4b (placebo de E035b corregido, disponibilidad de datos, walk-forward con purga, SPA)?
+2. Con el oro D1 como única candidata, ¿cómo acortarían la prueba a futuro sin contaminarla? Hace ~11 operaciones por año.
+3. ¿Qué hipótesis **gratuita** con fundamento probarían, registrada y sin grilla? Ya hay dos en cola: barrido del día anterior con entrada a mercado en killzones, y reversión tras compras de fondos en el COT.
+4. ¿Qué le falta al reproductor para replicar el Strategy Tester? El comparador con el export de TradingView ya está (`herramientas/comparar_tradingview.py`).
 
 ## Dónde mirar
-- `BITACORA.md`: historia completa, con fechas.
-- `docs/conclusiones.md`: conclusiones.
-- `docs/criterios.md`: criterios fijados de antemano.
-- `experimentos/E019`–`E025` y `resultados/`: búsquedas de los últimos 5 años, con todos los números.
-- `pine/`: versiones en Pine Script de la estrategia de oro D1, el setup SMC y los 5 setups ICT.
+- `BITACORA.md`: historia completa, con hipótesis registradas antes de cada corrida.
+- `docs/plan_evolucion.md`, `docs/auditoria_fase0.md`, `docs/fichas.md`, `docs/datos_gratuitos.md` y `docs/criterios_v2.md` (propuesta de escala R/A/B/C/D/E; `docs/criterios.md` sigue siendo el criterio histórico).
+- `experimentos/E028`–`E038`, `F001` y `resultados/`.
+- `registro/experimentos/*.json`: cada corrida con el commit y el hash del código.
