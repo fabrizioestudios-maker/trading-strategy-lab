@@ -1308,3 +1308,50 @@ E031 no agrega configuraciones.
 - **Qué mide:** si el evento agrega información sobre la dirección frente a operar a esa hora sin evento.
 - **Pasa:** Δ > 0 con p < 0,05 con Holm entre 8 en desarrollo, y Δ > 0 con p < 0,10 en la confirmación.
 - **Prueba económica:** además, la expectancy del evento con IC 95 % > 0.
+
+---
+
+## 2026-11-27 09:24 UTC — Entrada 30: resultados de la fase 4b (E018, E028–E038, F001)
+
+**Resumen en una línea:** de todo lo registrado, solo el oro D1 (E022) sobrevive como candidata; todo lo intradía (SMC, ICT, barridos) es indistinguible del azar en su historia limpia.
+
+### Resultados por experimento
+
+| Exp. | Pregunta | Resultado | ¿Pasa? |
+| --- | --- | --- | --- |
+| E018 | Candidatas en 1990–2009 | **Solape:** Yahoo no reproduce HistData en 2012–2021 (Δ −0,11 a −0,19 R en 6 de 8): el criterio absoluto queda **no evaluable**. **Informativo:** la candidata B da 53,3 % y +0,65 R; en 2000–2009 la tendencia gana 50,0 % contra 37,5 % de comprar siempre (+0,39 R) | No evaluable |
+| E028a | Familia del oro D1, elegida solo con el pasado | **3/1 con R1:** +0,53 R, IC [+0,16; +0,91], 77 % de ventanas positivas, pero **GR 0,34 < 0,5**. 5/1, 5/2 y expansivo: GR de 0,65 a 0,73. **Configuración al azar de la familia: +0,22 R** | No (GR) |
+| E028b | ¿Elegir con estabilidad sube la supervivencia? (15.918 D1) | R1 y GT-Score: 54,6 % de supervivencia contra 41,6 % al azar (+13 puntos, < 15). La meseta de AlgoXpert (α 0,9, τ 50 %) no elige nunca | No |
+| E028 PBO | 16 bloques, 12.870 particiones | Universo 0,24. Nasdaq 0,06, S&P 0,24, oro 0,29; forex y resto 0,49–0,71. Familia del oro 0,51: elegir no agrega, la familia entera es positiva | — |
+| E029 | ¿Alfa sobre benchmarks pasivos? | **E022: IR de tasación 0,78–0,85 (p = 0,001) contra los cuatro benchmarks; beta ≈ 0 y correlación con el oro 0,03.** Candidata B 0,10, líderes 0,37 (p 0,11), ICT 5 0,25, SMC 0,36 (p 0,07), E036 −0,02 | **Solo E022** |
+| E030 | ¿Resiste costos realistas? | **E022:** +0,37 R base, +0,33 conservador, +0,27 estrés; costo de equilibrio 7× el real. Candidata B y líderes: frágiles (los swaps de meses los dan vuelta). ICT 5 +0,08 base; SMC frágil | E022 operable |
+| E031 | Corrección por pruebas múltiples | Ninguna de las 167.177 (E019), 110.373 (E023) ni 19.804 (E025) sobrevive a Bonferroni, Holm, BH 5–10 % ni BY. **SPA de Hansen en D1:** la mejor (Nasdaq en tendencia, t = 4,0) da p = 0,21 | No |
+| E032 | Riesgo | **E022 con costos conservadores y 1 %:** drawdown mediano 6,4 % y p95 11,7 % en 5 años; ruina 0. **Cartera** E022 + ICT 5 + E036: correlaciones ~0, pero Sharpe 0,50 contra 0,69 de E022 sola | — |
+| E033 | COT por participante e intermercado | Las 6 señales de COT no predicen (IC −0,04 a +0,02, p > 0,19). La tasa real predecía en desarrollo (p 0,02) y se dio vuelta en la confirmación. Volumen de GC=F: inservible antes de 2020 | No |
+| E034 | Régimen HMM causal | E022: sin filtro, positiva en los dos regímenes. ICT 5: operar solo con volatilidad alta pasa la regla (p 0,0495; +0,35 contra +0,30 en la confirmación), pero no sobrevive a Holm entre 4 | Débil |
+| E035a | ¿Qué componente del SMC suma? | **Suman:** liquidez del día anterior (+0,09 R, 6 de 6 activos), liquidez de temporalidad mayor (+0,04) y killzones (+0,03). **Restan:** entrar en FVG, OB, OTE o 50 % en vez de a mercado (−0,05 a −0,08 R en la confirmación). El sesgo mayor y el cierre de vuelta no suman | — |
+| E035b | ¿El barrido predice la reversión? | El placebo registrado miraba adelante (entrada 29). Con el corregido: barridos sin información (Δ ≈ 0) y pierden (−0,04 a −0,16 R); aceptaciones con leve continuación que no sobrevive a Holm | No |
+| E036 | Tendencia multiactivo con volatilidad objetivo | Sharpe 0,21 en 2010–2026 contra 0,61 del risk parity; IR 0,05. En 1990–2009 (índices): Sharpe 0,94 | No |
+| E037 | Oro D1 en GLD 2005–2011 | **Bloqueado:** Yahoo responde 429 desde las 08:20 UTC. El script queda listo (`experimentos/E037_oro_remoto_gld.py`) | Pendiente |
+| E038 | Historia limpia 2010–2021 de los setups intradía | **ICT 5:** 215 operaciones, 36,3 %, +0,035 R (p 0,36). **SMC:** 613, 33,9 %, −0,027 R. Lo de 2021–2026 era suerte de la búsqueda | **No** |
+| F001 | Prueba a futuro | Sellada a las 09:22 UTC: `registro/forward/F001.json`, con hash del código. Intervalo de predicción de la media de 30 operaciones: E022 [−0,13; +0,94] R, ICT 5 [−0,42; +0,63] R | En curso |
+
+### Clasificación (escala de la entrada 27)
+
+| Estrategia | Nivel | Qué falta |
+| --- | --- | --- |
+| **E022 oro D1** | **B · candidata** | DSR ≥ 0,95 (da 0,24), GR del walk-forward principal (0,34), 70 % de años positivos y un período limpio: E037 bloqueado y F001 en curso. **Pasa** azar (p 0,0005), IC > 0, PF 1,76, n 168, costos conservadores, alfa sobre benchmarks y la mayoría de ventanas positivas |
+| ICT 5 oro | A · exploratoria | Falló su historia limpia (+0,035 R). Sigue en F001 porque estaba registrada |
+| SMC oro | R en la historia limpia (−0,027 R); A con 2021–2026 | Sin evidencia |
+| Candidata B | A | Beta pura (IR 0,10) y no operable en CFD por los swaps |
+| Líderes (E017) | A | IR 0,37 con p 0,11; frágil por swaps. Su validación 2022–2026 sigue sin tocar |
+| E036 | A | Sin alfa en 2010–2026 |
+
+**Misión A (≥ 50 % con RR 1:2):** nadie la cumple de forma robusta. E022 hace 47,6 % en 15 años y 55,2 % en los últimos 5, con payoff real 1,93 < 2.
+
+**Regla de giro del prompt 1** ("si nada supera IR 0,3 con p < 0,05 contra risk parity, pasar a asignación"): **no se dispara**, porque E022 la supera. Si F001 o E037 la bajaran, la recomendación sería esa, y la decide Fabrizio.
+
+**Próximo paso:**
+- reintentar E037 cuando Yahoo deje de limitar;
+- informe trimestral de F001;
+- todo nuevo experimento, con hipótesis de flujo o eventos registrada y sin búsqueda masiva.

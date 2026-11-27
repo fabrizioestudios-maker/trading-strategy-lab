@@ -1,0 +1,65 @@
+{
+ "id": "F001",
+ "sellado_utc": "2026-11-27 09:22",
+ "inicio_utc": "2026-11-27 22:00",
+ "estrategias": {
+  "E022": {
+   "reglas": "XAUUSD D1 (cierre 17:00 NY); cierre fuera de Bollinger (20, 2, desvío poblacional) por primera vez, a favor de la SMA 200 (cierre sobre/bajo); ambas direcciones; entrada en el minuto siguiente al cierre; SL 0,5·ATR(14) de Wilder; TP 2·SL; una a la vez; costos de docs/costos.md",
+   "config": [
+    "XAUUSD",
+    "D1",
+    "bollinger_ruptura",
+    "20/2",
+    "evento",
+    "sma200",
+    "ambos",
+    0.5
+   ],
+   "backtest": {
+    "media_backtest": 0.40679039066543754,
+    "sd_backtest": 1.5035617645987625,
+    "n_backtest": 168,
+    "ip95_media_30": [
+     -0.13125227678226536,
+     0.9448330581131404
+    ]
+   }
+  },
+  "ICT5": {
+   "reglas": "XAUUSD 15M con sesgo de estructura de 4H; killzone de NY; barrido del último swing interno (pivote de 3) y FVG ≥ 0,25 ATR en 10 velas; orden límite al 50 % del FVG; SL detrás del barrido + 0,1 ATR; TP 2R; máximo 2 por día y corte tras 2 pérdidas; sin cierre forzado",
+   "config": {
+    "setup": 5,
+    "sesgo": "estructura",
+    "N": 10,
+    "V": 10,
+    "minfvg": 0.25,
+    "ce": 1,
+    "kz": "NY",
+    "cierre": false
+   },
+   "backtest": {
+    "media_backtest": 0.10913679519873938,
+    "sd_backtest": 1.468110494747464,
+    "n_backtest": 297,
+    "ip95_media_30": [
+     -0.41621979825832095,
+     0.6344933886557997
+    ]
+   }
+  }
+ },
+ "decision": "al llegar a 30 operaciones: pasa si expectancy > 0 y dentro del IP95 de la media de 30",
+ "datos": "XAUUSD M1: HistData mensual (ASCII) + Dukascopy cuando responda; se agregan con lab/descarga_histdata.py",
+ "huellas": {
+  "lab/grilla.py": "f669ba27cfb978d7f9648c4fca076c60e0d15c6f3a8260978b5ebad4f351df3e",
+  "lab/motor.py": "9a90d3a533c25b5f6eb90f9a71fed7ac848ade199e6a18f4a3a220d3b4ed9616",
+  "lab/datos.py": "30f685e23732a518b1f10ebba08b4ba1c1ec3cbda83e693351c9816d188017be",
+  "lab/senales.py": "99a220ff5630daf1fac7e5f2780600bfa3a3590e579148352423150789d4efc0",
+  "lab/ict.py": "a70575281455f2b0862cd615aa556783ed24e08de4dc3ab8309f6a2755632387",
+  "lab/smc.py": "4134acc02700147543c7005015476c7b40d10b5c976c6a305715da3de52822eb",
+  "experimentos/E025_ict_cinco_setups.py": "de49fb7c275bac3ca91e6499f1f1b844de9dbbec879c139ffcbbc7a0fd736b1d",
+  "experimentos/E023_smc_grilla.py": "13c14bf002df40e61b35ffed7a8373ec39423ce46cae190a4cc781fcbab169a4",
+  "experimentos/candidatas.py": "a0ae573587c87426c58681dde72eab47900e5c96bab9fea7b8ceead249e0ea72",
+  "experimentos/F001_prueba_a_futuro.py": "cf9b3a2c3ec2686b5390b0d7c9005e1e1f695efc0a55120630b6b5a513d3c8ed"
+ }
+}
