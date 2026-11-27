@@ -560,3 +560,39 @@ Para las tres: TP = 2,1·SL, k de 3 a 6 ATR, la misma regla de elección de la e
 5. Configuraciones probadas en el laboratorio: unas 1.560 (unas 165 en la fase 2).
 
 **Veredicto general (sin cambios respecto de la entrada 12, con más evidencia):** la candidata B sigue siendo la única que cumple los criterios mínimos, sin ventaja propia. Lo más cerca de una ventaja real es el momentum de corte transversal con stops anchos, que no alcanza la robustez exigida con estos datos (2010–2026, 9 activos).
+
+---
+
+## 2026-11-27 00:02 UTC — Entrada 17: fase 3, prueba en otras condiciones de mercado (registrada antes de ver los datos)
+
+**Nota sobre las horas.** Las horas de las entradas 1–16 son aproximadas. El reloj del contenedor saltó durante la sesión y no coincide con las horas de los commits. El orden de las entradas sí es el real. Desde esta entrada la hora sale de `date -u` al escribirla.
+
+**Por qué.** La misión pide que lo prometedor se pruebe en "diferentes condiciones de mercado". Los datos de 2010–2026 son casi todos de un mercado alcista de acciones. La candidata B y las casi-candidatas de la fase 2 nunca vieron un mercado bajista largo. La prueba más fuerte sin tocar la validación 2022–2026 es correrlas, **con los parámetros ya fijados**, en la historia diaria de **1990–2009**. Ese período tiene el Nikkei cayendo de 39.000 a 7.000, las caídas de 2000–2003 y 2007–2009 y el mercado alcista del oro de 2001–2011. Ningún dato de ese período se usó para diseñar nada.
+
+**Datos.** Velas diarias OHLC de Stooq para S&P 500, Nasdaq 100, Nikkei 225, FTSE 100, CAC 40, índice australiano (ASX 200, o All Ordinaries antes de 2000), Hang Seng, oro y plata. Primero va un control de calidad: velas con apertura, máximo, mínimo y cierre reales, huecos y comparación con HistData en 2010–2021.
+
+**Simulación.** Es el mismo motor, pero sobre velas diarias en lugar de M1: entrada en la apertura siguiente, gap a la apertura y, si el SL y el TP caen el mismo día, cuenta el SL. Con stops de 5–6 ATR y TP de 10–13 ATR, eso casi no pasa. Los costos son los de `docs/costos.md`. Para comprobar el método, primero se corre la candidata B en 2010–2021 con velas diarias de Stooq y se compara con el 51,0 % de HistData en M1.
+
+**Configuraciones (fijas, sin búsqueda).**
+
+| # | Configuración | Universo | k (ATR) | RR |
+| --- | --- | --- | --- | --- |
+| 1 | Candidata B: cierre > SMA200 y SMA200 subiendo (20 velas), solo compras | 8 activos (sin Hang Seng) | 6 | 2,1 |
+| 2 | Control: comprar siempre | 8 activos | 6 | 2,1 |
+| 3 | Líder top 3 (momentum 252 días, mensual) + mínimo de 10 días | 9 activos | 5 | 2,1 |
+| 4 | Líder top 4 + RSI2 < 25 | 9 activos | 6 | 2,1 |
+| 5 | Líder top 3 + RSI2 < 25 | 9 activos | 6 | 2,1 |
+| 6 | Líder top 3, cualquier vela | 9 activos | 6 | 2,1 |
+| 7–8 | Control: comprar siempre | 9 activos | 5 y 6 | 2,1 |
+
+**Criterios (fijados ahora).**
+- **Pasa en otras condiciones:** en 1990–2009, win rate ≥ 50 %, payoff ≥ 2,0, expectancy > 0 y al menos 30 operaciones.
+- **Tiene ventaja propia** (solo las configuraciones 1 y 3–6): win rate ≥ comprar siempre + 3 puntos y expectancy mayor, con el mismo k y el mismo universo.
+- Se informan también 1990–1999 y 2000–2009 por separado, y los vecinos k ± 1 (deben quedar ≥ 47 %).
+
+**Decisión (fijada ahora).**
+- Si una configuración de la fase 2 (3–6) pasa los dos criterios, se mira **una sola vez** su validación 2022–2026, que sigue sin tocar.
+- Si la candidata B no pasa en 1990–2009, su estado baja a "cumple solo en 2010–2026".
+- Si nada pasa, la conclusión "muy difícil con este enfoque" queda confirmada con 36 años de datos.
+
+**Próximo paso:** pedir permiso de red para stooq.com (el proxy lo bloqueó con 403), bajar los datos y hacer el control de calidad.
