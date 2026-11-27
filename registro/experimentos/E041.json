@@ -1,0 +1,336 @@
+{
+ "id": "E041",
+ "corridas": [
+  {
+   "fecha_utc": "2026-11-27 10:42",
+   "commit": "697ef2428a760b500790ea91f3586dd5827af724",
+   "codigo": {
+    "experimentos/E041_solidez_deriva_asia.py": "11abd8833518105d7299e67a1fd8ceadfe776b94c8981523c3ae0d6ec6913ae5",
+    "lab/__init__.py": "17ba61a2f2e271944152a961fb00be4a6205078aae71abcb9f46c121b5aab06d",
+    "lab/benchmarks.py": "cc4ba82df2e450ade153d7f3274654858b851db50fb63a67c196009cd34dec5d",
+    "lab/cartera.py": "61ea90316f23a0c3bf85d7f2028e3dafdc563a4b6c7a360a4686bba3d5e2bbfd",
+    "lab/cot.py": "1f57a0614f5e85d2da196d154f8e7e1cd5b327ffd90f8281c66d32b7c4896df7",
+    "lab/datos.py": "30f685e23732a518b1f10ebba08b4ba1c1ec3cbda83e693351c9816d188017be",
+    "lab/descarga_histdata.py": "d08f0944b9970592798a5335d9c32b663233a8d7bf11e2f8bf5a60a28af29fec",
+    "lab/descarga_yahoo.py": "cc86315076461f49a48811e59e7f0d659733c34ad128a78b28c8e2e04f7fd4da",
+    "lab/diario.py": "1ab381c5df74ed89973d65ce5a8b783d5ede1fa2ad175bdbf0fa52882b63e218",
+    "lab/ejecucion.py": "f34220bf91db410ad108ad19701231687d1f0facd2891cdba1732e5e6a17d0eb",
+    "lab/estrategia.py": "d4b3976481a4b5957247ed0523e0e69cf4a653450b568617101f1724c6ada19d",
+    "lab/eventos.py": "e4a6f2024a83aec55b48b9163df909333f4726a4138b08a703ec01d06c5d7d53",
+    "lab/externos.py": "67b9b40fca63425576ee32c1a7df02dfc6de43fa903adbe9e1fa62aabaaac25e",
+    "lab/ficha.py": "82ae9ce1b4cf9736793f17fb7e6879fd05f2e4fe66fa963244233a976eb36f41",
+    "lab/financiacion.py": "10e12ac27cf028a0ce5508da5150e8ec44dbefa3bb87acbf534fd732bf5e21d6",
+    "lab/flujo.py": "ca8916c99d174d087627dd27463a1dbb9da469d806461b780d3845e8d3c442fb",
+    "lab/grilla.py": "f669ba27cfb978d7f9648c4fca076c60e0d15c6f3a8260978b5ebad4f351df3e",
+    "lab/ict.py": "a70575281455f2b0862cd615aa556783ed24e08de4dc3ab8309f6a2755632387",
+    "lab/metricas.py": "9811067e5635b9e6a87066e7ea863ef0503adc16265993837ee38d6858f21f44",
+    "lab/montecarlo.py": "1fbd2fc85e9a47ac528a6024dff53e330251483e0be895aeaf2d0c27b76749ad",
+    "lab/motor.py": "9a90d3a533c25b5f6eb90f9a71fed7ac848ade199e6a18f4a3a220d3b4ed9616",
+    "lab/multiples.py": "33eace40f2cdcca41cd985cb9337b65bc02c0d15af043e30a187d82c8978aa61",
+    "lab/objetivos.py": "433ee392ed6ef6589fa05e4456018c20e548b5939d8ed3e2ebd6d64a3b0a7ce1",
+    "lab/politica.py": "355b9a17c7210f8376bae33b6b8dce6528ae480508521a45289bed50fb3055e9",
+    "lab/regimen.py": "8c661eec67023288e911742218151edcef967301b05d3cf08a20ccc89330b473",
+    "lab/registro.py": "0a3620629d1604ce72543548514759efe9e7baaf343109fec89150e43f39727d",
+    "lab/senales.py": "99a220ff5630daf1fac7e5f2780600bfa3a3590e579148352423150789d4efc0",
+    "lab/smc.py": "4134acc02700147543c7005015476c7b40d10b5c976c6a305715da3de52822eb",
+    "lab/validacion.py": "e214c5f7bc6d8e9af59117174e1cbbe1ee0ae99eebb0bbc7f7c1b2955a616185",
+    "lab/walkforward.py": "b5a99ab3cf864be2e53d25a734a17e82eb50293b5189d8fc4e6d0af0b49b38bf"
+   },
+   "manifiesto_datos": "a10f53917d02ade5e0efc02ab2434b5c6ccad96b9b212bc150f422d76c811630",
+   "hipotesis": "Solidez de la deriva de Asia 18–22 NY",
+   "universo": "XAUUSD M1",
+   "resultados": [
+    {
+     "index": 0,
+     "prueba": "1 costos",
+     "variante": "costos.md",
+     "muestra": "desarrollo",
+     "n": 2832,
+     "medio_pct": 0.01441899294125051,
+     "wr": 0.519774011299435,
+     "p": 0.0028205956011243777
+    },
+    {
+     "index": 1,
+     "prueba": "1 costos",
+     "variante": "costos.md",
+     "muestra": "confirmacion",
+     "n": 1290,
+     "medio_pct": 0.05094439637619538,
+     "wr": 0.5589147286821705,
+     "p": 2.6992749595680515e-05
+    },
+    {
+     "index": 2,
+     "prueba": "1 costos",
+     "variante": "optimista",
+     "muestra": "desarrollo",
+     "n": 2832,
+     "medio_pct": 0.017543992941250506,
+     "wr": 0.5268361581920904,
+     "p": 0.0003803165152208901
+    },
+    {
+     "index": 3,
+     "prueba": "1 costos",
+     "variante": "optimista",
+     "muestra": "confirmacion",
+     "n": 1290,
+     "medio_pct": 0.05406939637619538,
+     "wr": 0.5635658914728682,
+     "p": 9.193119085124382e-06
+    },
+    {
+     "index": 4,
+     "prueba": "1 costos",
+     "variante": "base",
+     "muestra": "desarrollo",
+     "n": 2832,
+     "medio_pct": 0.007625516258139154,
+     "wr": 0.5095338983050848,
+     "p": 0.07193645466165283
+    },
+    {
+     "index": 5,
+     "prueba": "1 costos",
+     "variante": "base",
+     "muestra": "confirmacion",
+     "n": 1290,
+     "medio_pct": 0.03941311708614344,
+     "wr": 0.5496124031007752,
+     "p": 0.000890443291881418
+    },
+    {
+     "index": 6,
+     "prueba": "1 costos",
+     "variante": "conservador",
+     "muestra": "desarrollo",
+     "n": 2832,
+     "medio_pct": -0.002128723479570729,
+     "wr": 0.4897598870056497,
+     "p": 0.6581921518929923
+    },
+    {
+     "index": 7,
+     "prueba": "1 costos",
+     "variante": "conservador",
+     "muestra": "confirmacion",
+     "n": 1290,
+     "medio_pct": 0.02725408932610783,
+     "wr": 0.5286821705426357,
+     "p": 0.015342509434642985
+    },
+    {
+     "index": 8,
+     "prueba": "1 costos",
+     "variante": "estres",
+     "muestra": "desarrollo",
+     "n": 2832,
+     "medio_pct": -0.02994929829735059,
+     "wr": 0.4399717514124294,
+     "p": 0.9999999937184099
+    },
+    {
+     "index": 9,
+     "prueba": "1 costos",
+     "variante": "estres",
+     "muestra": "confirmacion",
+     "n": 1290,
+     "medio_pct": -0.00729942483007541,
+     "wr": 0.49147286821705427,
+     "p": 0.718245732447848
+    },
+    {
+     "index": 10,
+     "prueba": "4 meseta",
+     "variante": "entrada 18:05",
+     "muestra": "desarrollo",
+     "n": 2832,
+     "medio_pct": -0.0018912886683295884,
+     "wr": 0.4915254237288136,
+     "p": 0.6485056802197591
+    },
+    {
+     "index": 11,
+     "prueba": "4 meseta",
+     "variante": "entrada 18:05",
+     "muestra": "confirmacion",
+     "n": 1290,
+     "medio_pct": 0.009109831670360351,
+     "wr": 0.5085271317829457,
+     "p": 0.22764771337641354
+    },
+    {
+     "index": 12,
+     "prueba": "4 meseta",
+     "variante": "entrada 18:15",
+     "muestra": "desarrollo",
+     "n": 2833,
+     "medio_pct": -0.0046508763177876946,
+     "wr": 0.48252735615954817,
+     "p": 0.8225756961315975
+    },
+    {
+     "index": 13,
+     "prueba": "4 meseta",
+     "variante": "entrada 18:15",
+     "muestra": "confirmacion",
+     "n": 1290,
+     "medio_pct": 0.0050434798671007645,
+     "wr": 0.5023255813953489,
+     "p": 0.33774996053989015
+    },
+    {
+     "index": 14,
+     "prueba": "4 meseta",
+     "variante": "entrada 18:30",
+     "muestra": "desarrollo",
+     "n": 2833,
+     "medio_pct": -0.004608401161227216,
+     "wr": 0.4857042004941758,
+     "p": 0.8266871185682024
+    },
+    {
+     "index": 15,
+     "prueba": "4 meseta",
+     "variante": "entrada 18:30",
+     "muestra": "confirmacion",
+     "n": 1290,
+     "medio_pct": -0.000985668778709273,
+     "wr": 0.5054263565891473,
+     "p": 0.5321227074428607
+    },
+    {
+     "index": 16,
+     "prueba": "4 meseta",
+     "variante": "salida 21:00",
+     "muestra": "desarrollo",
+     "n": 2825,
+     "medio_pct": 0.004889546866355964,
+     "wr": 0.49380530973451325,
+     "p": 0.13343504447723192
+    },
+    {
+     "index": 17,
+     "prueba": "4 meseta",
+     "variante": "salida 21:00",
+     "muestra": "confirmacion",
+     "n": 1285,
+     "medio_pct": 0.0388680956411584,
+     "wr": 0.5603112840466926,
+     "p": 0.00010661928408060473
+    },
+    {
+     "index": 18,
+     "prueba": "4 meseta",
+     "variante": "salida 23:00",
+     "muestra": "desarrollo",
+     "n": 2833,
+     "medio_pct": 0.006193202222594733,
+     "wr": 0.5012354394634663,
+     "p": 0.15304470352926333
+    },
+    {
+     "index": 19,
+     "prueba": "4 meseta",
+     "variante": "salida 23:00",
+     "muestra": "confirmacion",
+     "n": 1290,
+     "medio_pct": 0.04149208993300313,
+     "wr": 0.5403100775193799,
+     "p": 0.001008230231844759
+    },
+    {
+     "index": 20,
+     "prueba": "5 día",
+     "variante": "Sunday",
+     "muestra": "todo",
+     "n": 821,
+     "medio_pct": 0.0037920899921187697,
+     "wr": 0.4945188794153471,
+     "p": 0.3950851422420924
+    },
+    {
+     "index": 21,
+     "prueba": "5 día",
+     "variante": "Monday",
+     "muestra": "todo",
+     "n": 831,
+     "medio_pct": 0.022423222514169013,
+     "wr": 0.5354993983152828,
+     "p": 0.019454304043652455
+    },
+    {
+     "index": 22,
+     "prueba": "5 día",
+     "variante": "Tuesday",
+     "muestra": "todo",
+     "n": 827,
+     "medio_pct": 0.029979823448976966,
+     "wr": 0.5392986698911729,
+     "p": 0.0032201183199787467
+    },
+    {
+     "index": 23,
+     "prueba": "5 día",
+     "variante": "Wednesday",
+     "muestra": "todo",
+     "n": 830,
+     "medio_pct": 0.017394516632205214,
+     "wr": 0.5120481927710844,
+     "p": 0.07449703676714764
+    },
+    {
+     "index": 24,
+     "prueba": "5 día",
+     "variante": "Thursday",
+     "muestra": "todo",
+     "n": 813,
+     "medio_pct": 0.01409669925502691,
+     "wr": 0.5289052890528906,
+     "p": 0.10372422667687617
+    },
+    {
+     "index": 25,
+     "prueba": "6 stop 0,5 ATR",
+     "variante": "stops tocados 81",
+     "muestra": "desarrollo",
+     "n": 2832,
+     "medio_pct": 0.00430894808422017,
+     "wr": 0.5084745762711864,
+     "p": 0.20547359810590288
+    },
+    {
+     "index": 26,
+     "prueba": "6 stop 0,5 ATR",
+     "variante": "stops tocados 52",
+     "muestra": "confirmacion",
+     "n": 1290,
+     "medio_pct": 0.03187493370101279,
+     "wr": 0.5449612403100775,
+     "p": 0.00541835073545274
+    }
+   ],
+   "criterios": {
+    "1 conservador positivo en las dos muestras": false,
+    "2 al menos 2 de 2013–2015 positivos": true,
+    "3 IR de tasación ≥ 0,3 con p < 0,05": true,
+    "4 meseta: todos los vecinos positivos": false
+   },
+   "tasacion": {
+    "n_dias": 4373,
+    "alfa_anual": 0.03427111535999417,
+    "beta": 0.10252336461886546,
+    "ir_tasacion": 0.6834610953884619,
+    "t_alfa": 2.7529407300482687,
+    "p_alfa": 0.002953129400192079,
+    "tracking_error": 0.1517635573652546,
+    "ir_activo": -0.20520077863744496,
+    "p_activo": 0.8041590566552852,
+    "sharpe_estrategia": 0.7914915503678944,
+    "sharpe_benchmark": 0.45666029749666104,
+    "correlacion": 0.3102614015496271
+   }
+  }
+ ]
+}

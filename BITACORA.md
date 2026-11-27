@@ -1456,7 +1456,7 @@ E031 no agrega configuraciones.
 
 ---
 
-## 2026-11-27 10:58 UTC — Entrada 33: resultados de E039–E040 y pruebas de solidez de la deriva de Asia (registradas antes de correrlas)
+## 2026-11-27 10:41 UTC — Entrada 33: resultados de E039–E040 y pruebas de solidez de la deriva de Asia (registradas antes de correrlas)
 
 **E039 (daytrading a favor del sesgo diario): falla.** Las 4 variantes pierden en desarrollo y en confirmación con costos base:
 
@@ -1492,3 +1492,29 @@ El momentum diario de E022 no se transmite a entradas de M15 con stops de 1 ATR 
 6. **Con stop de protección** de 0,5·ATR(14) diario: informativo, para operar con riesgo definido.
 
 **Si pasan 1 a 4:** pasa a nivel B (candidata), con prueba a futuro F002 sellada, implementación en el reproductor y en Pine, y la ficha con sus parámetros.
+
+---
+
+## 2026-11-27 10:43 UTC — Entrada 34: E041 falla (la deriva de Asia es un artefacto de la reapertura) y E042, prueba de la reapertura sobre E022 (registrada antes de correr)
+
+**E041 (solidez de la deriva de Asia, criterios de la entrada 33): NO PASA.**
+
+| Criterio | Resultado | ¿Cumple? |
+| --- | --- | --- |
+| 1. Costos | Base: desarrollo +0,0076 % (p 0,07), confirmación +0,039 %. Conservador: desarrollo **−0,002 %**, confirmación +0,027 %. Estrés: negativo en las dos | **No** |
+| 2. Años bajistas 2013–2015 | −7,8 %, +0,3 %, +5,7 % | Sí |
+| 3. Contra comprar y mantener el oro | IR de tasación 0,68 (p 0,003) | Sí |
+| 4. Meseta de horarios | Entrada 18:05, 18:15 y 18:30: desarrollo −0,002 %, −0,005 % y −0,005 %. Salida 21:00 o 23:00: positivas | **No** |
+
+- **Diagnóstico:** casi todo el efecto está en los primeros minutos después de la reapertura de las 18:00 NY. Los datos son **bid**; en la reapertura el spread se abre mucho y el bid queda bajo, y el precio se "recupera" cuando el spread se cierra. Comprar a ese bid no es posible en la realidad.
+- **Conclusión:** la deriva de Asia **es un artefacto de microestructura, no una ventaja.**
+
+**E042 · la misma prueba sobre la candidata (fijada ahora).**
+- E022 entra en el primer minuto después del cierre diario, que es justamente la reapertura de las 18:00 NY.
+- **Prueba:** se repite E022 en 2011-11 a 2026-11 con la entrada retrasada al primer minuto **en o después** de 18:05, 18:15, 18:30 y 19:00 NY. Las reglas no cambian (SL 0,5·ATR, TP 2·SL desde la nueva entrada). Costos de  y perfil base.
+- **Pasa:**
+  - expectancy > 0 en todos los retrasos;
+  - con 18:15 y 19:00, al menos la mitad de la original (+0,407 R);
+  - IC 95 % del retraso de 18:15 > 0.
+  - Se informan compras y ventas por separado, porque el artefacto favorece las compras y castiga las ventas.
+- **Si falla:** E022 baja de nivel y se informa a Fabrizio que la única candidata dependía del precio de reapertura.
