@@ -1,8 +1,8 @@
-# Conclusiones (26/11/2026)
+# Conclusiones (26/11/2026; fase 2 agregada el 27/11/2026)
 
 **Respuesta corta.** Se encontró una estrategia que cumple los números mínimos de la misión (win rate ≥ 50 %, payoff real ≥ 2, expectancy positiva, más de 100 operaciones) en la muestra de selección y en la de validación. **No es robusta como "ventaja":** gana lo mismo que comprar siempre esos activos con el mismo stop y TP. Su resultado viene de la deriva alcista de índices y metales en 2010–2026, tomada con stops muy anchos y operaciones de 6 a 8 meses.
 
-Con señales técnicas de corto y mediano plazo **no apareció ninguna estrategia con 50 % de acierto y 1:2** en unas 1.400 configuraciones de este laboratorio, más las ~1.600 que ya se habían probado en el proyecto (LuxAlgo, SMC/ICT, Setup A+, scalping). La teoría y los datos explican por qué.
+Con señales técnicas de corto y mediano plazo **no apareció ninguna estrategia con 50 % de acierto y 1:2** en unas 1.560 configuraciones de este laboratorio (fases 1 y 2), más las ~1.600 que ya se habían probado en el proyecto (LuxAlgo, SMC/ICT, Setup A+, scalping). La teoría y los datos explican por qué.
 
 ## La estrategia que cumple los criterios mínimos
 
