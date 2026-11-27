@@ -79,6 +79,64 @@ def simular_hasta(o, h, l, c, ie, d, sl, tp, costo, fin):
     return r, mot
 
 
+@njit(cache=True)
+def simular_hasta_salida(o, h, l, c, ie, d, sl, tp, costo, fin):
+    """Igual que simular_hasta, y además el minuto de salida de cada operación (-1 si no se operó)."""
+    n = len(ie)
+    r = np.full(n, np.nan)
+    mot = np.zeros(n, np.int8)
+    js = np.full(n, -1, np.int64)
+    N = len(o)
+    for k in range(n):
+        i = ie[k]
+        if i < 0 or i >= N or fin[k] < i:
+            continue
+        ent = o[i]
+        dd = d[k]
+        riesgo = (ent - sl[k]) * dd
+        if riesgo <= 0 or (tp[k] - ent) * dd <= 0:
+            continue
+        px = np.nan
+        res = 0
+        j = i
+        while j <= fin[k]:
+            if dd == 1:
+                if j > i and o[j] <= sl[k]:
+                    res = -1
+                    px = o[j]
+                    break
+                if l[j] <= sl[k]:
+                    res = -1
+                    px = sl[k]
+                    break
+                if h[j] >= tp[k]:
+                    res = 1
+                    px = tp[k]
+                    break
+            else:
+                if j > i and o[j] >= sl[k]:
+                    res = -1
+                    px = o[j]
+                    break
+                if h[j] >= sl[k]:
+                    res = -1
+                    px = sl[k]
+                    break
+                if l[j] <= tp[k]:
+                    res = 1
+                    px = tp[k]
+                    break
+            j += 1
+        if res == 0:
+            px = c[fin[k]]
+            res = 2
+            j = fin[k]
+        js[k] = j
+        r[k] = ((px - ent) * dd - costo[k]) / riesgo
+        mot[k] = res
+    return r, mot, js
+
+
 def minuto_ny(t_ms):
     ny = pd.to_datetime(np.asarray(t_ms, np.int64), unit="ms", utc=True).tz_convert("America/New_York")
     return np.asarray(ny.hour * 60 + ny.minute)

@@ -1396,7 +1396,7 @@ E031 no agrega configuraciones.
 
 ---
 
-## 2026-11-27 10:36 UTC — Entrada 32: línea XAUUSD scalping/daytrading · recapitulación y programa nuevo (registrado antes de correr)
+## 2026-11-27 10:39 UTC — Entrada 32: línea XAUUSD scalping/daytrading · recapitulación y programa nuevo (registrado antes de correr)
 
 **Pedido de Fabrizio:** la mejor estrategia para operar XAUUSD en scalping o daytrading, sólida y rentable en los últimos 5 años. Retomar todas las pruebas intradía del oro y no desviarse.
 
@@ -1453,3 +1453,42 @@ E031 no agrega configuraciones.
 **No se corre:**
 - continuación tras aceptar un nivel (E035b ya dio expectancy de desarrollo ≤ 0: falla el primer paso);
 - grillas nuevas de SMC/ICT (E031 y E038).
+
+---
+
+## 2026-11-27 10:58 UTC — Entrada 33: resultados de E039–E040 y pruebas de solidez de la deriva de Asia (registradas antes de correrlas)
+
+**E039 (daytrading a favor del sesgo diario): falla.** Las 4 variantes pierden en desarrollo y en confirmación con costos base:
+
+| Variante | Desarrollo | Últimos 5 años |
+| --- | --- | --- |
+| S1T1 | −0,05 R | −0,26 R |
+| S1T2 | −0,09 R | −0,07 R |
+| S2T1 | −0,06 R | −0,16 R |
+| S2T2 | −0,22 R | −0,09 R |
+
+El momentum diario de E022 no se transmite a entradas de M15 con stops de 1 ATR de M15.
+
+**E040 (deriva por hora): 1 de 12 pasa el criterio registrado.**
+- **Comprar a las 18:00 NY y vender a las 22:00 NY** (apertura de Asia), todos los días, con costos de `docs/costos.md`:
+
+| Muestra | Por día, neto | Acierto | Días | p | Años positivos |
+| --- | --- | --- | --- | --- | --- |
+| Desarrollo | +0,0144 % | 51,98 % | 2.832 | 0,0028 (sobrevive a Holm entre 12) | — |
+| Confirmación (últimos 5 años) | +0,0509 % | 55,9 % | 1.290 | < 0,0001 | 4 de 5 |
+
+- Las otras 11 combinaciones de bloque y dirección son ≤ 0.
+- **Cuidado:** en los últimos 5 años la ganancia del bloque equivale a casi toda la suba del oro. Hay que comprobar que no es solo deriva.
+
+**Pruebas de solidez (fijadas ahora, antes de mirarlas; ninguna elige parámetros nuevos):**
+1. **Costos realistas de esa hora:** perfiles base, conservador y estrés de `lab/ejecucion.py`, con la entrada en el minuto de reapertura (spread × 1,6) y la salida en Asia (× 1,4). **Debe ser positiva con el conservador en las dos muestras.**
+2. **Años:** resultado por año 2011–2026, en especial el mercado bajista del oro 2013–2015. **Debe ser positiva en al menos 2 de esos 3 años.**
+3. **Contra comprar y mantener el oro:** IR de tasación con los retornos diarios. **Debe ser ≥ 0,3 con p < 0,05** en el período completo.
+4. **Meseta de horarios** (vecinos, no selección):
+   - entrada a las 18:05, 18:15 y 18:30;
+   - salida a las 21:00 y a las 23:00.
+   - Todos deben seguir positivos en las dos muestras.
+5. **Por día de la semana:** informativo. El domingo es la apertura semanal.
+6. **Con stop de protección** de 0,5·ATR(14) diario: informativo, para operar con riesgo definido.
+
+**Si pasan 1 a 4:** pasa a nivel B (candidata), con prueba a futuro F002 sellada, implementación en el reproductor y en Pine, y la ficha con sus parámetros.
