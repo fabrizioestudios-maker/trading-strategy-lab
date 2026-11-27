@@ -1,0 +1,98 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900">
+<defs>
+ <linearGradient id="bg" x2="0" y2="1"><stop stop-color="#0b111c"/><stop offset="1" stop-color="#080b12"/></linearGradient>
+ <linearGradient id="gold" x2="1" y2="0"><stop stop-color="#8e7040"/><stop offset="1" stop-color="#d5b777"/></linearGradient>
+ <pattern id="grid" width="52" height="42" patternUnits="userSpaceOnUse"><path d="M52 0H0V42" fill="none" stroke="#263244" stroke-width="1" opacity=".55"/></pattern>
+</defs>
+<rect width="1440" height="900" fill="url(#bg)"/>
+<rect x="0" y="0" width="1440" height="64" fill="#0d1420"/>
+<path d="M0 63.5H1440" stroke="#263244"/>
+<rect x="22" y="17" width="30" height="30" rx="8" fill="none" stroke="url(#gold)" stroke-width="1.6"/>
+<path d="M29 39L37 23L45 39" fill="none" stroke="#d5b777" stroke-width="2"/>
+<text x="64" y="38" fill="#f4f6fa" font-family="Arial,sans-serif" font-size="17" font-weight="700" letter-spacing="2">NEXUS</text>
+<text x="145" y="38" fill="#7e8ba0" font-family="Arial,sans-serif" font-size="10" letter-spacing="1.4">INSTITUTIONAL TERMINAL</text>
+<rect x="390" y="14" width="180" height="36" rx="7" fill="#141f2e" stroke="#2c3b50"/>
+<text x="406" y="36" fill="#e8edf5" font-family="Arial,sans-serif" font-size="12">XAUUSD</text><text x="530" y="36" fill="#d5b777" font-family="Arial,sans-serif" font-size="11">▾</text>
+<rect x="586" y="14" width="100" height="36" rx="7" fill="#141f2e" stroke="#2c3b50"/>
+<text x="604" y="36" fill="#e8edf5" font-family="Arial,sans-serif" font-size="12">1H  ▾</text>
+<circle cx="1245" cy="32" r="4" fill="#36c9d6"/><text x="1257" y="36" fill="#9aa8ba" font-family="Arial,sans-serif" font-size="11">HISTORICAL DATA</text>
+<circle cx="1391" cy="32" r="15" fill="#1c2939"/><text x="1386" y="36" fill="#d5b777" font-family="Arial,sans-serif" font-size="11">F</text>
+<!-- sidebar -->
+<rect x="0" y="64" width="218" height="836" fill="#0b111b"/>
+<path d="M217.5 64V900" stroke="#263244"/>
+<text x="24" y="102" fill="#64748b" font-family="Arial,sans-serif" font-size="10" letter-spacing="1.5">WORKSPACE</text>
+<rect x="12" y="119" width="194" height="42" rx="7" fill="#1c2938"/>
+<rect x="12" y="119" width="3" height="42" rx="1.5" fill="#c6a15b"/>
+<text x="28" y="145" fill="#f4f6fa" font-family="Arial,sans-serif" font-size="13">◫  Overview</text>
+<text x="28" y="192" fill="#9aa8ba" font-family="Arial,sans-serif" font-size="13">◷  Market Replay</text>
+<text x="28" y="238" fill="#9aa8ba" font-family="Arial,sans-serif" font-size="13">⌘  Strategy Lab</text>
+<text x="28" y="284" fill="#9aa8ba" font-family="Arial,sans-serif" font-size="13">◇  Institutional Toolkit</text>
+<text x="28" y="330" fill="#9aa8ba" font-family="Arial,sans-serif" font-size="13">⇄  Execution Engine</text>
+<text x="28" y="376" fill="#9aa8ba" font-family="Arial,sans-serif" font-size="13">▥  Performance Analytics</text>
+<text x="28" y="422" fill="#9aa8ba" font-family="Arial,sans-serif" font-size="13">▤  Data Center</text>
+<path d="M20 461H198" stroke="#263244"/>
+<text x="24" y="490" fill="#64748b" font-family="Arial,sans-serif" font-size="10" letter-spacing="1.5">PREFERENCES</text>
+<text x="28" y="529" fill="#9aa8ba" font-family="Arial,sans-serif" font-size="13">⚙  Settings</text>
+<rect x="14" y="818" width="190" height="62" rx="8" fill="#111b29" stroke="#263244"/>
+<circle cx="32" cy="839" r="4" fill="#36c9d6"/><text x="45" y="843" fill="#cbd5e1" font-family="Arial,sans-serif" font-size="10">ENGINE STATUS</text>
+<text x="28" y="862" fill="#7e8ba0" font-family="Arial,sans-serif" font-size="10">Research environment ready</text>
+<!-- content -->
+<text x="250" y="108" fill="#f4f6fa" font-family="Arial,sans-serif" font-size="24" font-weight="600">Market overview</text>
+<text x="250" y="132" fill="#7e8ba0" font-family="Arial,sans-serif" font-size="12">Your research workspace · Friday, 27 November 2026</text>
+<rect x="1205" y="91" width="190" height="36" rx="7" fill="#141f2e" stroke="#2c3b50"/><text x="1222" y="113" fill="#cbd5e1" font-family="Arial,sans-serif" font-size="11">⌕  Search workspace</text>
+<!-- metric cards -->
+<g>
+<rect x="250" y="158" width="268" height="104" rx="9" fill="#111a27" stroke="#263244"/>
+<text x="270" y="185" fill="#8391a5" font-family="Arial,sans-serif" font-size="11">INSTRUMENT</text>
+<text x="270" y="221" fill="#f4f6fa" font-family="Arial,sans-serif" font-size="25" font-weight="600">XAUUSD</text><text x="270" y="243" fill="#36c9d6" font-family="Arial,sans-serif" font-size="10">Historical · M1–D1 coverage</text>
+<rect x="532" y="158" width="268" height="104" rx="9" fill="#111a27" stroke="#263244"/>
+<text x="552" y="185" fill="#8391a5" font-family="Arial,sans-serif" font-size="11">ACTIVE RESEARCH</text>
+<text x="552" y="221" fill="#f4f6fa" font-family="Arial,sans-serif" font-size="25" font-weight="600">E022</text><text x="552" y="243" fill="#d5b777" font-family="Arial,sans-serif" font-size="10">Level B · Candidate, not validated</text>
+<rect x="814" y="158" width="268" height="104" rx="9" fill="#111a27" stroke="#263244"/>
+<text x="834" y="185" fill="#8391a5" font-family="Arial,sans-serif" font-size="11">EXPECTANCY · REPORTED</text>
+<text x="834" y="221" fill="#f4f6fa" font-family="Arial,sans-serif" font-size="25" font-weight="600">+0.41 R</text><text x="834" y="243" fill="#7e8ba0" font-family="Arial,sans-serif" font-size="10">168 trades · 2011–2026</text>
+<rect x="1096" y="158" width="299" height="104" rx="9" fill="#111a27" stroke="#263244"/>
+<text x="1116" y="185" fill="#8391a5" font-family="Arial,sans-serif" font-size="11">DATA STATUS</text>
+<text x="1116" y="221" fill="#f4f6fa" font-family="Arial,sans-serif" font-size="21" font-weight="600">Historical feed</text><text x="1116" y="243" fill="#36c9d6" font-family="Arial,sans-serif" font-size="10">Timestamp and source visible</text>
+</g>
+<!-- chart panel -->
+<rect x="250" y="282" width="820" height="420" rx="10" fill="#0f1723" stroke="#263244"/>
+<text x="274" y="315" fill="#e8edf5" font-family="Arial,sans-serif" font-size="14" font-weight="600">XAUUSD · Historical price action</text>
+<text x="274" y="337" fill="#7e8ba0" font-family="Arial,sans-serif" font-size="10">Illustrative layout · connect verified market data before production</text>
+<rect x="274" y="356" width="772" height="302" fill="url(#grid)"/>
+<g stroke="#36c9d6" stroke-width="1.5" fill="#36c9d6">
+<path d="M325 510V558 M320 525H330V545H320Z"/><path d="M375 480V530 M370 492H380V515H370Z"/><path d="M425 493V548 M420 505H430V531H420Z"/><path d="M475 452V510 M470 465H480V493H470Z"/><path d="M525 438V485 M520 445H530V472H520Z"/>
+</g>
+<g stroke="#d5b777" stroke-width="1.5" fill="#d5b777">
+<path d="M575 415V476 M570 428H580V460H570Z"/><path d="M625 430V493 M620 445H630V476H620Z"/><path d="M675 390V450 M670 405H680V435H670Z"/><path d="M725 378V432 M720 390H730V418H720Z"/>
+</g>
+<g stroke="#36c9d6" stroke-width="1.5" fill="#36c9d6">
+<path d="M775 382V430 M770 392H780V416H770Z"/><path d="M825 355V412 M820 366H830V398H820Z"/>
+</g>
+<path d="M300 550 C360 535 380 520 425 530 S490 465 525 470 S600 430 630 455 S685 390 725 400 S790 380 825 375" fill="none" stroke="#36c9d6" stroke-width="1.5" opacity=".65"/>
+<path d="M274 590H1046" stroke="#c6a15b" stroke-dasharray="4 5" opacity=".55"/>
+<text x="990" y="581" fill="#d5b777" font-family="Arial,sans-serif" font-size="9">KEY LEVEL</text>
+<text x="284" y="682" fill="#7e8ba0" font-family="Arial,sans-serif" font-size="10">NOV 20</text><text x="500" y="682" fill="#7e8ba0" font-family="Arial,sans-serif" font-size="10">NOV 22</text><text x="730" y="682" fill="#7e8ba0" font-family="Arial,sans-serif" font-size="10">NOV 25</text><text x="970" y="682" fill="#7e8ba0" font-family="Arial,sans-serif" font-size="10">NOV 27</text>
+<!-- right column -->
+<rect x="1088" y="282" width="307" height="202" rx="10" fill="#111a27" stroke="#263244"/>
+<text x="1112" y="315" fill="#e8edf5" font-family="Arial,sans-serif" font-size="14" font-weight="600">Research snapshot</text>
+<text x="1112" y="350" fill="#8391a5" font-family="Arial,sans-serif" font-size="10">LATEST CANDIDATE</text>
+<text x="1112" y="375" fill="#f4f6fa" font-family="Arial,sans-serif" font-size="16">Daily Bollinger breakout</text>
+<text x="1112" y="397" fill="#7e8ba0" font-family="Arial,sans-serif" font-size="11">SMA 200 direction · SL 0.5 ATR · TP 2R</text>
+<path d="M1112 415H1371" stroke="#263244"/>
+<text x="1112" y="441" fill="#d5b777" font-family="Arial,sans-serif" font-size="11">LEVEL B</text><text x="1190" y="441" fill="#9aa8ba" font-family="Arial,sans-serif" font-size="10">Candidate · forward test pending</text>
+<rect x="1088" y="502" width="307" height="200" rx="10" fill="#111a27" stroke="#263244"/>
+<text x="1112" y="535" fill="#e8edf5" font-family="Arial,sans-serif" font-size="14" font-weight="600">Recent activity</text>
+<circle cx="1118" cy="570" r="4" fill="#36c9d6"/><text x="1132" y="574" fill="#cbd5e1" font-family="Arial,sans-serif" font-size="11">Replay workspace opened</text><text x="1132" y="591" fill="#718096" font-family="Arial,sans-serif" font-size="9">Historical context · XAUUSD</text>
+<circle cx="1118" cy="622" r="4" fill="#c6a15b"/><text x="1132" y="626" fill="#cbd5e1" font-family="Arial,sans-serif" font-size="11">E022 research report updated</text><text x="1132" y="643" fill="#718096" font-family="Arial,sans-serif" font-size="9">Candidate status preserved</text>
+<circle cx="1118" cy="674" r="4" fill="#718096"/><text x="1132" y="678" fill="#cbd5e1" font-family="Arial,sans-serif" font-size="11">Data quality checks available</text>
+<!-- bottom panel -->
+<rect x="250" y="722" width="1145" height="150" rx="10" fill="#111a27" stroke="#263244"/>
+<text x="274" y="755" fill="#e8edf5" font-family="Arial,sans-serif" font-size="14" font-weight="600">Continue your workflow</text>
+<g>
+<rect x="274" y="774" width="250" height="72" rx="7" fill="#172333" stroke="#2b3b50"/><text x="292" y="801" fill="#d5b777" font-family="Arial,sans-serif" font-size="11">01  MARKET REPLAY</text><text x="292" y="824" fill="#cbd5e1" font-family="Arial,sans-serif" font-size="12">Replay a historical session →</text>
+<rect x="540" y="774" width="250" height="72" rx="7" fill="#172333" stroke="#2b3b50"/><text x="558" y="801" fill="#36c9d6" font-family="Arial,sans-serif" font-size="11">02  STRATEGY LAB</text><text x="558" y="824" fill="#cbd5e1" font-family="Arial,sans-serif" font-size="12">Inspect a research hypothesis →</text>
+<rect x="806" y="774" width="250" height="72" rx="7" fill="#172333" stroke="#2b3b50"/><text x="824" y="801" fill="#d5b777" font-family="Arial,sans-serif" font-size="11">03  ANALYTICS</text><text x="824" y="824" fill="#cbd5e1" font-family="Arial,sans-serif" font-size="12">Review validation evidence →</text>
+<rect x="1072" y="774" width="299" height="72" rx="7" fill="#172333" stroke="#2b3b50"/><text x="1090" y="801" fill="#36c9d6" font-family="Arial,sans-serif" font-size="11">04  DATA CENTER</text><text x="1090" y="824" fill="#cbd5e1" font-family="Arial,sans-serif" font-size="12">Inspect sources and coverage →</text>
+</g>
+</svg>
