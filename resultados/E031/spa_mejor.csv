@@ -1,0 +1,9 @@
+,0
+instr,NSXUSD
+familia,tendencia
+param,200
+modo,estado
+filtro,ninguno
+dir,largos
+k,0.5
+cfg,8778

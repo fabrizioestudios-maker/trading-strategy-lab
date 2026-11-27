@@ -1,0 +1,102 @@
+{
+ "id": "E036",
+ "corridas": [
+  {
+   "fecha_utc": "2026-11-27 09:04",
+   "commit": "0babe6fde0aff0b0a0be026adf84cf817b0b3850",
+   "codigo": {
+    "experimentos/E036_tendencia_vol_objetivo.py": "4560cd4a3106cbcee759fc51791680011607568de7036f696bfcc583c38b8ae2",
+    "lab/__init__.py": "17ba61a2f2e271944152a961fb00be4a6205078aae71abcb9f46c121b5aab06d",
+    "lab/benchmarks.py": "cc4ba82df2e450ade153d7f3274654858b851db50fb63a67c196009cd34dec5d",
+    "lab/cartera.py": "61ea90316f23a0c3bf85d7f2028e3dafdc563a4b6c7a360a4686bba3d5e2bbfd",
+    "lab/cot.py": "1f57a0614f5e85d2da196d154f8e7e1cd5b327ffd90f8281c66d32b7c4896df7",
+    "lab/datos.py": "30f685e23732a518b1f10ebba08b4ba1c1ec3cbda83e693351c9816d188017be",
+    "lab/descarga_histdata.py": "d08f0944b9970592798a5335d9c32b663233a8d7bf11e2f8bf5a60a28af29fec",
+    "lab/descarga_yahoo.py": "cc86315076461f49a48811e59e7f0d659733c34ad128a78b28c8e2e04f7fd4da",
+    "lab/diario.py": "1ab381c5df74ed89973d65ce5a8b783d5ede1fa2ad175bdbf0fa52882b63e218",
+    "lab/ejecucion.py": "f34220bf91db410ad108ad19701231687d1f0facd2891cdba1732e5e6a17d0eb",
+    "lab/estrategia.py": "d4b3976481a4b5957247ed0523e0e69cf4a653450b568617101f1724c6ada19d",
+    "lab/eventos.py": "e4d3ea127dc76f12d18bce3fb4ebf35b58cb09bdccb20d70e67cfe55dc1db223",
+    "lab/externos.py": "67b9b40fca63425576ee32c1a7df02dfc6de43fa903adbe9e1fa62aabaaac25e",
+    "lab/ficha.py": "82ae9ce1b4cf9736793f17fb7e6879fd05f2e4fe66fa963244233a976eb36f41",
+    "lab/financiacion.py": "10e12ac27cf028a0ce5508da5150e8ec44dbefa3bb87acbf534fd732bf5e21d6",
+    "lab/flujo.py": "ca8916c99d174d087627dd27463a1dbb9da469d806461b780d3845e8d3c442fb",
+    "lab/grilla.py": "f669ba27cfb978d7f9648c4fca076c60e0d15c6f3a8260978b5ebad4f351df3e",
+    "lab/ict.py": "a70575281455f2b0862cd615aa556783ed24e08de4dc3ab8309f6a2755632387",
+    "lab/metricas.py": "9811067e5635b9e6a87066e7ea863ef0503adc16265993837ee38d6858f21f44",
+    "lab/montecarlo.py": "1fbd2fc85e9a47ac528a6024dff53e330251483e0be895aeaf2d0c27b76749ad",
+    "lab/motor.py": "9a90d3a533c25b5f6eb90f9a71fed7ac848ade199e6a18f4a3a220d3b4ed9616",
+    "lab/multiples.py": "33eace40f2cdcca41cd985cb9337b65bc02c0d15af043e30a187d82c8978aa61",
+    "lab/objetivos.py": "433ee392ed6ef6589fa05e4456018c20e548b5939d8ed3e2ebd6d64a3b0a7ce1",
+    "lab/politica.py": "355b9a17c7210f8376bae33b6b8dce6528ae480508521a45289bed50fb3055e9",
+    "lab/regimen.py": "8c661eec67023288e911742218151edcef967301b05d3cf08a20ccc89330b473",
+    "lab/registro.py": "0a3620629d1604ce72543548514759efe9e7baaf343109fec89150e43f39727d",
+    "lab/senales.py": "99a220ff5630daf1fac7e5f2780600bfa3a3590e579148352423150789d4efc0",
+    "lab/smc.py": "4134acc02700147543c7005015476c7b40d10b5c976c6a305715da3de52822eb",
+    "lab/validacion.py": "e214c5f7bc6d8e9af59117174e1cbbe1ee0ae99eebb0bbc7f7c1b2955a616185",
+    "lab/walkforward.py": "b5a99ab3cf864be2e53d25a734a17e82eb50293b5189d8fc4e6d0af0b49b38bf"
+   },
+   "manifiesto_datos": "a10f53917d02ade5e0efc02ab2434b5c6ccad96b9b212bc150f422d76c811630",
+   "hipotesis": "Tendencia de 12 meses con volatilidad objetivo agrega alfa sobre risk parity",
+   "universo": "13 instrumentos D1; remota 7 índices 1990–2009",
+   "n_variantes": 1,
+   "resultados": [
+    {
+     "index": 0,
+     "tramo": "desarrollo 2010-11 a 2021-11",
+     "sharpe": 0.11622596951969877,
+     "cagr": 0.0051673680472539285,
+     "vol": 0.17219552412972988,
+     "max_dd": 0.4059613261508783
+    },
+    {
+     "index": 1,
+     "tramo": "confirmación 2021-11 a 2026-11",
+     "sharpe": 0.42835377386966583,
+     "cagr": 0.06115832500148177,
+     "vol": 0.17410085032044256,
+     "max_dd": 0.23344372560893545
+    },
+    {
+     "index": 2,
+     "tramo": "todo 2010-11 a 2026-11",
+     "sharpe": 0.21391026426390408,
+     "cagr": 0.022232434408658408,
+     "vol": 0.17277822411277918,
+     "max_dd": 0.4059613261508783
+    },
+    {
+     "index": 3,
+     "tramo": "benchmark risk parity 2010-11 a 2026-11",
+     "sharpe": 0.6131130278748002,
+     "cagr": 0.07083322411525117,
+     "vol": 0.12430693642872741,
+     "max_dd": 0.30804808758567415
+    },
+    {
+     "index": 4,
+     "tramo": "remota 1990–2009 (7 índices, Yahoo)",
+     "sharpe": 0.9427179348979702,
+     "cagr": 0.14463373161079152,
+     "vol": 0.15631910771005633,
+     "max_dd": 0.3392339392669146
+    }
+   ],
+   "benchmark": {
+    "n_dias": 4685,
+    "alfa_anual": 0.008473858949268921,
+    "beta": 0.3737515556824496,
+    "ir_tasacion": 0.05091475496893862,
+    "t_alfa": 0.22244564692234248,
+    "p_alfa": 0.41198349035119364,
+    "tracking_error": 0.18372248310229414,
+    "ir_activo": -0.21366555653827077,
+    "p_activo": 0.8493120241921291,
+    "sharpe_estrategia": 0.21391026426390408,
+    "sharpe_benchmark": 0.6131130278748002,
+    "correlacion": 0.26889911104787156
+   },
+   "estado": "no pasa"
+  }
+ ]
+}

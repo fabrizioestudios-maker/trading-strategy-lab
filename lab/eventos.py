@@ -232,3 +232,67 @@ def bootstrap_dias(ev, B=5000, semilla=0):
     return dict(n=len(x), delta=float(obs), lo=float(np.quantile(boot, 0.025)), hi=float(np.quantile(boot, 0.975)),
                 p=float(np.mean(boot - obs >= obs)), exp_evento=float(x.r.mean()), exp_placebo=float(x.placebo_r.mean()),
                 wr_evento=float((x.r > 0).mean()))
+
+
+@njit(cache=True)
+def _indice_hora(dia_ini, tm1, dias, tm_obj):
+    """Primer minuto M1 de cada día `dias[k]` con minuto de sesión ≥ tm_obj[k] (minutos desde las 17:00 NY)."""
+    out = np.full(len(dias), -1, np.int64)
+    for k in range(len(dias)):
+        lo = dia_ini[dias[k]]
+        hi = dia_ini[dias[k] + 1]
+        a, b = lo, hi
+        while a < b:
+            m = (a + b) // 2
+            if tm1[m] < tm_obj[k]:
+                a = m + 1
+            else:
+                b = m
+        if a < hi:
+            out[k] = a
+    return out
+
+
+def evaluar_otros_dias(P, m1, ev, muestras, instr="XAUUSD", n_placebo=20, semilla=0):
+    """
+    Placebo corregido (entrada 29): para cada evento, n_placebo días al azar de su misma muestra (sin el día del
+    evento), a la misma hora de Nueva York de la entrada y con la misma dirección; SL 0,25 ATR del día anterior de ese
+    día, TP 2·SL, cierre 16:00 NY. `ev` ya tiene t, r (de evaluar()). `muestras`: lista de (desde_ms, hasta_ms).
+    """
+    rng = np.random.default_rng(semilla)
+    d1 = P["d1"]
+    nd = len(d1["t"])
+    dia_m1 = np.searchsorted(d1["t"], m1["t"], side="right") - 1
+    dia_ini = np.searchsorted(dia_m1, np.arange(nd + 1)).astype(np.int64)
+    tm1 = ((minuto_ny(m1["t"]) - 1020) % 1440).astype(np.int64)
+    validos = np.isfinite(P["atr_prev"]) & (P["fin_dia"] >= 0)
+    ev = ev.copy()
+    ev["placebo_r"] = np.nan
+    ev["n_placebo"] = 0
+    for a, b in muestras:
+        en = np.flatnonzero((ev.t.values >= a) & (ev.t.values < b))
+        if not len(en):
+            continue
+        pool = np.flatnonzero(validos & (d1["t"] >= a) & (d1["t"] < b))
+        dias, tms, ks = [], [], []
+        ie_ev = np.searchsorted(m1["t"], ev.t.values[en])
+        for j, k in enumerate(en):
+            cand = pool[pool != ev.dia.values[k]]
+            pick = rng.choice(cand, size=n_placebo, replace=False)
+            dias.append(pick)
+            tms.append(np.full(n_placebo, tm1[ie_ev[j]]))
+            ks.append(np.full(n_placebo, k))
+        dias, tms, ks = np.concatenate(dias), np.concatenate(tms), np.concatenate(ks)
+        ie = _indice_hora(dia_ini, tm1, dias.astype(np.int64), tms.astype(np.int64))
+        ok = (ie >= 0) & (ie <= P["fin_dia"][dias])
+        ie, dias, ks = ie[ok], dias[ok], ks[ok]
+        d = ev.dir.values[ks].astype(np.int64)
+        ent = m1["o"][ie]
+        dist = 0.25 * P["atr_prev"][dias]
+        r, _ = simular_hasta(m1["o"], m1["h"], m1["l"], m1["c"], ie, d, ent - d * dist, ent + 2 * d * dist,
+                             np.asarray(datos.costo(instr, ent), float), P["fin_dia"][dias].astype(np.int64))
+        s = pd.DataFrame(dict(k=ks, r=r)).dropna().groupby("k").r.agg(["mean", "size"])
+        ev.loc[s.index, "placebo_r"] = s["mean"].values
+        ev.loc[s.index, "n_placebo"] = s["size"].values
+    ev["delta"] = ev.r - ev.placebo_r
+    return ev

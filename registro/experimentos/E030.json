@@ -1,0 +1,232 @@
+{
+ "id": "E030",
+ "corridas": [
+  {
+   "fecha_utc": "2026-11-27 09:06",
+   "commit": "0babe6fde0aff0b0a0be026adf84cf817b0b3850",
+   "codigo": {
+    "experimentos/E030_perfiles_ejecucion.py": "56ad9f5be832448f253f03460fe732a034f8692f3c61a1f5ef89ae7d7b3b0a67",
+    "lab/__init__.py": "17ba61a2f2e271944152a961fb00be4a6205078aae71abcb9f46c121b5aab06d",
+    "lab/benchmarks.py": "cc4ba82df2e450ade153d7f3274654858b851db50fb63a67c196009cd34dec5d",
+    "lab/cartera.py": "61ea90316f23a0c3bf85d7f2028e3dafdc563a4b6c7a360a4686bba3d5e2bbfd",
+    "lab/cot.py": "1f57a0614f5e85d2da196d154f8e7e1cd5b327ffd90f8281c66d32b7c4896df7",
+    "lab/datos.py": "30f685e23732a518b1f10ebba08b4ba1c1ec3cbda83e693351c9816d188017be",
+    "lab/descarga_histdata.py": "d08f0944b9970592798a5335d9c32b663233a8d7bf11e2f8bf5a60a28af29fec",
+    "lab/descarga_yahoo.py": "cc86315076461f49a48811e59e7f0d659733c34ad128a78b28c8e2e04f7fd4da",
+    "lab/diario.py": "1ab381c5df74ed89973d65ce5a8b783d5ede1fa2ad175bdbf0fa52882b63e218",
+    "lab/ejecucion.py": "f34220bf91db410ad108ad19701231687d1f0facd2891cdba1732e5e6a17d0eb",
+    "lab/estrategia.py": "d4b3976481a4b5957247ed0523e0e69cf4a653450b568617101f1724c6ada19d",
+    "lab/eventos.py": "e4d3ea127dc76f12d18bce3fb4ebf35b58cb09bdccb20d70e67cfe55dc1db223",
+    "lab/externos.py": "67b9b40fca63425576ee32c1a7df02dfc6de43fa903adbe9e1fa62aabaaac25e",
+    "lab/ficha.py": "82ae9ce1b4cf9736793f17fb7e6879fd05f2e4fe66fa963244233a976eb36f41",
+    "lab/financiacion.py": "10e12ac27cf028a0ce5508da5150e8ec44dbefa3bb87acbf534fd732bf5e21d6",
+    "lab/flujo.py": "ca8916c99d174d087627dd27463a1dbb9da469d806461b780d3845e8d3c442fb",
+    "lab/grilla.py": "f669ba27cfb978d7f9648c4fca076c60e0d15c6f3a8260978b5ebad4f351df3e",
+    "lab/ict.py": "a70575281455f2b0862cd615aa556783ed24e08de4dc3ab8309f6a2755632387",
+    "lab/metricas.py": "9811067e5635b9e6a87066e7ea863ef0503adc16265993837ee38d6858f21f44",
+    "lab/montecarlo.py": "1fbd2fc85e9a47ac528a6024dff53e330251483e0be895aeaf2d0c27b76749ad",
+    "lab/motor.py": "9a90d3a533c25b5f6eb90f9a71fed7ac848ade199e6a18f4a3a220d3b4ed9616",
+    "lab/multiples.py": "33eace40f2cdcca41cd985cb9337b65bc02c0d15af043e30a187d82c8978aa61",
+    "lab/objetivos.py": "433ee392ed6ef6589fa05e4456018c20e548b5939d8ed3e2ebd6d64a3b0a7ce1",
+    "lab/politica.py": "355b9a17c7210f8376bae33b6b8dce6528ae480508521a45289bed50fb3055e9",
+    "lab/regimen.py": "8c661eec67023288e911742218151edcef967301b05d3cf08a20ccc89330b473",
+    "lab/registro.py": "0a3620629d1604ce72543548514759efe9e7baaf343109fec89150e43f39727d",
+    "lab/senales.py": "99a220ff5630daf1fac7e5f2780600bfa3a3590e579148352423150789d4efc0",
+    "lab/smc.py": "4134acc02700147543c7005015476c7b40d10b5c976c6a305715da3de52822eb",
+    "lab/validacion.py": "e214c5f7bc6d8e9af59117174e1cbbe1ee0ae99eebb0bbc7f7c1b2955a616185",
+    "lab/walkforward.py": "b5a99ab3cf864be2e53d25a734a17e82eb50293b5189d8fc4e6d0af0b49b38bf"
+   },
+   "manifiesto_datos": "a10f53917d02ade5e0efc02ab2434b5c6ccad96b9b212bc150f422d76c811630",
+   "hipotesis": "La ventaja resiste costos realistas por sesión y volatilidad",
+   "n_variantes": 5,
+   "resultados": [
+    {
+     "index": 0,
+     "estrategia": "E022 oro D1",
+     "n": 168,
+     "exp_sin_costos": 0.4275486881313198,
+     "exp_optimista": 0.39434049365673307,
+     "exp_base": 0.36927485490039347,
+     "exp_conservador": 0.3278752511130702,
+     "exp_estres": 0.26894323993648006,
+     "c_max_r": 0.4275486881313198,
+     "costo_base_r": 0.05827383323092636,
+     "margen_costos": 7.336889722648561,
+     "estado": "operable"
+    },
+    {
+     "index": 1,
+     "estrategia": "candidata B (8 activos)",
+     "n": 137,
+     "exp_sin_costos": 0.602043922457307,
+     "exp_optimista": 0.0733235176003795,
+     "exp_base": 0.06814542683713815,
+     "exp_conservador": -0.34690687117964086,
+     "exp_estres": -0.35799720569707366,
+     "c_max_r": 0.602043922457307,
+     "costo_base_r": 0.5338984956201687,
+     "margen_costos": 1.1276374205886863,
+     "estado": "frágil"
+    },
+    {
+     "index": 2,
+     "estrategia": "líderes (hasta 2021)",
+     "n": 97,
+     "exp_sin_costos": 0.5963364565565911,
+     "exp_optimista": 0.17471987350152096,
+     "exp_base": 0.16280077782515506,
+     "exp_conservador": -0.17146650284655307,
+     "exp_estres": -0.19324700646673287,
+     "c_max_r": 0.5963364565565911,
+     "costo_base_r": 0.4335356787314359,
+     "margen_costos": 1.375518753846338,
+     "estado": "frágil"
+    },
+    {
+     "index": 3,
+     "estrategia": "ICT 5 oro (2010–2026)",
+     "n": 297,
+     "exp_sin_costos": 0.1594889685840042,
+     "exp_optimista": 0.1063257290906447,
+     "exp_base": 0.08205532892027002,
+     "exp_conservador": 0.032285084517718714,
+     "exp_estres": -0.058230662271519636,
+     "c_max_r": 0.1594889685840042,
+     "costo_base_r": 0.07743363966373416,
+     "margen_costos": 2.059685806796712,
+     "estado": "operable"
+    },
+    {
+     "index": 4,
+     "estrategia": "SMC oro (2010–2026)",
+     "n": 915,
+     "exp_sin_costos": 0.10396748909128577,
+     "exp_optimista": 0.058497028144938464,
+     "exp_base": 0.031346663239785195,
+     "exp_conservador": -0.018150879439116935,
+     "exp_estres": -0.09587933866697748,
+     "c_max_r": 0.10396748909128577,
+     "costo_base_r": 0.07262082585150058,
+     "margen_costos": 1.4316483993707911,
+     "estado": "frágil"
+    }
+   ],
+   "costos": {
+    "perfiles": {
+     "sin_costos": {
+      "escala": 0.0,
+      "desliz": 0.0,
+      "latencia_ms": 0,
+      "sesion": false,
+      "vol": false,
+      "swap": null
+     },
+     "optimista": {
+      "escala": 0.75,
+      "desliz": 0.0,
+      "latencia_ms": 0,
+      "sesion": false,
+      "vol": false,
+      "swap": "base"
+     },
+     "base": {
+      "escala": 1.0,
+      "desliz": 1.0,
+      "latencia_ms": 100,
+      "sesion": true,
+      "vol": true,
+      "swap": "base"
+     },
+     "conservador": {
+      "escala": 1.5,
+      "desliz": 1.5,
+      "latencia_ms": 250,
+      "sesion": true,
+      "vol": true,
+      "swap": "adverso"
+     },
+     "estres": {
+      "escala": 3.0,
+      "desliz": 3.0,
+      "latencia_ms": 500,
+      "sesion": true,
+      "vol": true,
+      "swap": "adverso"
+     }
+    },
+    "sesiones": [
+     [
+      1020,
+      1030,
+      4.0
+     ],
+     [
+      1030,
+      1140,
+      1.6
+     ],
+     [
+      1140,
+      1440,
+      1.4
+     ],
+     [
+      0,
+      120,
+      1.4
+     ],
+     [
+      120,
+      480,
+      1.0
+     ],
+     [
+      480,
+      720,
+      0.9
+     ],
+     [
+      720,
+      1020,
+      1.1
+     ]
+    ],
+    "parte_spread": 0.7,
+    "k_entrada": 0.1,
+    "k_stop": 0.25,
+    "swaps": {
+     "metales": {
+      "base": [
+       -0.015,
+       -0.005
+      ],
+      "adverso": [
+       -0.03,
+       -0.015
+      ]
+     },
+     "indices": {
+      "base": [
+       -0.02,
+       -0.005
+      ],
+      "adverso": [
+       -0.035,
+       -0.01
+      ]
+     },
+     "forex": {
+      "base": [
+       -0.005,
+       -0.005
+      ],
+      "adverso": [
+       -0.01,
+       -0.01
+      ]
+     }
+    }
+   }
+  }
+ ]
+}

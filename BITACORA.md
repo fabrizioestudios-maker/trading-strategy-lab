@@ -1287,7 +1287,7 @@ E031 no agrega configuraciones.
 
 ---
 
-## 2026-11-27 09:41 UTC — Entrada 29: E035b · el placebo registrado mira adelante; placebo corregido (registrado antes de correrlo)
+## 2026-11-27 09:20 UTC — Entrada 29: E035b · el placebo registrado mira adelante; placebo corregido (registrado antes de correrlo)
 
 **Qué pasó.** Corrí E035b con el placebo de la entrada 27 (velas al azar del mismo día a ± 60 minutos del evento, con la misma dirección).
 

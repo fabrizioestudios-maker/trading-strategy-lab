@@ -21,6 +21,12 @@ from lab.metricas import resumen  # noqa: E402
 
 UNIV8 = ["SPXUSD", "NSXUSD", "JPXJPY", "UKXGBP", "FRXEUR", "AUXAUD", "XAUUSD", "XAGUSD"]
 UNIV9 = UNIV8[:6] + ["HKXHKD"] + UNIV8[6:]
+# Entrada 27: el oro y la plata de Yahoo no sirven antes de 2012 (calidad, entrada 18). Con --sin-metales los dos
+# universos quedan en los índices (6 y 7), con los controles "comprar siempre" en el mismo universo.
+SIN_METALES = "--sin-metales" in sys.argv
+if SIN_METALES:
+    UNIV8 = [i for i in UNIV8 if i not in ("XAUUSD", "XAGUSD")]
+    UNIV9 = [i for i in UNIV9 if i not in ("XAUUSD", "XAGUSD")]
 RR = 2.1
 VAL = pd.Timestamp("2022-01-01").value // 10**6
 
@@ -154,7 +160,7 @@ def criterios(t):
 
 
 if __name__ == "__main__":
-    modo = sys.argv[1] if len(sys.argv) > 1 else "metodo"
+    modo = next((a for a in sys.argv[1:] if not a.startswith("--")), "metodo")
     os.makedirs("resultados/E018", exist_ok=True)
     if modo == "metodo":
         tablas, _ = correr("histdata", [("2000-01-01", "2022-01-01")])
@@ -180,13 +186,18 @@ if __name__ == "__main__":
         out = pd.DataFrame(filas)
         out.to_csv("resultados/E018/calidad.csv", index=False)
         print(out.to_string(index=False))
-    elif modo == "solape":
-        ext, _ = correr("externo", [("2010-01-01", "2022-01-01")])
-        hd, _ = correr("histdata", [("2010-01-01", "2022-01-01")])
+    elif modo in ("solape", "solape2012"):
+        # solape2012 (entrada 28): HistData empieza el 14/11/2010 y su SMA 200 diaria recién vale desde fines de 2011;
+        # la comparación justa es en el tramo con calentamiento completo en las dos fuentes, 2012–2021.
+        tramo_s = ("2010-01-01", "2022-01-01") if modo == "solape" else ("2012-01-01", "2022-01-01")
+        ext, _ = correr("externo", [tramo_s])
+        hd, _ = correr("histdata", [tramo_s])
         a, b = list(ext.values())[0], list(hd.values())[0]
         cmp = a[["id", "senal", "univ", "k", "n", "wr", "exp"]].merge(b[["id", "n", "wr", "exp"]], on="id", suffixes=("_ext", "_histdata"))
         cmp["dif_wr_pp"] = ((cmp.wr_ext - cmp.wr_histdata) * 100).round(1)
-        cmp.to_csv("resultados/E018/solape_2010_2021.csv", index=False)
+        cmp["dif_exp"] = (cmp.exp_ext - cmp.exp_histdata).round(3)
+        cmp.to_csv("resultados/E018/" + ("solape_2010_2021" if modo == "solape" else "solape_2012_2021")
+                   + ("_sin_metales" if SIN_METALES else "") + ".csv", index=False)
         print("\n== solape 2010–2021: externo vs HistData ==")
         print(cmp.round(3).to_string(index=False))
     elif modo == "prueba":
@@ -194,7 +205,7 @@ if __name__ == "__main__":
         tablas, resultados = correr("externo", tr, con_vecinos=True)
         for (d, h), t in tablas.items():
             t = criterios(t)
-            t.to_csv(f"resultados/E018/prueba_{d[:4]}_{h[:4]}.csv", index=False)
+            t.to_csv(f"resultados/E018/prueba_{d[:4]}_{h[:4]}" + ("_sin_metales" if SIN_METALES else "") + ".csv", index=False)
             if d == "1990-01-01" and h == "2010-01-01":
                 print("\n== criterios registrados (1990–2009) ==")
                 print(t[["id", "senal", "k", "n", "wr", "payoff", "exp", "wr_vs_siempre", "pasa", "ventaja", "vecinos_ok"]].round(3).to_string(index=False))
@@ -205,6 +216,6 @@ if __name__ == "__main__":
                 g = d.groupby("activo").r.agg(n="size", wr=lambda r: (r > 0).mean(), r_total="sum")
                 g["id"] = cid
                 partes.append(g.reset_index())
-        pd.concat(partes).to_csv("resultados/E018/prueba_por_activo.csv", index=False)
+        pd.concat(partes).to_csv("resultados/E018/prueba_por_activo" + ("_sin_metales" if SIN_METALES else "") + ".csv", index=False)
     else:
         raise SystemExit(__doc__)

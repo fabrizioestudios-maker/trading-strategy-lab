@@ -9,3 +9,4 @@ __pycache__/
 # grillas regenerables de E026 (parte C): solo se versiona el resumen
 resultados/E026/C_E023/
 resultados/E026/C_E025/
+resultados/E028/b_operaciones.npz

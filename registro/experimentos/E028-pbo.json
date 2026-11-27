@@ -1,0 +1,180 @@
+{
+ "id": "E028-pbo",
+ "corridas": [
+  {
+   "fecha_utc": "2026-11-27 09:00",
+   "commit": "b550a98b102864ab5feb148e57e28b631bb5426e",
+   "codigo": {
+    "experimentos/E028_walkforward.py": "9f47d384c3c1feda157728083ce43b704d30e19018d9651f901af36aa8aefcca",
+    "lab/__init__.py": "17ba61a2f2e271944152a961fb00be4a6205078aae71abcb9f46c121b5aab06d",
+    "lab/benchmarks.py": "cc4ba82df2e450ade153d7f3274654858b851db50fb63a67c196009cd34dec5d",
+    "lab/cartera.py": "61ea90316f23a0c3bf85d7f2028e3dafdc563a4b6c7a360a4686bba3d5e2bbfd",
+    "lab/cot.py": "1f57a0614f5e85d2da196d154f8e7e1cd5b327ffd90f8281c66d32b7c4896df7",
+    "lab/datos.py": "30f685e23732a518b1f10ebba08b4ba1c1ec3cbda83e693351c9816d188017be",
+    "lab/descarga_histdata.py": "d08f0944b9970592798a5335d9c32b663233a8d7bf11e2f8bf5a60a28af29fec",
+    "lab/descarga_yahoo.py": "cc86315076461f49a48811e59e7f0d659733c34ad128a78b28c8e2e04f7fd4da",
+    "lab/diario.py": "1ab381c5df74ed89973d65ce5a8b783d5ede1fa2ad175bdbf0fa52882b63e218",
+    "lab/ejecucion.py": "f34220bf91db410ad108ad19701231687d1f0facd2891cdba1732e5e6a17d0eb",
+    "lab/estrategia.py": "d4b3976481a4b5957247ed0523e0e69cf4a653450b568617101f1724c6ada19d",
+    "lab/eventos.py": "e4d3ea127dc76f12d18bce3fb4ebf35b58cb09bdccb20d70e67cfe55dc1db223",
+    "lab/externos.py": "67b9b40fca63425576ee32c1a7df02dfc6de43fa903adbe9e1fa62aabaaac25e",
+    "lab/ficha.py": "82ae9ce1b4cf9736793f17fb7e6879fd05f2e4fe66fa963244233a976eb36f41",
+    "lab/financiacion.py": "10e12ac27cf028a0ce5508da5150e8ec44dbefa3bb87acbf534fd732bf5e21d6",
+    "lab/flujo.py": "ca8916c99d174d087627dd27463a1dbb9da469d806461b780d3845e8d3c442fb",
+    "lab/grilla.py": "f669ba27cfb978d7f9648c4fca076c60e0d15c6f3a8260978b5ebad4f351df3e",
+    "lab/ict.py": "a70575281455f2b0862cd615aa556783ed24e08de4dc3ab8309f6a2755632387",
+    "lab/metricas.py": "9811067e5635b9e6a87066e7ea863ef0503adc16265993837ee38d6858f21f44",
+    "lab/montecarlo.py": "1fbd2fc85e9a47ac528a6024dff53e330251483e0be895aeaf2d0c27b76749ad",
+    "lab/motor.py": "9a90d3a533c25b5f6eb90f9a71fed7ac848ade199e6a18f4a3a220d3b4ed9616",
+    "lab/multiples.py": "33eace40f2cdcca41cd985cb9337b65bc02c0d15af043e30a187d82c8978aa61",
+    "lab/objetivos.py": "433ee392ed6ef6589fa05e4456018c20e548b5939d8ed3e2ebd6d64a3b0a7ce1",
+    "lab/politica.py": "355b9a17c7210f8376bae33b6b8dce6528ae480508521a45289bed50fb3055e9",
+    "lab/regimen.py": "8c661eec67023288e911742218151edcef967301b05d3cf08a20ccc89330b473",
+    "lab/registro.py": "0a3620629d1604ce72543548514759efe9e7baaf343109fec89150e43f39727d",
+    "lab/senales.py": "99a220ff5630daf1fac7e5f2780600bfa3a3590e579148352423150789d4efc0",
+    "lab/smc.py": "4134acc02700147543c7005015476c7b40d10b5c976c6a305715da3de52822eb",
+    "lab/validacion.py": "e214c5f7bc6d8e9af59117174e1cbbe1ee0ae99eebb0bbc7f7c1b2955a616185",
+    "lab/walkforward.py": "b5a99ab3cf864be2e53d25a734a17e82eb50293b5189d8fc4e6d0af0b49b38bf"
+   },
+   "manifiesto_datos": "a10f53917d02ade5e0efc02ab2434b5c6ccad96b9b212bc150f422d76c811630",
+   "hipotesis": "PBO con 16 bloques anuales",
+   "resultados": [
+    {
+     "index": 0,
+     "conjunto": "universo D1 (13 activos)",
+     "configuraciones": 15918,
+     "particiones": 12870,
+     "pbo": 0.24242424242424243,
+     "oos_elegida": 6.699239745110899,
+     "oos_mediana": -0.1289622702347093
+    },
+    {
+     "index": 1,
+     "conjunto": "D1 AUDUSD",
+     "configuraciones": 1274,
+     "particiones": 12870,
+     "pbo": 0.5896658896658896,
+     "oos_elegida": -1.3078203456686186,
+     "oos_mediana": -0.2520088410785056
+    },
+    {
+     "index": 2,
+     "conjunto": "D1 AUXAUD",
+     "configuraciones": 1246,
+     "particiones": 12870,
+     "pbo": 0.6733488733488734,
+     "oos_elegida": -1.7918974983432818,
+     "oos_mediana": -0.7540503971660748
+    },
+    {
+     "index": 3,
+     "conjunto": "D1 EURUSD",
+     "configuraciones": 1274,
+     "particiones": 12870,
+     "pbo": 0.7125874125874125,
+     "oos_elegida": -1.3150202235350241,
+     "oos_mediana": 0.07659653568497071
+    },
+    {
+     "index": 4,
+     "conjunto": "D1 FRXEUR",
+     "configuraciones": 1197,
+     "particiones": 12870,
+     "pbo": 0.4898989898989899,
+     "oos_elegida": -1.2435790527047532,
+     "oos_mediana": -0.6332338339451588
+    },
+    {
+     "index": 5,
+     "conjunto": "D1 GBPUSD",
+     "configuraciones": 1232,
+     "particiones": 12870,
+     "pbo": 0.6258741258741258,
+     "oos_elegida": -2.7031114283014195,
+     "oos_mediana": -0.15982308828886294
+    },
+    {
+     "index": 6,
+     "conjunto": "D1 HKXHKD",
+     "configuraciones": 1190,
+     "particiones": 12870,
+     "pbo": 0.6382284382284382,
+     "oos_elegida": -1.888860157733058,
+     "oos_mediana": -0.286997477807504
+    },
+    {
+     "index": 7,
+     "conjunto": "D1 JPXJPY",
+     "configuraciones": 1246,
+     "particiones": 12870,
+     "pbo": 0.5217560217560218,
+     "oos_elegida": 0.0024685980869339898,
+     "oos_mediana": -0.011948130709910078
+    },
+    {
+     "index": 8,
+     "conjunto": "D1 NSXUSD",
+     "configuraciones": 1204,
+     "particiones": 12870,
+     "pbo": 0.06254856254856254,
+     "oos_elegida": 11.316033001381848,
+     "oos_mediana": 1.0024784361907422
+    },
+    {
+     "index": 9,
+     "conjunto": "D1 SPXUSD",
+     "configuraciones": 1218,
+     "particiones": 12870,
+     "pbo": 0.23947163947163946,
+     "oos_elegida": 3.0695023919017905,
+     "oos_mediana": 0.6655411849396119
+    },
+    {
+     "index": 10,
+     "conjunto": "D1 UKXGBP",
+     "configuraciones": 1225,
+     "particiones": 12870,
+     "pbo": 0.32059052059052057,
+     "oos_elegida": -0.23208744643775642,
+     "oos_mediana": -0.9843683025625295
+    },
+    {
+     "index": 11,
+     "conjunto": "D1 USDJPY",
+     "configuraciones": 1190,
+     "particiones": 12870,
+     "pbo": 0.6274281274281275,
+     "oos_elegida": -1.4284625120038383,
+     "oos_mediana": 0.22727194730519507
+    },
+    {
+     "index": 12,
+     "conjunto": "D1 XAGUSD",
+     "configuraciones": 1260,
+     "particiones": 12870,
+     "pbo": 0.6771561771561772,
+     "oos_elegida": -1.225628947711491,
+     "oos_mediana": 0.17527438836995723
+    },
+    {
+     "index": 13,
+     "conjunto": "D1 XAUUSD",
+     "configuraciones": 1162,
+     "particiones": 12870,
+     "pbo": 0.29052059052059054,
+     "oos_elegida": 2.656093499462736,
+     "oos_mediana": 0.7997363593235391
+    },
+    {
+     "index": 14,
+     "conjunto": "familia del oro D1 (720)",
+     "configuraciones": 720,
+     "particiones": 12870,
+     "pbo": 0.5121212121212121,
+     "oos_elegida": 1.7289384950333184,
+     "oos_mediana": 2.045133466420844
+    }
+   ]
+  }
+ ]
+}
