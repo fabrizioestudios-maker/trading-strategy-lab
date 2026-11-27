@@ -27,7 +27,7 @@ export interface LineaPrecio {
   id: string;
   precio: number;
   titulo: string;
-  tipo: 'nivel' | 'entrada' | 'sl' | 'tp' | 'zona';
+  tipo: 'nivel' | 'entrada' | 'sl' | 'tp' | 'zona' | 'rango';
 }
 
 export interface Marca {
@@ -258,7 +258,7 @@ export function GraficoVelas({
   useEffect(() => {
     const s = serie.current;
     if (!s) return;
-    const color = { nivel: css('--text-3'), entrada: css('--text'), sl: css('--neg'), tp: css('--pos'), zona: css('--gold') };
+    const color = { nivel: css('--text-3'), entrada: css('--text'), sl: css('--neg'), tp: css('--pos'), zona: css('--gold'), rango: css('--gold-claro') };
     const vistas = new Set<string>();
     for (const l of lineas) {
       const clave = `${l.id}:${l.tipo}:${l.precio}:${l.titulo}`;
@@ -270,7 +270,7 @@ export function GraficoVelas({
           price: l.precio,
           color: color[l.tipo],
           lineWidth: 1,
-          lineStyle: l.tipo === 'nivel' || l.tipo === 'zona' ? LineStyle.Dotted : LineStyle.Dashed,
+          lineStyle: l.tipo === 'nivel' || l.tipo === 'zona' ? LineStyle.Dotted : l.tipo === 'rango' ? LineStyle.SparseDotted : LineStyle.Dashed,
           axisLabelVisible: true,
           title: l.titulo,
         }),

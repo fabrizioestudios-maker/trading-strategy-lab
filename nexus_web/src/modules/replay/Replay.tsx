@@ -30,6 +30,8 @@ const CAPAS: [keyof ReturnType<typeof useEspacio>['estado']['prefs']['capas'], s
   ['fvg', 'FVG sin mitigar'],
   ['barridos', 'Barridos de liquidez'],
   ['ob', 'Order blocks sin mitigar'],
+  ['ifvg', 'iFVG y BPR vigentes'],
+  ['ote', 'Premium/discount y OTE'],
 ];
 
 export default function Replay({ params }: { params: Record<string, string> }) {
@@ -161,8 +163,27 @@ export default function Replay({ params }: { params: Record<string, string> }) {
         l.push({ id: `ob-${ob.t}`, precio: ob.abajo, titulo: '', tipo: 'zona' });
       }
     }
+    if (prefs.capas.ifvg && r.capas) {
+      // vigentes: no atravesados de vuelta al límite; los 2 iFVG y el BPR más recientes
+      for (const z of r.capas.ifvg.filter((x) => x.invalidado_ms === null).slice(-2)) {
+        l.push({ id: `ifvg-${z.t}`, precio: z.arriba, titulo: `iFVG ${z.lado === 'alcista' ? '▲' : '▼'}`, tipo: 'zona' });
+        l.push({ id: `ifvg-${z.t}`, precio: z.abajo, titulo: '', tipo: 'zona' });
+      }
+      for (const z of r.capas.bpr.filter((x) => x.invalidado_ms === null).slice(-1)) {
+        l.push({ id: `bpr-${z.t}`, precio: z.arriba, titulo: `BPR ${z.lado === 'alcista' ? '▲' : '▼'}`, tipo: 'zona' });
+        l.push({ id: `bpr-${z.t}`, precio: z.abajo, titulo: '', tipo: 'zona' });
+      }
+    }
+    const rg = r.capas?.rango;
+    if (prefs.capas.ote && rg) {
+      l.push({ id: 'rango', precio: rg.equilibrio, titulo: 'EQ 50 %', tipo: 'rango' });
+      if (rg.ote_abajo !== null && rg.ote_arriba !== null) {
+        l.push({ id: 'ote', precio: rg.ote_arriba, titulo: rg.sentido === 'alcista' ? 'OTE 62 %' : 'OTE 79 %', tipo: 'rango' });
+        l.push({ id: 'ote', precio: rg.ote_abajo, titulo: rg.sentido === 'alcista' ? 'OTE 79 %' : 'OTE 62 %', tipo: 'rango' });
+      }
+    }
     return l;
-  }, [c, prefs.capas.niveles, prefs.capas.ordenes, prefs.capas.fvg, prefs.capas.ob, r.estadosOrdenes, r.ordenes, r.capas]);
+  }, [c, prefs.capas.niveles, prefs.capas.ordenes, prefs.capas.fvg, prefs.capas.ob, prefs.capas.ifvg, prefs.capas.ote, r.estadosOrdenes, r.ordenes, r.capas]);
 
   const marcas = useMemo<Marca[]>(() => {
     if (!c) return [];
@@ -385,7 +406,7 @@ export default function Replay({ params }: { params: Record<string, string> }) {
               <Cargando />
             ) : pestana === 'operar' ? (
               <>
-                <MapaNiveles cuadro={c} capas={r.capas} ordenes={r.ordenes} estados={r.estadosOrdenes} dec={dec} mostrarFvg={capas.fvg} />
+                <MapaNiveles cuadro={c} capas={r.capas} ordenes={r.ordenes} estados={r.estadosOrdenes} dec={dec} mostrarFvg={capas.fvg} mostrarRango={capas.ote} />
                 <PanelOrdenes cuadro={c} limite={c.limite.limite_ms} ordenes={r.ordenes} estados={r.estadosOrdenes} zona={zona} ladoInicial={ticket} vista="ticket" />
               </>
             ) : pestana === 'ordenes' ? (

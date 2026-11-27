@@ -48,10 +48,11 @@ const HERRAMIENTAS: Herramienta[] = [
   },
   {
     nombre: 'iFVG y BPR',
-    estado: 'planificado',
-    que: 'FVG invertidos y zonas de precio equilibrado.',
-    evidencia: 'Sin prueba propia en el laboratorio. Antes de dibujarlos hay que definirlos sin mirar adelante y probarlos.',
-    fuente: '—',
+    estado: 'disponible',
+    capa: 'ifvg',
+    que: 'iFVG: un FVG atravesado por cierre, que desde ahí se lee del lado contrario. BPR: la superposición de dos FVG de sentido contrario formados con hasta 20 velas de diferencia. El gráfico muestra los 2 iFVG y el BPR más recientes que siguen vigentes.',
+    evidencia: 'Sin prueba propia en el laboratorio: se dibujan como descripción, no como señal. Se definieron sin mirar adelante (solo velas cerradas hasta el límite).',
+    fuente: 'nexus_api/capas.py',
   },
   {
     nombre: 'Barridos de liquidez',
@@ -87,10 +88,11 @@ const HERRAMIENTAS: Herramienta[] = [
   },
   {
     nombre: 'Premium/discount y OTE',
-    estado: 'planificado',
-    que: 'Mitad del rango del tramo y retroceso de 62–79 %.',
-    evidencia: 'El descuento formó parte del setup E023 (sin ventaja). Falta la capa.',
-    fuente: 'lab/smc.py',
+    estado: 'disponible',
+    capa: 'ote',
+    que: 'Tramo vigente: del último pivote a favor de la estructura hasta el extremo posterior. EQ marca la mitad (arriba premium, abajo discount) y OTE el retroceso de 62 % a 79 % de ese tramo.',
+    evidencia: 'El descuento formó parte del setup E023 y de los modelos de E038: sin ventaja después de costos.',
+    fuente: 'nexus_api/capas.py',
   },
 ];
 

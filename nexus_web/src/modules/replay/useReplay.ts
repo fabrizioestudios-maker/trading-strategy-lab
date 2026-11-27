@@ -48,7 +48,7 @@ export function useReplay(): Replay {
   const [cuenta, setCuenta] = useState<CuentaSimulada | null>(null);
   const capital = estado.prefs.capital;
   const apalancamiento = estado.prefs.apalancamiento;
-  const conCapas = estado.prefs.capas.estructura || estado.prefs.capas.fvg || estado.prefs.capas.barridos || estado.prefs.capas.ob;
+  const conCapas = estado.prefs.capas.estructura || estado.prefs.capas.fvg || estado.prefs.capas.barridos || estado.prefs.capas.ob || estado.prefs.capas.ifvg || estado.prefs.capas.ote;
   const [estadosOrdenes, setEstadosOrdenes] = useState<EstadoOrdenSimulada[]>([]);
   const [error, setError] = useState<unknown>(null);
   const [cargando, setCargando] = useState(false);

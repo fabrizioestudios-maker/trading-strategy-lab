@@ -1857,3 +1857,8 @@ input.selector--chico {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/* Tramo vigente (EQ y OTE): oro claro, para distinguirlo de los niveles fijos */
+.mapa__fila--rango .mapa__nombre {
+  color: var(--gold-claro);
+}

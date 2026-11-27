@@ -13,6 +13,14 @@ Definiciones (las de lab/smc.py y lab/ict.py, reproducibles en Pine):
 - Order block: en cada ruptura, la última vela contraria de las 10 anteriores; queda mitigado cuando el precio vuelve.
 - FVG alcista en j: l[j] > h[j-2], vela j-1 alcista y hueco >= 0,25 · ATR(14) de Wilder (lab/ict.py). Bajista, espejado.
   Queda mitigado cuando una vela cerrada posterior vuelve a tocar el hueco.
+- iFVG: un FVG que una vela cerrada posterior atraviesa por cierre (alcista: cierre bajo su piso; bajista: cierre sobre
+  su techo). Desde ese cierre la zona se lee del lado contrario. Queda invalidado si otro cierre la atraviesa de vuelta.
+- BPR: la superposición de un FVG con uno de sentido contrario formado hasta 20 velas antes. Lado: el del FVG más nuevo.
+  Queda invalidado cuando un cierre lo atraviesa en contra de su lado.
+- Rango (premium/discount): con estructura alcista, desde el último pivote bajo confirmado hasta el máximo alcanzado
+  después; bajista, desde el último pivote alto hasta el mínimo posterior; sin rupturas, entre los dos últimos pivotes.
+  Equilibrio al 50 %. OTE: retroceso de 62 % a 79 % del tramo en el sentido de la estructura (alcista: medido desde el alto hacia
+  abajo; bajista, desde el bajo hacia arriba). Sin rupturas en la ventana no hay OTE.
 La ventana usa las últimas `cantidad` velas cerradas más un margen; al principio de la ventana el estado de la estructura
 puede diferir del que daría una historia más larga (se informa en la nota).
 """
@@ -25,6 +33,8 @@ from lab import smc as SMC
 L_PIVOTE = 3
 MIN_FVG_ATR = 0.25
 MARGEN = 60
+BPR_VELAS = 20
+OTE = (0.62, 0.79)
 
 
 def _atr_wilder(h, l, c, n=14):
@@ -54,13 +64,16 @@ def capas(svc, simbolo: str, tf: int, limite_ms: int, cantidad: int = 300) -> di
     tf_ms = tf * 60_000
     j_lim = svc.indice_limite(simbolo, limite_ms)
     t_lim = int(svc.m1(simbolo)["t"][j_lim]) if j_lim >= 0 else limite_ms
-    base = dict(simbolo=simbolo, temporalidad=tf, limite_ms=t_lim, pivotes=[], rupturas=[], estado_estructura=0, fvg=[], barridos=[], order_blocks=[],
+    base = dict(simbolo=simbolo, temporalidad=tf, limite_ms=t_lim, pivotes=[], rupturas=[], estado_estructura=0, fvg=[], barridos=[], order_blocks=[], ifvg=[], bpr=[], rango=None,
                 definiciones=[
                     f"Pivote: extremo con {L_PIVOTE} velas a cada lado; se conoce al cierre de la vela {L_PIVOTE} posterior.",
                     "BOS: el cierre rompe el último pivote a favor de la estructura. CHOCH: lo rompe en contra y la da vuelta.",
                     f"FVG: hueco entre la vela 1 y la 3 de al menos {MIN_FVG_ATR:g} × ATR(14), con la vela del medio a favor.",
                     "Barrido: una vela pasa el último pivote sin romperlo por cierre (cierra de vuelta del otro lado).",
                     "Order block: la última vela contraria en las 10 velas previas a una ruptura; mitigado cuando el precio vuelve a tocarlo.",
+                    "iFVG: un FVG atravesado por cierre; desde ahí se lee del lado contrario. Invalidado si otro cierre lo atraviesa de vuelta.",
+                    f"BPR: superposición de dos FVG de sentido contrario formados con hasta {BPR_VELAS} velas de diferencia.",
+                    "Premium/discount: mitad del tramo vigente (último pivote a favor de la estructura hasta el extremo posterior). OTE: retroceso de 62 % a 79 % de ese tramo.",
                 ],
                 nota="Descriptivo. E038: los modelos SMC/ICT del laboratorio rinden como el azar después de costos.")
     n = len(cerr)
@@ -128,7 +141,56 @@ def capas(svc, simbolo: str, tf: int, limite_ms: int, cantidad: int = 300) -> di
             if (lado == "alcista" and l[i] <= arriba) or (lado == "bajista" and h[i] >= abajo):
                 mitigada = int(t[i] + tf_ms)
                 break
-        fvg.append(dict(t=int(t[j]), lado=lado, arriba=round(float(arriba), 5), abajo=round(float(abajo), 5), conocido_ms=int(t[j] + tf_ms), mitigada_ms=mitigada))
+        fvg.append(dict(t=int(t[j]), lado=lado, arriba=round(float(arriba), 5), abajo=round(float(abajo), 5), conocido_ms=int(t[j] + tf_ms), mitigada_ms=mitigada, j=j))
+
+    def cierre_en_contra(desde_i, lado, arriba, abajo):
+        """Primera vela cerrada desde `desde_i` que cierra del otro lado de la zona (en contra de `lado`)."""
+        for q in range(desde_i, n):
+            if (lado == "alcista" and c[q] < abajo) or (lado == "bajista" and c[q] > arriba):
+                return q
+        return None
+
+    ifvg = []
+    for z in fvg:
+        q = cierre_en_contra(z["j"] + 1, z["lado"], z["arriba"], z["abajo"])
+        if q is None:
+            continue
+        nuevo = "bajista" if z["lado"] == "alcista" else "alcista"
+        inv = cierre_en_contra(q + 1, nuevo, z["arriba"], z["abajo"])
+        ifvg.append(dict(t=int(t[q]), lado=nuevo, arriba=z["arriba"], abajo=z["abajo"], fvg_t=z["t"], conocido_ms=int(t[q] + tf_ms),
+                         invalidado_ms=None if inv is None else int(t[inv] + tf_ms)))
+
+    bpr, usados = [], set()
+    for b in fvg:
+        for a in reversed([x for x in fvg if x["lado"] != b["lado"] and b["j"] - BPR_VELAS <= x["j"] < b["j"] and x["t"] not in usados]):
+            arriba, abajo = min(a["arriba"], b["arriba"]), max(a["abajo"], b["abajo"])
+            if arriba > abajo:
+                usados.add(a["t"])
+                inv = cierre_en_contra(b["j"] + 1, b["lado"], arriba, abajo)
+                bpr.append(dict(t=b["t"], lado=b["lado"], arriba=arriba, abajo=abajo, fvg_previo_t=a["t"], conocido_ms=b["conocido_ms"],
+                                invalidado_ms=None if inv is None else int(t[inv] + tf_ms)))
+                break
+
+    rango = None
+    if alto is not None and bajo is not None:
+        # el tramo vigente: desde el último pivote confirmado a favor de la estructura hasta el extremo alcanzado después
+        a_, a_t, b_, b_t = alto["precio"], alto["t"], bajo["precio"], bajo["t"]
+        if estado == 1:
+            jb = int(np.searchsorted(t, b_t))
+            k = jb + int(np.argmax(h[jb:]))
+            a_, a_t = float(h[k]), int(t[k])
+        elif estado == -1:
+            ja = int(np.searchsorted(t, a_t))
+            k = ja + int(np.argmin(l[ja:]))
+            b_, b_t = float(l[k]), int(t[k])
+        if a_ > b_:
+            d = a_ - b_
+            ote = (a_ - OTE[1] * d, a_ - OTE[0] * d) if estado == 1 else (b_ + OTE[0] * d, b_ + OTE[1] * d) if estado == -1 else None
+            eq = (a_ + b_) / 2
+            rango = dict(alto=round(a_, 5), alto_t=a_t, bajo=round(b_, 5), bajo_t=b_t, equilibrio=round(eq, 5),
+                         ote_abajo=None if ote is None else round(ote[0], 5), ote_arriba=None if ote is None else round(ote[1], 5),
+                         sentido="alcista" if estado == 1 else "bajista" if estado == -1 else None,
+                         zona_precio="premium" if c[-1] > eq else "discount" if c[-1] < eq else "equilibrio")
 
     order_blocks = []
     for b in obs:
@@ -145,7 +207,10 @@ def capas(svc, simbolo: str, tf: int, limite_ms: int, cantidad: int = 300) -> di
         pivotes=[dict(t=int(t[j]), tipo=tipo, precio=round(precio, 5), confirmado_ms=int(t[j + L_PIVOTE] + tf_ms)) for j, tipo, precio in piv if t[j] >= desde],
         rupturas=[r for r in rupturas if r["t"] >= desde],
         estado_estructura=estado,
-        fvg=[z for z in fvg if z["t"] >= desde],
+        fvg=[{k: v for k, v in z.items() if k != "j"} for z in fvg if z["t"] >= desde],
+        ifvg=sorted((z for z in ifvg if z["t"] >= desde), key=lambda z: z["t"]),
+        bpr=[z for z in bpr if z["t"] >= desde],
+        rango=rango,
     )
     return base
 

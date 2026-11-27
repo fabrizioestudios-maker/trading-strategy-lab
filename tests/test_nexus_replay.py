@@ -166,6 +166,10 @@ def test_capas_sin_futuro_y_prefijo_identico(svc, tf):
         assert all(x["t"] + tf * 60_000 <= fin for x in a["barridos"])
         assert all(ob["conocido_ms"] <= fin and ob["arriba"] >= ob["abajo"] and ob["t"] < ob["ruptura_t"] for ob in a["order_blocks"])
         assert all(ob["mitigado_ms"] is None or ob["mitigado_ms"] <= fin for ob in a["order_blocks"])
+        for z in a["ifvg"] + a["bpr"]:
+            assert z["conocido_ms"] <= fin and z["arriba"] > z["abajo"] and (z["invalidado_ms"] is None or z["conocido_ms"] < z["invalidado_ms"] <= fin)
+        if a["rango"]:
+            assert a["rango"]["alto_t"] + tf * 60_000 <= fin and a["rango"]["bajo_t"] + tf * 60_000 <= fin
 
 
 def test_pivotes_iguales_a_los_del_laboratorio():
@@ -312,3 +316,34 @@ def test_barridos_cierran_de_vuelta_y_order_blocks_son_velas_contrarias(svc):
     for ob in a["order_blocks"]:
         v = velas[ob["t"]]
         assert (v["c"] < v["o"]) if ob["lado"] == "alcista" else (v["c"] > v["o"])
+
+
+def test_ifvg_bpr_y_rango_siguen_sus_definiciones(svc):
+    from nexus_api import capas as CA
+
+    lim = int(M1["t"][-1])
+    a = CA.capas(svc, "XAUUSD", 15, lim, 800)
+    velas = svc.velas_hasta("XAUUSD", 15, lim, 900)[0]
+    por_t = {v["t"]: v for v in velas}
+    fvg = {z["t"]: z for z in a["fvg"]}
+    assert a["ifvg"] and a["bpr"] and a["rango"], "la ventana sintética debería tener iFVG, BPR y rango"
+    for z in a["ifvg"]:
+        v = por_t[z["t"]]
+        # la vela de la inversión cierra del otro lado del FVG original, y el lado nuevo es el contrario
+        assert (v["c"] < z["abajo"]) if z["lado"] == "bajista" else (v["c"] > z["arriba"])
+        if z["fvg_t"] in fvg:
+            assert fvg[z["fvg_t"]]["lado"] != z["lado"]
+    for b in a["bpr"]:
+        if b["t"] in fvg and b["fvg_previo_t"] in fvg:
+            x, y = fvg[b["t"]], fvg[b["fvg_previo_t"]]
+            assert x["lado"] == b["lado"] != y["lado"]
+            assert b["arriba"] == min(x["arriba"], y["arriba"]) and b["abajo"] == max(x["abajo"], y["abajo"])
+    r = a["rango"]
+    assert r["bajo"] < r["equilibrio"] < r["alto"] and r["equilibrio"] == round((r["alto"] + r["bajo"]) / 2, 5)
+    cerradas = [v for v in velas if not v["parcial"]]
+    assert r["bajo"] <= cerradas[-1]["c"] <= r["alto"] or r["sentido"] is None  # el tramo vigente contiene el último cierre
+    if r["sentido"]:
+        assert r["bajo"] < r["ote_abajo"] < r["ote_arriba"] < r["alto"]
+        d = r["alto"] - r["bajo"]
+        lejos = r["alto"] - r["ote_abajo"] if r["sentido"] == "alcista" else r["ote_arriba"] - r["bajo"]
+        assert abs(lejos - 0.79 * d) < 1e-3

@@ -39,6 +39,9 @@ export interface CapasReplay {
   fvg: Array<ZonaFVG>;
   barridos: Array<Barrido>;
   order_blocks: Array<OrderBlock>;
+  ifvg: Array<ZonaIFVG>;
+  bpr: Array<ZonaBPR>;
+  rango: RangoOperativo | null;
   definiciones: Array<string>;
   nota: string;
 }
@@ -471,6 +474,21 @@ export interface PliegueAnual {
   muestra: "eleccion" | "confirmacion";
 }
 
+export interface RangoOperativo {
+  alto: number;
+  alto_t: number;
+  bajo: number;
+  bajo_t: number;
+  /** Mitad del rango: arriba es premium, abajo discount */
+  equilibrio: number;
+  /** Retroceso de 62–79 % a favor de la estructura (None sin rupturas) */
+  ote_abajo: number | null;
+  ote_arriba: number | null;
+  sentido: "alcista" | "bajista" | null;
+  /** Dónde está el último cierre revelado */
+  zona_precio: "premium" | "discount" | "equilibrio";
+}
+
 export interface Referencias {
   contrato: string;
   /** Minutos por vela soportados por el replay */
@@ -608,6 +626,17 @@ export interface VentanaSesion {
   aviso: string | null;
 }
 
+export interface ZonaBPR {
+  /** El FVG más nuevo de los dos (apertura de su tercera vela) */
+  t: number;
+  lado: "alcista" | "bajista";
+  arriba: number;
+  abajo: number;
+  fvg_previo_t: number;
+  conocido_ms: number;
+  invalidado_ms: number | null;
+}
+
 export interface ZonaFVG {
   /** Apertura de la tercera vela del patrón */
   t: number;
@@ -617,4 +646,18 @@ export interface ZonaFVG {
   conocido_ms: number;
   /** Cierre de la vela que volvió a tocar el hueco (None: sin mitigar al límite) */
   mitigada_ms: number | null;
+}
+
+export interface ZonaIFVG {
+  /** Apertura de la vela que atravesó el FVG por cierre */
+  t: number;
+  /** Lado desde el que se lee después de la inversión */
+  lado: "alcista" | "bajista";
+  arriba: number;
+  abajo: number;
+  /** El FVG original (apertura de su tercera vela) */
+  fvg_t: number;
+  conocido_ms: number;
+  /** Cierre de la vela que lo atravesó de vuelta (None: vigente al límite) */
+  invalidado_ms: number | null;
 }

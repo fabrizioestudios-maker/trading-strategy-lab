@@ -481,6 +481,38 @@ class OrderBlock(Modelo):
     mitigado_ms: Optional[int]
 
 
+class ZonaIFVG(Modelo):
+    t: int = Field(description="Apertura de la vela que atravesó el FVG por cierre")
+    lado: Literal["alcista", "bajista"] = Field(description="Lado desde el que se lee después de la inversión")
+    arriba: float
+    abajo: float
+    fvg_t: int = Field(description="El FVG original (apertura de su tercera vela)")
+    conocido_ms: int
+    invalidado_ms: Optional[int] = Field(description="Cierre de la vela que lo atravesó de vuelta (None: vigente al límite)")
+
+
+class ZonaBPR(Modelo):
+    t: int = Field(description="El FVG más nuevo de los dos (apertura de su tercera vela)")
+    lado: Literal["alcista", "bajista"]
+    arriba: float
+    abajo: float
+    fvg_previo_t: int
+    conocido_ms: int
+    invalidado_ms: Optional[int]
+
+
+class RangoOperativo(Modelo):
+    alto: float
+    alto_t: int
+    bajo: float
+    bajo_t: int
+    equilibrio: float = Field(description="Mitad del rango: arriba es premium, abajo discount")
+    ote_abajo: Optional[float] = Field(description="Retroceso de 62–79 % a favor de la estructura (None sin rupturas)")
+    ote_arriba: Optional[float]
+    sentido: Optional[Literal["alcista", "bajista"]]
+    zona_precio: Literal["premium", "discount", "equilibrio"] = Field(description="Dónde está el último cierre revelado")
+
+
 class CapasReplay(Modelo):
     contrato: str = CONTRATO
     simbolo: str
@@ -492,6 +524,9 @@ class CapasReplay(Modelo):
     fvg: list[ZonaFVG]
     barridos: list[Barrido] = Field(default_factory=list)
     order_blocks: list[OrderBlock] = Field(default_factory=list)
+    ifvg: list[ZonaIFVG] = Field(default_factory=list)
+    bpr: list[ZonaBPR] = Field(default_factory=list)
+    rango: Optional[RangoOperativo] = None
     definiciones: list[str]
     nota: str
 

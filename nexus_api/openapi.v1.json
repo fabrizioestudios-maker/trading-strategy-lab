@@ -142,6 +142,13 @@
       "title": "Barridos",
       "type": "array"
      },
+     "bpr": {
+      "items": {
+       "$ref": "#/components/schemas/ZonaBPR"
+      },
+      "title": "Bpr",
+      "type": "array"
+     },
      "contrato": {
       "default": "nexus.v1",
       "title": "Contrato",
@@ -166,6 +173,13 @@
       "title": "Fvg",
       "type": "array"
      },
+     "ifvg": {
+      "items": {
+       "$ref": "#/components/schemas/ZonaIFVG"
+      },
+      "title": "Ifvg",
+      "type": "array"
+     },
      "limite_ms": {
       "title": "Limite Ms",
       "type": "integer"
@@ -187,6 +201,16 @@
       },
       "title": "Pivotes",
       "type": "array"
+     },
+     "rango": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/RangoOperativo"
+       },
+       {
+        "type": "null"
+       }
+      ]
      },
      "rupturas": {
       "items": {
@@ -215,6 +239,9 @@
      "fvg",
      "barridos",
      "order_blocks",
+     "ifvg",
+     "bpr",
+     "rango",
      "definiciones",
      "nota"
     ],
@@ -2689,6 +2716,93 @@
     "title": "PliegueAnual",
     "type": "object"
    },
+   "RangoOperativo": {
+    "additionalProperties": false,
+    "properties": {
+     "alto": {
+      "title": "Alto",
+      "type": "number"
+     },
+     "alto_t": {
+      "title": "Alto T",
+      "type": "integer"
+     },
+     "bajo": {
+      "title": "Bajo",
+      "type": "number"
+     },
+     "bajo_t": {
+      "title": "Bajo T",
+      "type": "integer"
+     },
+     "equilibrio": {
+      "description": "Mitad del rango: arriba es premium, abajo discount",
+      "title": "Equilibrio",
+      "type": "number"
+     },
+     "ote_abajo": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Retroceso de 62–79 % a favor de la estructura (None sin rupturas)",
+      "title": "Ote Abajo"
+     },
+     "ote_arriba": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ote Arriba"
+     },
+     "sentido": {
+      "anyOf": [
+       {
+        "enum": [
+         "alcista",
+         "bajista"
+        ],
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sentido"
+     },
+     "zona_precio": {
+      "description": "Dónde está el último cierre revelado",
+      "enum": [
+       "premium",
+       "discount",
+       "equilibrio"
+      ],
+      "title": "Zona Precio",
+      "type": "string"
+     }
+    },
+    "required": [
+     "alto",
+     "alto_t",
+     "bajo",
+     "bajo_t",
+     "equilibrio",
+     "ote_abajo",
+     "ote_arriba",
+     "sentido",
+     "zona_precio"
+    ],
+    "title": "RangoOperativo",
+    "type": "object"
+   },
    "Referencias": {
     "additionalProperties": false,
     "properties": {
@@ -3428,6 +3542,62 @@
     "title": "VentanaSesion",
     "type": "object"
    },
+   "ZonaBPR": {
+    "additionalProperties": false,
+    "properties": {
+     "abajo": {
+      "title": "Abajo",
+      "type": "number"
+     },
+     "arriba": {
+      "title": "Arriba",
+      "type": "number"
+     },
+     "conocido_ms": {
+      "title": "Conocido Ms",
+      "type": "integer"
+     },
+     "fvg_previo_t": {
+      "title": "Fvg Previo T",
+      "type": "integer"
+     },
+     "invalidado_ms": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Invalidado Ms"
+     },
+     "lado": {
+      "enum": [
+       "alcista",
+       "bajista"
+      ],
+      "title": "Lado",
+      "type": "string"
+     },
+     "t": {
+      "description": "El FVG más nuevo de los dos (apertura de su tercera vela)",
+      "title": "T",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "t",
+     "lado",
+     "arriba",
+     "abajo",
+     "fvg_previo_t",
+     "conocido_ms",
+     "invalidado_ms"
+    ],
+    "title": "ZonaBPR",
+    "type": "object"
+   },
    "ZonaFVG": {
     "additionalProperties": false,
     "properties": {
@@ -3478,6 +3648,65 @@
      "mitigada_ms"
     ],
     "title": "ZonaFVG",
+    "type": "object"
+   },
+   "ZonaIFVG": {
+    "additionalProperties": false,
+    "properties": {
+     "abajo": {
+      "title": "Abajo",
+      "type": "number"
+     },
+     "arriba": {
+      "title": "Arriba",
+      "type": "number"
+     },
+     "conocido_ms": {
+      "title": "Conocido Ms",
+      "type": "integer"
+     },
+     "fvg_t": {
+      "description": "El FVG original (apertura de su tercera vela)",
+      "title": "Fvg T",
+      "type": "integer"
+     },
+     "invalidado_ms": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Cierre de la vela que lo atravesó de vuelta (None: vigente al límite)",
+      "title": "Invalidado Ms"
+     },
+     "lado": {
+      "description": "Lado desde el que se lee después de la inversión",
+      "enum": [
+       "alcista",
+       "bajista"
+      ],
+      "title": "Lado",
+      "type": "string"
+     },
+     "t": {
+      "description": "Apertura de la vela que atravesó el FVG por cierre",
+      "title": "T",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "t",
+     "lado",
+     "arriba",
+     "abajo",
+     "fvg_t",
+     "conocido_ms",
+     "invalidado_ms"
+    ],
+    "title": "ZonaIFVG",
     "type": "object"
    }
   }

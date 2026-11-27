@@ -12,7 +12,7 @@ import { conSigno, porcentaje, precio, tono } from '../../lib/formato';
 interface Fila {
   precio: number;
   nombre: string;
-  tipo: 'nivel' | 'sesion' | 'fvg' | 'orden';
+  tipo: 'nivel' | 'sesion' | 'fvg' | 'orden' | 'rango';
 }
 
 export function MapaNiveles({
@@ -22,6 +22,7 @@ export function MapaNiveles({
   estados,
   dec,
   mostrarFvg,
+  mostrarRango = false,
 }: {
   cuadro: CuadroReplay;
   capas: CapasReplay | null;
@@ -29,6 +30,7 @@ export function MapaNiveles({
   estados: EstadoOrdenSimulada[];
   dec: number;
   mostrarFvg: boolean;
+  mostrarRango?: boolean;
 }) {
   const ultimo = cuadro.velas[cuadro.velas.length - 1]?.c ?? 0;
   const corto: Record<string, string> = { pdh: 'Máx. día anterior', pdl: 'Mín. día anterior', pwh: 'Máx. semana anterior', pwl: 'Mín. semana anterior' };
@@ -44,6 +46,14 @@ export function MapaNiveles({
       filas.push({ precio: z.arriba, nombre: `FVG ${z.lado} (techo)`, tipo: 'fvg' });
       filas.push({ precio: z.abajo, nombre: `FVG ${z.lado} (piso)`, tipo: 'fvg' });
     }
+  const rg = capas?.rango;
+  if (mostrarRango && rg) {
+    filas.push({ precio: rg.equilibrio, nombre: 'EQ 50 % del tramo', tipo: 'rango' });
+    if (rg.ote_abajo !== null && rg.ote_arriba !== null) {
+      filas.push({ precio: rg.ote_arriba, nombre: `OTE ${rg.sentido === 'alcista' ? '62' : '79'} %`, tipo: 'rango' });
+      filas.push({ precio: rg.ote_abajo, nombre: `OTE ${rg.sentido === 'alcista' ? '79' : '62'} %`, tipo: 'rango' });
+    }
+  }
   const vivos = new Set(estados.filter((e) => e.estado === 'abierta' || e.estado === 'esperando_llenado').map((e) => e.id));
   for (const o of ordenes.filter((x) => vivos.has(x.id))) {
     const quien = o.lado === 'compra' ? 'compra' : 'venta';
