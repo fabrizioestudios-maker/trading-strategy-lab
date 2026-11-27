@@ -17,7 +17,7 @@ import pandas as pd
 
 from lab import datos
 
-RAIZ_EXT = os.path.join(datos.RAIZ, "stooq")
+RAIZ_EXT = os.path.join(datos.RAIZ, "externo")
 
 # Instrumento del laboratorio (costos de docs/costos.md) -> símbolos posibles en archivos externos.
 SIMBOLOS = {
@@ -62,7 +62,7 @@ def desde_csv(ruta):
 
 
 def archivo(instr, carpeta=RAIZ_EXT):
-    """Busca data/stooq/<instr>.csv o un archivo con alguno de sus símbolos (p. ej. ^spx_d.csv)."""
+    """Busca data/externo/<instr>.csv o un archivo con alguno de sus símbolos (p. ej. ^spx_d.csv)."""
     cand = [os.path.join(carpeta, f"{instr}.csv")]
     for s in SIMBOLOS[instr]:
         cand += [os.path.join(carpeta, f"{s}_d.csv"), os.path.join(carpeta, f"{s}.csv")]

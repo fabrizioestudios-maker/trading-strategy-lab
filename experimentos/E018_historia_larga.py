@@ -3,7 +3,7 @@ E018 — Fase 3: las candidatas, con parámetros fijos, en otras condiciones de 
 
 Uso:
   python experimentos/E018_historia_larga.py metodo    # velas diarias de HistData como serie base vs el motor M1 (< 2022)
-  python experimentos/E018_historia_larga.py calidad   # control de calidad de data/stooq/*.csv por año
+  python experimentos/E018_historia_larga.py calidad   # control de calidad de data/externo/*.csv por año
   python experimentos/E018_historia_larga.py solape    # 2010–2021: la misma prueba con los CSV externos y con HistData
   python experimentos/E018_historia_larga.py prueba    # 1990–2009 (y 1990–1999, 2000–2009): configuraciones registradas
 
@@ -50,7 +50,7 @@ def cargar(fuente, univ):
         else:
             ruta = diario.archivo(i)
             if ruta is None:
-                print(f"  falta el archivo de {i} en data/stooq/", flush=True)
+                print(f"  falta el archivo de {i} en data/externo/", flush=True)
                 continue
             series[i] = diario.desde_csv(ruta)
     return series
@@ -181,7 +181,7 @@ if __name__ == "__main__":
         out.to_csv("resultados/E018/calidad.csv", index=False)
         print(out.to_string(index=False))
     elif modo == "solape":
-        ext, _ = correr("stooq", [("2010-01-01", "2022-01-01")])
+        ext, _ = correr("externo", [("2010-01-01", "2022-01-01")])
         hd, _ = correr("histdata", [("2010-01-01", "2022-01-01")])
         a, b = list(ext.values())[0], list(hd.values())[0]
         cmp = a[["id", "senal", "univ", "k", "n", "wr", "exp"]].merge(b[["id", "n", "wr", "exp"]], on="id", suffixes=("_ext", "_histdata"))
@@ -191,7 +191,7 @@ if __name__ == "__main__":
         print(cmp.round(3).to_string(index=False))
     elif modo == "prueba":
         tr = [("1990-01-01", "2010-01-01"), ("1990-01-01", "2000-01-01"), ("2000-01-01", "2010-01-01")]
-        tablas, resultados = correr("stooq", tr, con_vecinos=True)
+        tablas, resultados = correr("externo", tr, con_vecinos=True)
         for (d, h), t in tablas.items():
             t = criterios(t)
             t.to_csv(f"resultados/E018/prueba_{d[:4]}_{h[:4]}.csv", index=False)

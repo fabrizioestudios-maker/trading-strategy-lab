@@ -596,3 +596,69 @@ Para las tres: TP = 2,1·SL, k de 3 a 6 ATR, la misma regla de elección de la e
 - Si nada pasa, la conclusión "muy difícil con este enfoque" queda confirmada con 36 años de datos.
 
 **Próximo paso:** pedir permiso de red para stooq.com (el proxy lo bloqueó con 403), bajar los datos y hacer el control de calidad.
+
+---
+
+## 2026-11-27 00:20 UTC — Entrada 18: nuevo foco pedido por el usuario y búsqueda exhaustiva en los últimos 5 años (registrada antes de correrla)
+
+**Pedido de Fabrizio (27/11/2026):** no desviarse del objetivo, que es una estrategia rentable con win rate ≥ 50 % y RR 1:2, preferiblemente en los últimos 5 años. Probar todas las combinaciones y entregar los parámetros para configurar el probador de estrategias.
+
+**Qué cambia**
+- **La fase 3 (1990–2009) queda pausada.** Hasta dónde llegó:
+  - Stooq no responde desde este entorno; Yahoo sí.
+  - Los índices de Yahoo tienen velas OHLC buenas desde 1990 (Nikkei desde 1989, Hang Seng desde 1990).
+  - El oro y la plata de Yahoo (futuros GC=F y SI=F) no sirven antes de 2012: entre el 35 % y el 50 % de las velas no tienen rango o son incoherentes (`resultados/E018/calidad.csv`).
+  - El método con velas diarias quedó validado: reproduce exactamente el motor M1 (`lab/diario.py`, `lab/descarga_yahoo.py`, E018).
+- **2022–2026 deja de ser una validación intacta: ahora es el período objetivo.** Para no elegir por azar, los 5 años se parten en dos:
+  - elección: 15/11/2021–14/11/2024 (3 años);
+  - confirmación: 15/11/2024–13/11/2026 (2 años). Se mira solo para las combinaciones que pasan la elección, y se informan todas.
+- **RR 1:2 = TP a 2 × la distancia del SL**, como se configura en un probador. Los costos se descuentan, así que el payoff real queda apenas debajo de 2.
+
+**Grilla (E019)**
+- **Instrumentos (13):** oro, plata, EURUSD, GBPUSD, USDJPY, AUDUSD, S&P 500, Nasdaq 100, Nikkei 225, FTSE 100, CAC 40, ASX 200 y Hang Seng. El DAX y el WTI quedan afuera porque tienen datos rotos dentro del período (el WTI, un hueco de 940 días desde diciembre de 2023).
+- **Temporalidades:** M5, M15, H1, H4 y D1. La señal se toma al cierre de la vela y la entrada es en la apertura de la siguiente.
+- **Familias de estado.** Se prueban en modo "estado" (entra cada vez que está sin posición y la condición sigue) y en modo "cambio" (solo cuando la condición cambia):
+  - precio sobre la SMA 20/50/100/200;
+  - tendencia: cierre sobre la SMA 50/200 y la SMA subiendo 20 velas;
+  - cruce de EMA 9/21, 20/50 y 50/200;
+  - momentum de 10/20/60/120 velas;
+  - estado de Donchian 20/55;
+  - ADX(14) > 25 a favor del +DI o del −DI;
+  - Supertrend (10, 3).
+- **Familias de evento:**
+  - ruptura de Donchian 10/20/55;
+  - RSI(2) < 5/10/25 a favor de la SMA 200;
+  - RSI(14) que vuelve de 30/70 o de 20/80;
+  - Bollinger (20, 2) en contra (reversión) y a favor (ruptura);
+  - cierre en el mínimo de 3/5/10 velas a favor de la SMA 200;
+  - inside bar y NR7 a favor de la SMA 50;
+  - vela envolvente;
+  - martillo y estrella fugaz;
+  - tres cierres en contra dentro de la tendencia;
+  - cruce de MACD (12, 26, 9);
+  - estocástico (14, 3) que sale de 20/80;
+  - solo en M5 y M15: ruptura del rango de apertura de Nueva York (09:30–10:00 NY) y del rango asiático (19:00–00:00 NY).
+- **Control:** comprar siempre y vender siempre. Mide cuánto aporta la deriva sola.
+- **Filtros:**
+  - ninguno;
+  - SMA 200 de la misma temporalidad a favor;
+  - tendencia diaria (cierre diario sobre la SMA 200 diaria, última vela cerrada), para M5–H4.
+- **Dirección:** ambas, solo compras o solo ventas.
+- **Salidas:** SL = k × ATR(14) de la temporalidad, con k ∈ {0,5; 1; 1,5; 2; 3; 4; 6}. TP = 2 × SL. Una operación a la vez por instrumento, sin break-even, parciales ni trailing.
+
+**Regla de elección (fijada antes de correr)**
+1. **Elección** (15/11/2021–14/11/2024):
+   - al menos 30 operaciones;
+   - win rate ≥ 50 % y expectancy > 0;
+   - en cada uno de los 3 años, al menos 5 operaciones y win rate ≥ 40 %;
+   - con los k vecinos de la grilla, win rate ≥ 45 %.
+2. **Confirmación** (15/11/2024–13/11/2026), para todas las que pasan el paso 1: al menos 15 operaciones, win rate ≥ 50 % y expectancy > 0.
+3. **Orden final** de las que pasan los dos pasos: límite inferior de Wilson del win rate de los 5 años. A igualdad, gana la más simple y después la de mayor expectancy.
+4. **Siempre se informan:**
+   - cuántas combinaciones se probaron y cuántas pasaron cada paso;
+   - la comparación con comprar o vender siempre (mismo instrumento, temporalidad, dirección y k);
+   - para las finalistas, el resultado en 2010–2021, con costos dobles y con TP 2,1.
+
+**Advertencia registrada de antemano.** Con decenas de miles de combinaciones, algunas pasan la elección por azar. Además, el oro y los índices subieron mucho en este período, lo que favorece a las compras. Por eso se exige la confirmación en 2 años que no se usaron para elegir, la comparación con comprar siempre y la prueba de las finalistas en 2010–2021.
+
+**Entregables:** parámetros para configurar el probador de estrategias y la estrategia en Pine Script (TradingView).
