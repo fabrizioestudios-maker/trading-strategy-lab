@@ -54,18 +54,36 @@ const HERRAMIENTAS: Herramienta[] = [
     fuente: '—',
   },
   {
-    nombre: 'Liquidez y barridos',
-    estado: 'planificado',
-    que: 'Barridos de pivotes y de extremos de sesión.',
-    evidencia: 'lab/smc.py y lab/ict.py ya los detectan para E023 y E038 (sin ventaja). Falta exponerlos como capa.',
-    fuente: 'lab/smc.py · detectar(), lab/ict.py · s1_barrido()',
+    nombre: 'Barridos de liquidez',
+    estado: 'disponible',
+    capa: 'barridos',
+    que: 'Una vela pasa el último pivote y cierra de vuelta sin romperlo. Cada pivote se marca una sola vez.',
+    evidencia: 'El barrido con cierre de vuelta fue el gatillo del setup E023 y de varios modelos de E038: sin ventaja después de costos.',
+    fuente: 'nexus_api/capas.py, definiciones de lab/smc.py y lab/ict.py',
   },
   {
     nombre: 'Order blocks',
-    estado: 'planificado',
-    que: 'Última vela contraria antes del impulso que rompe estructura.',
-    evidencia: 'Definidos en lab/ict.py (s2_breaker) para E038, sin ventaja. Falta la capa.',
-    fuente: 'lab/ict.py',
+    estado: 'disponible',
+    capa: 'ob',
+    que: 'En cada ruptura, la última vela contraria de las 10 anteriores. El gráfico muestra los 2 más recientes sin mitigar.',
+    evidencia: 'Definidos como en lab/ict.py (setup 2, E038): sin ventaja después de costos.',
+    fuente: 'nexus_api/capas.py',
+  },
+  {
+    nombre: 'RSI (14)',
+    estado: 'disponible',
+    capa: 'rsi',
+    que: 'Panel debajo del gráfico, calculado con lab/senales.py solo con velas reveladas.',
+    evidencia: 'Las familias de indicadores clásicos (E001–E018) no dieron una regla que sobreviva la validación.',
+    fuente: 'nexus_api/indicadores.py',
+  },
+  {
+    nombre: 'MACD (12, 26, 9)',
+    estado: 'disponible',
+    capa: 'macd',
+    que: 'Panel con histograma, línea y señal, sincronizado con el gráfico.',
+    evidencia: 'Igual que el RSI: descriptivo, sin ventaja probada en el laboratorio.',
+    fuente: 'nexus_api/indicadores.py',
   },
   {
     nombre: 'Premium/discount y OTE',
@@ -107,7 +125,7 @@ export default function Herramientas() {
             <li key={h.nombre} className="herramienta">
               <div className="herramienta__cabeza">
                 <strong>{h.nombre}</strong>
-                {h.estado === 'disponible' ? <Insignia tono="activo">Disponible</Insignia> : <Insignia>Planificado</Insignia>}
+                {h.estado === 'disponible' ? <Insignia tono="activo" icono="check">Disponible</Insignia> : <Insignia icono="reloj">Planificado</Insignia>}
               </div>
               <p className="herramienta__que">{h.que}</p>
               <p className="herramienta__evidencia">

@@ -155,7 +155,7 @@ def test_resumen_contexto_y_referencias_tipados(cliente):
     ref = cliente.get("/api/v1/referencias").json()
     assert [p["clave"] for p in ref["perfiles_costos"]][:2] == ["costos_md", "sin_costos"]
     assert {s["nombre"] for s in ref["sesiones"]} == {"Asia", "Londres", "Nueva York", "Cierre", "Reapertura"}
-    assert {e["clave"] for e in ref["estados_orden"]} == {"posterior_al_limite", "esperando_llenado", "rechazada", "abierta", "cerrada"}
+    assert {e["clave"] for e in ref["estados_orden"]} == {"posterior_al_limite", "esperando_llenado", "rechazada", "abierta", "cerrada", "cancelada", "vencida"}
     assert ref["temporalidades"] == [1, 5, 15, 60, 240, 1440]
 
 
@@ -190,3 +190,35 @@ def test_robustez_de_la_corrida_usa_el_laboratorio_y_no_inventa():
     assert [f["p_dd_20"] for f in filas] == [round(float(x), 4) for x in ref.p_dd_20]  # mismos números que el laboratorio
     assert ROB.montecarlo(ops.r.values[:5], 15.0) == ([], None)  # con muy pocas operaciones no se calcula
     _ = cfg
+
+
+def test_horario_del_mercado_del_oro():
+    from nexus_api import sesiones as SE
+
+    ms = lambda s: int(__import__("pandas").Timestamp(s, tz="America/New_York").value // 10**6)  # noqa: E731
+    a = SE.estado_mercado(ms("2026-11-25 14:00"))  # miércoles
+    assert a["abierto"] and a["proximo"] == "cierre" and a["proximo_ms"] == ms("2026-11-25 17:00") and "3 h 0 min" in a["texto"]
+    b = SE.estado_mercado(ms("2026-11-25 17:30"))  # pausa diaria
+    assert not b["abierto"] and b["motivo"] == "pausa diaria" and b["proximo_ms"] == ms("2026-11-25 18:00")
+    c = SE.estado_mercado(ms("2026-11-28 12:00"))  # sábado
+    assert not c["abierto"] and c["proximo_ms"] == ms("2026-11-29 18:00")
+    d = SE.estado_mercado(ms("2026-11-27 17:05"))  # viernes después del cierre
+    assert not d["abierto"] and d["proximo_ms"] == ms("2026-11-29 18:00")
+    e = SE.estado_mercado(ms("2026-11-29 19:00"))  # domingo a la noche
+    assert e["abierto"] and e["proximo_ms"] == ms("2026-11-30 17:00")
+
+
+def test_ficha_de_mercado_con_definiciones_del_laboratorio(tmp_path):
+    from lab import senales as S
+
+    largo = m1_sintetico(dias=420, semilla=8)
+    svc = ServicioDatos(carpeta=str(tmp_path), m1_inyectado={"XAUUSD": largo})
+    c = TestClient(crear_app(svc))
+    f = c.get("/api/v1/mercado/XAUUSD").json()
+    d1, _ = svc.velas_hasta("XAUUSD", 1440, int(largo["t"][-1]), 260)
+    cierres = np.array([v["c"] for v in d1], float)
+    esperado = {1: "alcista", -1: "bajista", 0: "neutral"}[int(S.tendencia({"c": cierres})[-1])]
+    assert f["sesgo"] == esperado and len(f["cierres"]) == 60
+    assert 0 <= f["posicion_rango_pct"] <= 100 and f["minimo_52s"] <= f["ultimo"] <= f["maximo_52s"]
+    assert f["ultimo_ms"] == int(largo["t"][-1])
+    assert c.get("/api/v1/mercado/EURUSD").status_code == 503  # sin datos: no se inventa

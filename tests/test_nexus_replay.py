@@ -163,6 +163,9 @@ def test_capas_sin_futuro_y_prefijo_identico(svc, tf):
         assert all(r["t"] + tf * 60_000 <= fin for r in a["rupturas"])
         assert all(z["conocido_ms"] <= fin and (z["mitigada_ms"] is None or z["mitigada_ms"] <= fin) for z in a["fvg"])
         assert all(z["arriba"] > z["abajo"] for z in a["fvg"])
+        assert all(x["t"] + tf * 60_000 <= fin for x in a["barridos"])
+        assert all(ob["conocido_ms"] <= fin and ob["arriba"] >= ob["abajo"] and ob["t"] < ob["ruptura_t"] for ob in a["order_blocks"])
+        assert all(ob["mitigado_ms"] is None or ob["mitigado_ms"] <= fin for ob in a["order_blocks"])
 
 
 def test_pivotes_iguales_a_los_del_laboratorio():
@@ -294,3 +297,18 @@ def test_cuenta_simulada_suma_el_resultado_de_las_ordenes(svc):
         assert cta["sin_tamano"] == 1 and cta["margen_libre"] == pytest.approx(cta["equidad"] - cta["margen"], abs=0.02)
         if cta["abiertas"] == 0:
             assert cta["margen"] == 0 and cta["nivel_margen_pct"] is None
+
+
+def test_barridos_cierran_de_vuelta_y_order_blocks_son_velas_contrarias(svc):
+    from nexus_api import capas as CA
+
+    lim = int(M1["t"][-1])
+    a = CA.capas(svc, "XAUUSD", 15, lim, 800)
+    velas = {v["t"]: v for v in svc.velas_hasta("XAUUSD", 15, lim, 900)[0]}
+    assert a["barridos"] and a["order_blocks"], "la ventana sintética debería tener barridos y order blocks"
+    for b in a["barridos"]:
+        v = velas[b["t"]]
+        assert (v["h"] > b["nivel"] >= v["c"]) if b["lado"] == "arriba" else (v["l"] < b["nivel"] <= v["c"])
+    for ob in a["order_blocks"]:
+        v = velas[ob["t"]]
+        assert (v["c"] < v["o"]) if ob["lado"] == "alcista" else (v["c"] > v["o"])

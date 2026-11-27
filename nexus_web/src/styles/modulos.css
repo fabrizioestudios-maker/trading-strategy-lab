@@ -721,6 +721,11 @@ input.selector--chico {
   border-radius: 3px 3px 0 0;
 }
 
+.barras__barra--acento {
+  background: linear-gradient(180deg, var(--gold-claro), #b9852b);
+  border-radius: 3px 3px 0 0;
+}
+
 .barras__barra--neg {
   background: var(--neg);
   border-radius: 0 0 3px 3px;
@@ -1515,4 +1520,340 @@ input.selector--chico {
 
 .mapa__nombre {
   max-width: 160px;
+}
+
+/* ================================================================ resumen estilo «trading lab» */
+.resumen__fecha {
+  color: var(--gold);
+  font-size: var(--fs-2);
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.estado-mercado {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: var(--control-h);
+  padding: 0 12px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--text-2);
+  font-size: var(--fs-2);
+  font-weight: 500;
+}
+
+.estado-mercado__punto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-off);
+}
+
+.estado-mercado.es-abierto {
+  color: var(--text);
+  border-color: rgb(232 168 58 / 45%);
+}
+
+.estado-mercado.es-abierto .estado-mercado__punto {
+  background: var(--gold);
+  box-shadow: 0 0 0 3px rgb(232 168 58 / 20%);
+}
+
+.resumen__superior {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: var(--s4);
+  align-items: start;
+}
+
+.tarjetas-mercado {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--s4);
+}
+
+.tarjeta-mercado {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, #11161f 0%, var(--surface) 60%);
+  box-shadow: var(--sombra-panel);
+  min-width: 0;
+  transition: border-color var(--t-fast) var(--ease);
+}
+
+.tarjeta-mercado:hover {
+  border-color: var(--line-strong);
+}
+
+.tarjeta-mercado__cabeza {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tarjeta-mercado__cabeza h2 {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.tarjeta-mercado__cabeza .tenue {
+  font-size: var(--fs-1);
+}
+
+.tarjeta-mercado__barra-cab {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--fs-1);
+  color: var(--text-3);
+}
+
+.tarjeta-mercado__barra-cab span:last-child {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.barra-progreso {
+  height: 5px;
+  border-radius: 999px;
+  background: var(--surface-3);
+  overflow: hidden;
+}
+
+.barra-progreso span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #c88a24, var(--gold-claro));
+}
+
+.barra-progreso--fina {
+  height: 4px;
+  margin: 6px 0;
+}
+
+.tarjeta-mercado__texto {
+  font-size: var(--fs-2);
+  color: var(--text-2);
+  line-height: 1.5;
+  min-height: 3em;
+}
+
+.tarjeta-mercado__pie {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tarjeta-mercado__pie > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--fs-2);
+  font-weight: 600;
+}
+
+.tarjeta-mercado__precio {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.tarjeta-mercado__base {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-1);
+}
+
+.tarjeta-mercado.es-cargando {
+  min-height: 210px;
+}
+
+.tarjeta-mercado__esqueleto {
+  display: block;
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--surface-2), var(--surface-3), var(--surface-2));
+  background-size: 200% 100%;
+  animation: brillo 1.4s linear infinite;
+}
+
+.tarjeta-mercado__esqueleto--corto {
+  width: 60%;
+}
+
+@keyframes brillo {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tarjeta-mercado__esqueleto {
+    animation: none;
+  }
+}
+
+.minigrafico {
+  flex: none;
+}
+
+.lab-lateral {
+  padding: 16px;
+  gap: 14px;
+  border-radius: 12px;
+}
+
+.lab-lateral__cabeza {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lab-lateral__cabeza h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-4);
+}
+
+.lab-lateral__cabeza h2 svg {
+  color: var(--gold);
+}
+
+.lab-lateral__bloque,
+.lab-lateral__prueba {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--chart-bg);
+  font-size: var(--fs-2);
+}
+
+.lab-lateral__nombre {
+  font-weight: 600;
+  margin: 2px 0 6px;
+}
+
+.lab-lateral__prueba strong {
+  font-size: var(--fs-2);
+}
+
+.lab-lateral__prueba .tenue {
+  font-size: var(--fs-1);
+}
+
+.lab-lateral__conteos {
+  display: flex;
+  gap: 8px;
+}
+
+.lab-lateral__conteos .conteo {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  text-decoration: none;
+}
+
+.lab-lateral__conteos .conteo:hover {
+  border-color: var(--gold);
+}
+
+.lab-lateral__conteos .conteo__n {
+  color: var(--text);
+  font-size: var(--fs-5);
+}
+
+.cinta {
+  display: flex;
+  gap: 0;
+  margin-top: var(--s4);
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.cinta__item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 12px 18px;
+  font-size: var(--fs-2);
+  white-space: nowrap;
+  border-right: 1px solid var(--line);
+}
+
+.cinta__item:last-child {
+  border-right: 0;
+}
+
+.cinta__n {
+  color: var(--text-3);
+  font-size: var(--fs-1);
+}
+
+.cinta__nombre {
+  font-size: var(--fs-1);
+}
+
+.actividad li {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 10px;
+  padding: 10px 0;
+  font-size: var(--fs-2);
+}
+
+.actividad__icono {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--accent-soft);
+  color: var(--gold);
+}
+
+.actividad a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.actividad a:hover {
+  color: var(--gold);
+}
+
+.actividad .tenue {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 3px;
+  font-size: var(--fs-1);
+}
+
+@media (max-width: 1100px) {
+  .resumen__superior {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .tarjetas-mercado {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

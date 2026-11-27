@@ -28,6 +28,8 @@ const CAPAS: [keyof ReturnType<typeof useEspacio>['estado']['prefs']['capas'], s
   ['ordenes', 'Órdenes simuladas'],
   ['estructura', 'Estructura: BOS y CHOCH'],
   ['fvg', 'FVG sin mitigar'],
+  ['barridos', 'Barridos de liquidez'],
+  ['ob', 'Order blocks sin mitigar'],
 ];
 
 export default function Replay({ params }: { params: Record<string, string> }) {
@@ -153,8 +155,14 @@ export default function Replay({ params }: { params: Record<string, string> }) {
         l.push({ id: `fvg-${z.t}`, precio: z.abajo, titulo: '', tipo: 'zona' });
       }
     }
+    if (prefs.capas.ob && r.capas) {
+      for (const ob of r.capas.order_blocks.filter((x) => x.mitigado_ms === null).slice(-2)) {
+        l.push({ id: `ob-${ob.t}`, precio: ob.arriba, titulo: `OB ${ob.lado === 'alcista' ? '▲' : '▼'}`, tipo: 'zona' });
+        l.push({ id: `ob-${ob.t}`, precio: ob.abajo, titulo: '', tipo: 'zona' });
+      }
+    }
     return l;
-  }, [c, prefs.capas.niveles, prefs.capas.ordenes, prefs.capas.fvg, r.estadosOrdenes, r.ordenes, r.capas]);
+  }, [c, prefs.capas.niveles, prefs.capas.ordenes, prefs.capas.fvg, prefs.capas.ob, r.estadosOrdenes, r.ordenes, r.capas]);
 
   const marcas = useMemo<Marca[]>(() => {
     if (!c) return [];
@@ -169,8 +177,9 @@ export default function Replay({ params }: { params: Record<string, string> }) {
       for (const p of r.capas.pivotes) m.push({ t: p.t, tipo: p.tipo === 'alto' ? 'pivoteAlto' : 'pivoteBajo', texto: '' });
       for (const x of r.capas.rupturas) m.push({ t: x.t, tipo: 'ruptura', texto: x.tipo, arriba: x.lado === 'alcista' });
     }
+    if (prefs.capas.barridos && r.capas) for (const b of r.capas.barridos) m.push({ t: b.t, tipo: 'barrido', texto: 'Barrido', arriba: b.lado === 'arriba' });
     return m;
-  }, [c, prefs.capas.senales, prefs.capas.ordenes, prefs.capas.estructura, r.estadosOrdenes, r.capas]);
+  }, [c, prefs.capas.senales, prefs.capas.ordenes, prefs.capas.estructura, prefs.capas.barridos, r.estadosOrdenes, r.capas]);
 
   const pestanas: { id: Pestana; etiqueta: string; contador?: number }[] = [
     { id: 'operar', etiqueta: 'Operar' },

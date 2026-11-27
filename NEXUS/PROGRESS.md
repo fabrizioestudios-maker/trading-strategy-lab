@@ -46,10 +46,26 @@ Branch: `nexus/rebuild-ux-foundation`. `main` untouched.
   max drawdown 9.11 R; the UI curve's drawdown matches the API's `max_dd`.
 
 ### Next steps
-1. iFVG/BPR, sweeps and order blocks as layers, defined without look-ahead and tested like the current ones.
+1. iFVG/BPR and premium/discount/OTE as layers, defined without look-ahead and tested like the current ones.
 2. Stop orders in the replay once a fill model is validated.
 3. Explicit date-range selection in the replay.
 4. Deployment plan (container + mounted `data/`, authentication) — only with explicit authorization.
+
+### Update — Overview like the "Institutional Trading Lab" reference, new layers, polish
+- Overview rebuilt after Fabrizio's reference: market cards per instrument (descriptive SMA 200 trend bias from
+  `lab/senales.tendencia`, position in the 52-week range as a meter, factual sentence, last historical price and change,
+  60-day sparkline, "open in replay"), a ticker strip of every instrument with data, the gold market status by schedule
+  (open/closed and countdown; holidays not considered, said in the UI), a lab column (candidate, last run, forward tests,
+  hypothesis counts) and an activity feed. Every card states the date its data ends; nothing is presented as live.
+  The reference's confidence %, AI narratives and news feed were not copied: there is no data behind them.
+- New descriptive layers: liquidity sweeps and order blocks (closed candles only, prefix-invariance tested); RSI and MACD
+  listed in the Toolkit.
+- Fixes found by the visual review: bars overflowing their chart when all values had the same sign (zero line was on
+  the wrong side) — fixed and covered by a unit test and an E2E overflow check on every screen; status badges that looked
+  alike in the gold theme; month heatmap and benchmark table styling; limit-order states listed in Execution.
+- Tests: pytest **76 passed**; Vitest **31 passed**; Playwright **11 passed** (new: no chart bar leaves its box and no
+  console errors on any screen; Overview shows real market cards and the market schedule). The focus check was made
+  deterministic (it now waits for the app's own focus move) and passed 54 consecutive runs.
 
 ### Update — visual direction from Fabrizio's reference (gold terminal)
 - Fabrizio supplied a reference screenshot of the desired look. The user's direction overrides the brief's palette: gold/amber

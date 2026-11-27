@@ -167,25 +167,25 @@ export default function Ejecucion() {
           <Panel titulo="Tipos de orden">
             <ul className="lista planificado">
               <li>
-                <Insignia tono="activo">Disponible</Insignia>
+                <Insignia tono="activo" icono="check">Disponible</Insignia>
                 <span>
                   <strong>A mercado</strong>en el replay: se llena en la apertura del minuto siguiente al límite, con el motor del laboratorio.
                 </span>
               </li>
               <li>
-                <Insignia tono="activo">Disponible</Insignia>
+                <Insignia tono="activo" icono="check">Disponible</Insignia>
                 <span>
                   <strong>Límite</strong>en el replay, con lab/smc.py: se llena al tocar la entrada, se cancela si antes llega al objetivo y vence a los N minutos.
                 </span>
               </li>
               <li>
-                <Insignia>Planificado</Insignia>
+                <Insignia icono="reloj">Planificado</Insignia>
                 <span>
                   <strong>Stop</strong>sin modelo de llenado probado todavía.
                 </span>
               </li>
               <li>
-                <Insignia tono="aviso">No implementado</Insignia>
+                <Insignia tono="aviso" icono="cruz">No implementado</Insignia>
                 <span>
                   <strong>Envío a un bróker</strong>no existe ruteo de órdenes. Haría falta una integración autorizada y probada.
                 </span>

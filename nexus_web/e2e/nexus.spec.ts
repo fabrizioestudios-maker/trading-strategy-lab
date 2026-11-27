@@ -151,6 +151,35 @@ test('laboratorio: una corrida real pasa por sus estados y termina en la analít
   await expect(page.getByRole('heading', { name: 'Monte Carlo de riesgo' })).toBeVisible();
 });
 
+test('ningún gráfico de barras se sale de su caja y no hay errores en ninguna pantalla', async ({ page }) => {
+  const errores = vigilarErrores(page);
+  for (const ruta of ['resumen', 'replay', 'laboratorio', 'herramientas', 'ejecucion', 'analitica', 'datos', 'ajustes']) {
+    await page.goto(`/#/${ruta}`);
+    await page.waitForLoadState('networkidle');
+    const fuera = await page.$$eval('.barras__trazado', (cajas) =>
+      cajas.flatMap((caja) => {
+        const c = caja.getBoundingClientRect();
+        return [...caja.querySelectorAll('.barras__barra')]
+          .map((b) => b.getBoundingClientRect())
+          .filter((b) => b.top < c.top - 1 || b.bottom > c.bottom + 1)
+          .map((b) => `${Math.round(b.top)}-${Math.round(b.bottom)} fuera de ${Math.round(c.top)}-${Math.round(c.bottom)}`);
+      }),
+    );
+    expect(fuera, ruta).toEqual([]);
+  }
+  expect(errores).toEqual([]);
+});
+
+test('el resumen muestra fichas reales de mercado y el horario del oro', async ({ page }) => {
+  await page.goto('/#/resumen');
+  const tarjeta = page.getByRole('article', { name: 'XAUUSD' });
+  await expect(tarjeta).toBeVisible();
+  await expect(tarjeta.getByRole('meter', { name: 'Posición en el rango de 52 semanas' })).toBeVisible();
+  await expect(tarjeta).toContainText(/SMA 200 diaria/);
+  await expect(page.getByRole('status').filter({ hasText: /^Oro (abierto|cerrado)/ })).toBeVisible();
+  await expect(page.getByRole('region', { name: /Precios de cierre/ })).toContainText('XAUUSD');
+});
+
 test('accesibilidad: todos los botones tienen nombre y el foco se ve', async ({ page }) => {
   for (const ruta of ['resumen', 'replay', 'laboratorio', 'ejecucion', 'ajustes']) {
     await page.goto(`/#/${ruta}`);
@@ -160,6 +189,8 @@ test('accesibilidad: todos los botones tienen nombre y el foco se ve', async ({ 
     );
     expect(sinNombre, ruta).toEqual([]);
   }
+  // al cambiar de pantalla la app enfoca el contenido principal; recién después se navega con Tab
+  await expect.poll(() => page.evaluate(() => document.activeElement?.id)).toBe('contenido');
   await page.keyboard.press('Tab');
   const foco = await page.evaluate(() => getComputedStyle(document.activeElement as Element).boxShadow);
   expect(foco).not.toBe('none');

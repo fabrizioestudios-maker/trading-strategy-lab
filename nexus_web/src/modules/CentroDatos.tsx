@@ -113,6 +113,7 @@ export default function CentroDatos() {
                 etiqueta="Velas de 1 minuto por año"
                 alto={140}
                 formato={(v) => `${entero(v)} minutos`}
+                magnitud
                 datos={calidad.datos.cobertura_anual.map((x) => ({ clave: String(x.anio), valor: Number(x.velas), detalle: 'velas de 1 minuto' }))}
               />
             </>

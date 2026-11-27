@@ -102,3 +102,36 @@ def proxima_entrada_1815(t_ms: int) -> str:
         c = c + timedelta(days=1)
     c = datetime(c.year, c.month, c.day, 18, 15, tzinfo=NY)
     return f"{DIAS[c.weekday()]} {c:%Y-%m-%d} 18:15 NY"
+
+
+def estado_mercado(ahora_ms: int) -> dict:
+    """
+    Horario del oro al contado (y del FX): abre el domingo 18:00 NY y cierra el viernes 17:00 NY, con una pausa diaria de
+    17:00 a 18:00 NY de lunes a jueves. No considera feriados (se avisa).
+    """
+    d = a_ny(ahora_ms)
+    m = d.hour * 60 + d.minute
+    wd = d.weekday()  # 0 = lunes
+    def en(dias, hh):
+        base = datetime(d.year, d.month, d.day, tzinfo=NY) + timedelta(days=dias)
+        return int(datetime(base.year, base.month, base.day, hh, 0, tzinfo=NY).timestamp() * 1000)
+    if wd == 5 or (wd == 4 and m >= 17 * 60) or (wd == 6 and m < 18 * 60):
+        dias = {4: 2, 5: 1, 6: 0}[wd]
+        abierto, prox, cuando = False, "apertura", en(dias, 18)
+        motivo = "fin de semana"
+    elif 17 * 60 <= m < 18 * 60:
+        abierto, prox, cuando, motivo = False, "apertura", en(0, 18), "pausa diaria"
+    else:
+        abierto, prox, motivo = True, "cierre", None
+        cuando = en(0, 17) if m < 17 * 60 else en(1, 17)
+        if wd == 4 or (wd == 3 and m >= 18 * 60):
+            motivo = "cierra el viernes"
+    falta = max(0, cuando - ahora_ms)
+    h, mi = falta // 3600000, (falta % 3600000) // 60000
+    texto = f"{'Abierto' if abierto else 'Cerrado'}: {'cierra' if abierto else 'abre'} en {h} h {mi} min ({SE_hora(cuando)})"
+    return dict(abierto=abierto, motivo=motivo, proximo=prox, proximo_ms=cuando, texto=texto, ahora_ms=ahora_ms,
+                nota="Horario de referencia del oro y el FX. No considera feriados.")
+
+
+def SE_hora(t_ms: int) -> str:
+    return DIAS[a_ny(t_ms).weekday()] + " " + a_ny(t_ms).strftime("%H:%M") + " NY"

@@ -29,6 +29,8 @@ ESTADOS_ORDEN = [
     ("rechazada", "La apertura de llenado ya estaba más allá del stop o del objetivo (regla del motor)."),
     ("abierta", "Llenada y sin tocar stop ni objetivo: el R no realizado se mide al cierre del último minuto revelado."),
     ("cerrada", "Tocó el objetivo o el stop. Si los dos caen en el mismo minuto, cuenta el stop."),
+    ("cancelada", "Solo límite: el precio llegó al objetivo antes de tocar la entrada (regla de lab/smc.py)."),
+    ("vencida", "Solo límite: pasaron los minutos de mercado pedidos sin que el precio tocara la entrada."),
 ]
 
 ESTADOS_TRABAJO = [

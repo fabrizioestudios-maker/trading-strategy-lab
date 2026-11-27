@@ -959,3 +959,9 @@
 .divisor:focus-visible {
   box-shadow: none;
 }
+
+.tabla--envuelve-cabeza th {
+  white-space: normal;
+  line-height: 1.25;
+  padding-block: 6px;
+}

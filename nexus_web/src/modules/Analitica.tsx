@@ -353,7 +353,7 @@ function MapaMeses({ filas }: { filas: { mes: string; n: number; r_total: number
                     key={i}
                     className="num"
                     title={`${MESES[i]} ${a}: ${conSigno(x.r, 2, 'R')} en ${x.n} operaciones`}
-                    style={{ background: x.r >= 0 ? `rgb(43 174 149 / ${intensidad})` : `rgb(224 107 74 / ${intensidad})` }}
+                    style={{ background: x.r >= 0 ? `rgb(69 193 126 / ${intensidad})` : `rgb(224 83 58 / ${intensidad})` }}
                   >
                     {conSigno(x.r, 1)}
                   </td>
@@ -438,7 +438,7 @@ function PanelRobustez({ rob }: { rob: Robustez | null }) {
   const pct = (v: number | null | undefined, d = 1) => (v === null || v === undefined ? '—' : porcentaje(v * 100, d));
   return (
     <div className="apilado">
-      <div className="grilla grilla--principal">
+      <div className="grilla grilla--2">
         <Panel
           titulo="Pliegues anuales"
           subtitulo={`La regla no cambia entre años: ${rob.pliegues_positivos} de ${rob.pliegues_con_operaciones} años con operaciones dieron expectativa positiva`}
@@ -456,14 +456,14 @@ function PanelRobustez({ rob }: { rob: Robustez | null }) {
         </Panel>
         <Panel titulo="Contra benchmarks pasivos" subtitulo="Resultado diario marcado a mercado contra oro pasivo" sinRelleno>
           <div className="tabla-envoltura">
-            <table className="tabla">
+            <table className="tabla tabla--envuelve-cabeza">
               <thead>
                 <tr>
                   <th>Benchmark</th>
                   <th className="der">IR de tasación</th>
                   <th className="der">p (α &gt; 0)</th>
                   <th className="der">Correlación</th>
-                  <th className="der">Sharpe E022 / bench.</th>
+                  <th className="der">Sharpe E022 / benchmark</th>
                 </tr>
               </thead>
               <tbody>

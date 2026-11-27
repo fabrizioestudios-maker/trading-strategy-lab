@@ -12,8 +12,8 @@ from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import CONTRATO, VERSION, capas as CAPAS, catalogo, estrategias as E022, indicadores as IND, referencias, riesgo, sesiones as SE, simulacion
-from .contratos import (CalculoRiesgo, CapasReplay, ConfigCorrida, CuentaSimulada, PedidoCuenta, ContextoInvestigacion, CuadroReplay, EstadoOrdenSimulada, Estrategia,
+from . import CONTRATO, VERSION, capas as CAPAS, catalogo, estrategias as E022, indicadores as IND, mercados, referencias, riesgo, sesiones as SE, simulacion
+from .contratos import (CalculoRiesgo, CapasReplay, ConfigCorrida, CuentaSimulada, FichaMercado, HorarioMercado, PedidoCuenta, ContextoInvestigacion, CuadroReplay, EstadoOrdenSimulada, Estrategia,
                         Hipotesis, InformeCalidad, Instrumento, Paso, PedidoOrdenes, PedidoRiesgo, Referencias, Resumen, Salud,
                         Trabajo)
 from .datos import TEMPORALIDADES, DatosNoDisponibles, ServicioDatos
@@ -66,6 +66,16 @@ def crear_app(svc: ServicioDatos | None = None, gestor: GestorTrabajos | None = 
     def refs():
         """Definiciones que la interfaz muestra tal cual: sesiones, perfiles de costos, estados de órdenes y de trabajos."""
         return referencias.referencias()
+
+    @app.get("/api/v1/mercado/horario", response_model=HorarioMercado)
+    def horario(ahora_ms: int | None = None):
+        """Si el mercado del oro está abierto ahora (por horario, sin feriados) y cuánto falta para el próximo cambio."""
+        return SE.estado_mercado(ahora_ms if ahora_ms is not None else int(time.time() * 1000))
+
+    @app.get("/api/v1/mercado/{simbolo}", response_model=FichaMercado)
+    def ficha_mercado(simbolo: str):
+        """Ficha de un instrumento para el Resumen: último dato histórico, cambio, tendencia y rango de 52 semanas."""
+        return mercados.ficha(svc, simbolo)
 
     @app.get("/api/v1/resumen", response_model=Resumen)
     def resumen(simbolo: str = "XAUUSD"):

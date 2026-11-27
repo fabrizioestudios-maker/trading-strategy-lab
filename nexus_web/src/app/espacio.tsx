@@ -20,7 +20,7 @@ export interface Preferencias {
   apalancamiento: number;
   navColapsada: boolean;
   panelReplay: { visible: boolean; ancho: number; pestana: 'operar' | 'ordenes' | 'decision' | 'eventos' };
-  capas: { sesiones: boolean; niveles: boolean; ordenes: boolean; senales: boolean; estructura: boolean; fvg: boolean; rsi: boolean; macd: boolean };
+  capas: { sesiones: boolean; niveles: boolean; ordenes: boolean; senales: boolean; estructura: boolean; fvg: boolean; barridos: boolean; ob: boolean; rsi: boolean; macd: boolean };
 }
 
 export const PREFS_INICIALES: Preferencias = {
@@ -37,7 +37,7 @@ export const PREFS_INICIALES: Preferencias = {
   apalancamiento: 50,
   navColapsada: false,
   panelReplay: { visible: true, ancho: 340, pestana: 'operar' },
-  capas: { sesiones: true, niveles: true, ordenes: true, senales: true, estructura: false, fvg: false, rsi: true, macd: true },
+  capas: { sesiones: true, niveles: true, ordenes: true, senales: true, estructura: false, fvg: false, barridos: false, ob: false, rsi: true, macd: true },
 };
 
 export interface ReplayReciente {

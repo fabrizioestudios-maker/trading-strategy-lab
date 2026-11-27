@@ -32,7 +32,7 @@ export interface LineaPrecio {
 
 export interface Marca {
   t: number;
-  tipo: 'compra' | 'venta' | 'salida' | 'entrada' | 'pivoteAlto' | 'pivoteBajo' | 'ruptura';
+  tipo: 'compra' | 'venta' | 'salida' | 'entrada' | 'pivoteAlto' | 'pivoteBajo' | 'ruptura' | 'barrido';
   texto: string;
   arriba?: boolean;
 }
@@ -301,6 +301,7 @@ export function GraficoVelas({
       else if (x.tipo === 'entrada') m.push({ time, position: 'belowBar', shape: 'circle', color: txt, text: x.texto });
       else if (x.tipo === 'pivoteAlto') m.push({ time, position: 'aboveBar', shape: 'circle', color: css('--text-3'), text: x.texto, size: 0.5 });
       else if (x.tipo === 'pivoteBajo') m.push({ time, position: 'belowBar', shape: 'circle', color: css('--text-3'), text: x.texto, size: 0.5 });
+      else if (x.tipo === 'barrido') m.push({ time, position: x.arriba ? 'aboveBar' : 'belowBar', shape: 'circle', color: css('--text-2'), text: x.texto, size: 0.6 });
       else if (x.tipo === 'ruptura') m.push({ time, position: x.arriba ? 'aboveBar' : 'belowBar', shape: 'square', color: css('--gold'), text: x.texto, size: 0.6 });
       else m.push({ time, position: 'aboveBar', shape: 'square', color: txt, text: x.texto });
     }

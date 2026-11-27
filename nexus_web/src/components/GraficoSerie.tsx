@@ -39,7 +39,14 @@ export function GraficoSerie({
     });
     const serie =
       tipo === 'linea'
-        ? chart.addLineSeries({ color: css('--gold'), lineWidth: 2, priceLineVisible: false, lastValueVisible: true })
+        ? chart.addAreaSeries({
+            lineColor: css('--gold'),
+            topColor: 'rgba(232,168,58,0.32)',
+            bottomColor: 'rgba(232,168,58,0.02)',
+            lineWidth: 2,
+            priceLineVisible: false,
+            lastValueVisible: true,
+          })
         : // el área va entre la línea y el cero (no hasta el borde del gráfico)
           chart.addBaselineSeries({
             baseValue: { type: 'price', price: 0 },

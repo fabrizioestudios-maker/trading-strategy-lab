@@ -9,6 +9,8 @@ Definiciones (las de lab/smc.py y lab/ict.py, reproducibles en Pine):
 - Ruptura: el cierre de una vela supera el último pivote alto conocido en la vela anterior (alcista) o perfora el último
   pivote bajo (bajista). Cada pivote se rompe una sola vez. BOS si va a favor del estado previo de la estructura (o si no
   había estado), CHOCH si lo da vuelta.
+- Barrido: una vela cerrada supera el último pivote conocido pero cierra de vuelta (no lo rompe). Cada pivote, una vez.
+- Order block: en cada ruptura, la última vela contraria de las 10 anteriores; queda mitigado cuando el precio vuelve.
 - FVG alcista en j: l[j] > h[j-2], vela j-1 alcista y hueco >= 0,25 · ATR(14) de Wilder (lab/ict.py). Bajista, espejado.
   Queda mitigado cuando una vela cerrada posterior vuelve a tocar el hueco.
 La ventana usa las últimas `cantidad` velas cerradas más un margen; al principio de la ventana el estado de la estructura
@@ -52,11 +54,13 @@ def capas(svc, simbolo: str, tf: int, limite_ms: int, cantidad: int = 300) -> di
     tf_ms = tf * 60_000
     j_lim = svc.indice_limite(simbolo, limite_ms)
     t_lim = int(svc.m1(simbolo)["t"][j_lim]) if j_lim >= 0 else limite_ms
-    base = dict(simbolo=simbolo, temporalidad=tf, limite_ms=t_lim, pivotes=[], rupturas=[], estado_estructura=0, fvg=[],
+    base = dict(simbolo=simbolo, temporalidad=tf, limite_ms=t_lim, pivotes=[], rupturas=[], estado_estructura=0, fvg=[], barridos=[], order_blocks=[],
                 definiciones=[
                     f"Pivote: extremo con {L_PIVOTE} velas a cada lado; se conoce al cierre de la vela {L_PIVOTE} posterior.",
                     "BOS: el cierre rompe el último pivote a favor de la estructura. CHOCH: lo rompe en contra y la da vuelta.",
                     f"FVG: hueco entre la vela 1 y la 3 de al menos {MIN_FVG_ATR:g} × ATR(14), con la vela del medio a favor.",
+                    "Barrido: una vela pasa el último pivote sin romperlo por cierre (cierra de vuelta del otro lado).",
+                    "Order block: la última vela contraria en las 10 velas previas a una ruptura; mitigado cuando el precio vuelve a tocarlo.",
                 ],
                 nota="Descriptivo. E038: los modelos SMC/ICT del laboratorio rinden como el azar después de costos.")
     n = len(cerr)
@@ -70,14 +74,36 @@ def capas(svc, simbolo: str, tf: int, limite_ms: int, cantidad: int = 300) -> di
     confirmados: dict[int, list] = {}
     for j, tipo, precio in piv:
         confirmados.setdefault(j + L_PIVOTE, []).append((j, tipo, precio))
-    estado, alto, bajo, rupturas = 0, None, None, []
+    estado, alto, bajo, rupturas, barridos, obs = 0, None, None, [], [], []
+
+    def bloque(i, lado):
+        """Order block: la última vela contraria (bajista para una ruptura alcista) en las 10 velas previas a la ruptura."""
+        for k in range(i - 1, max(-1, i - 11), -1):
+            if (lado == "alcista" and c[k] < o[k]) or (lado == "bajista" and c[k] > o[k]):
+                return k
+        return None
+
     for i in range(n):
         if alto is not None and not alto["roto"] and c[i] > alto["precio"]:
             rupturas.append(dict(t=int(t[i]), tipo="CHOCH" if estado == -1 else "BOS", lado="alcista", nivel=alto["precio"], pivote_t=alto["t"]))
             alto["roto"], estado = True, 1
+            k = bloque(i, "alcista")
+            if k is not None:
+                obs.append(dict(t=int(t[k]), lado="alcista", arriba=round(float(h[k]), 5), abajo=round(float(l[k]), 5), ruptura_t=int(t[i]), k=k, i=i))
         elif bajo is not None and not bajo["roto"] and c[i] < bajo["precio"]:
             rupturas.append(dict(t=int(t[i]), tipo="CHOCH" if estado == 1 else "BOS", lado="bajista", nivel=bajo["precio"], pivote_t=bajo["t"]))
             bajo["roto"], estado = True, -1
+            k = bloque(i, "bajista")
+            if k is not None:
+                obs.append(dict(t=int(t[k]), lado="bajista", arriba=round(float(h[k]), 5), abajo=round(float(l[k]), 5), ruptura_t=int(t[i]), k=k, i=i))
+        else:
+            # barrido: la vela pasa el pivote y cierra de vuelta del otro lado (cada pivote se barre una vez)
+            if alto is not None and not alto["roto"] and not alto.get("barrido") and h[i] > alto["precio"] >= c[i]:
+                barridos.append(dict(t=int(t[i]), lado="arriba", nivel=alto["precio"], pivote_t=alto["t"]))
+                alto["barrido"] = True
+            if bajo is not None and not bajo["roto"] and not bajo.get("barrido") and l[i] < bajo["precio"] <= c[i]:
+                barridos.append(dict(t=int(t[i]), lado="abajo", nivel=bajo["precio"], pivote_t=bajo["t"]))
+                bajo["barrido"] = True
         for j, tipo, precio in confirmados.get(i, []):
             p = dict(t=int(t[j]), precio=round(precio, 5), roto=False)
             if tipo == "alto":
@@ -104,7 +130,18 @@ def capas(svc, simbolo: str, tf: int, limite_ms: int, cantidad: int = 300) -> di
                 break
         fvg.append(dict(t=int(t[j]), lado=lado, arriba=round(float(arriba), 5), abajo=round(float(abajo), 5), conocido_ms=int(t[j] + tf_ms), mitigada_ms=mitigada))
 
+    order_blocks = []
+    for b in obs:
+        mit = None
+        for q in range(b["i"] + 1, n):
+            if (b["lado"] == "alcista" and l[q] <= b["arriba"]) or (b["lado"] == "bajista" and h[q] >= b["abajo"]):
+                mit = int(t[q] + tf_ms)
+                break
+        order_blocks.append(dict(t=b["t"], lado=b["lado"], arriba=b["arriba"], abajo=b["abajo"], ruptura_t=b["ruptura_t"],
+                                 conocido_ms=int(b["ruptura_t"] + tf_ms), mitigado_ms=mit))
     base.update(
+        barridos=[x for x in barridos if x["t"] >= desde],
+        order_blocks=[x for x in order_blocks if x["t"] >= desde],
         pivotes=[dict(t=int(t[j]), tipo=tipo, precio=round(precio, 5), confirmado_ms=int(t[j + L_PIVOTE] + tf_ms)) for j, tipo, precio in piv if t[j] >= desde],
         rupturas=[r for r in rupturas if r["t"] >= desde],
         estado_estructura=estado,

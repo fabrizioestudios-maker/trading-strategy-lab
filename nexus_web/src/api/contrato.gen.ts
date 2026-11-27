@@ -1,6 +1,14 @@
 // Generado por `python -m nexus_api.tipos_ts` desde el contrato OpenAPI. No editar a mano.
 // Contrato: Contrato nexus. Versión de la API: 0.1.0.
 
+export interface Barrido {
+  /** Apertura de la vela que barrió el pivote y cerró de vuelta */
+  t: number;
+  lado: "arriba" | "abajo";
+  nivel: number;
+  pivote_t: number;
+}
+
 export interface CalculoRiesgo {
   contrato: string;
   lado: "compra" | "venta";
@@ -29,6 +37,8 @@ export interface CapasReplay {
   /** +1 alcista, -1 bajista, 0 sin rupturas en la ventana */
   estado_estructura: number;
   fvg: Array<ZonaFVG>;
+  barridos: Array<Barrido>;
+  order_blocks: Array<OrderBlock>;
   definiciones: Array<string>;
   nota: string;
 }
@@ -182,6 +192,32 @@ export interface Evento {
   lado: "compra" | "venta" | null;
 }
 
+export interface FichaMercado {
+  contrato: string;
+  simbolo: string;
+  nombre: string;
+  decimales: number;
+  /** Último minuto disponible (histórico, no en vivo) */
+  ultimo_ms: number;
+  ultimo_ny: string;
+  ultimo: number | null;
+  /** Contra el cierre diario anterior */
+  cambio: number | null;
+  cambio_pct: number | null;
+  /** Tendencia de lab/senales.py: SMA 200 y su pendiente. Descriptivo */
+  sesgo: "alcista" | "bajista" | "neutral";
+  sma200: number | null;
+  distancia_sma_pct: number | null;
+  maximo_52s: number | null;
+  minimo_52s: number | null;
+  /** 0 = mínimo de 52 semanas, 100 = máximo */
+  posicion_rango_pct: number | null;
+  /** Últimos 60 cierres diarios */
+  cierres: Array<number | null>;
+  texto: string;
+  nota: string;
+}
+
 export interface FilaMonteCarlo {
   anios: number;
   n_ops: number;
@@ -211,6 +247,16 @@ export interface Hipotesis {
   estado: "pasa" | "falla" | "informativo" | "pendiente" | "registrado";
   resumen: string;
   fuente: string;
+}
+
+export interface HorarioMercado {
+  abierto: boolean;
+  motivo: string | null;
+  proximo: "apertura" | "cierre";
+  proximo_ms: number;
+  texto: string;
+  ahora_ms: number;
+  nota: string;
 }
 
 export interface Indicadores {
@@ -322,6 +368,18 @@ export interface OrdenSimuladaEntrada {
   vence_minutos?: number;
   /** Tamaño con el que se creó (para la cuenta simulada) */
   lotes?: number | null;
+}
+
+export interface OrderBlock {
+  /** Apertura de la vela del order block */
+  t: number;
+  lado: "alcista" | "bajista";
+  arriba: number;
+  abajo: number;
+  ruptura_t: number;
+  /** Cierre de la vela de la ruptura que lo define */
+  conocido_ms: number;
+  mitigado_ms: number | null;
 }
 
 export interface PanelDecision {

@@ -464,6 +464,23 @@ class ZonaFVG(Modelo):
     mitigada_ms: Optional[int] = Field(description="Cierre de la vela que volvió a tocar el hueco (None: sin mitigar al límite)")
 
 
+class Barrido(Modelo):
+    t: int = Field(description="Apertura de la vela que barrió el pivote y cerró de vuelta")
+    lado: Literal["arriba", "abajo"]
+    nivel: float
+    pivote_t: int
+
+
+class OrderBlock(Modelo):
+    t: int = Field(description="Apertura de la vela del order block")
+    lado: Literal["alcista", "bajista"]
+    arriba: float
+    abajo: float
+    ruptura_t: int
+    conocido_ms: int = Field(description="Cierre de la vela de la ruptura que lo define")
+    mitigado_ms: Optional[int]
+
+
 class CapasReplay(Modelo):
     contrato: str = CONTRATO
     simbolo: str
@@ -473,6 +490,8 @@ class CapasReplay(Modelo):
     rupturas: list[Ruptura]
     estado_estructura: int = Field(description="+1 alcista, -1 bajista, 0 sin rupturas en la ventana")
     fvg: list[ZonaFVG]
+    barridos: list[Barrido] = Field(default_factory=list)
+    order_blocks: list[OrderBlock] = Field(default_factory=list)
     definiciones: list[str]
     nota: str
 
@@ -507,3 +526,35 @@ class CuentaSimulada(Modelo):
     sin_tamano: int = Field(description="Órdenes sin lotes guardados: no entran en la cuenta")
     por_orden: list[ResultadoOrden]
     supuestos: list[str]
+
+
+# --------------------------------------------------------------------------------------------- resumen de mercados
+class FichaMercado(Modelo):
+    contrato: str = CONTRATO
+    simbolo: str
+    nombre: str
+    decimales: int
+    ultimo_ms: int = Field(description="Último minuto disponible (histórico, no en vivo)")
+    ultimo_ny: str
+    ultimo: Optional[float]
+    cambio: Optional[float] = Field(description="Contra el cierre diario anterior")
+    cambio_pct: Optional[float]
+    sesgo: Literal["alcista", "bajista", "neutral"] = Field(description="Tendencia de lab/senales.py: SMA 200 y su pendiente. Descriptivo")
+    sma200: Optional[float]
+    distancia_sma_pct: Optional[float]
+    maximo_52s: Optional[float]
+    minimo_52s: Optional[float]
+    posicion_rango_pct: Optional[float] = Field(description="0 = mínimo de 52 semanas, 100 = máximo")
+    cierres: list[Optional[float]] = Field(description="Últimos 60 cierres diarios")
+    texto: str
+    nota: str
+
+
+class HorarioMercado(Modelo):
+    abierto: bool
+    motivo: Optional[str]
+    proximo: Literal["apertura", "cierre"]
+    proximo_ms: int
+    texto: str
+    ahora_ms: int
+    nota: str

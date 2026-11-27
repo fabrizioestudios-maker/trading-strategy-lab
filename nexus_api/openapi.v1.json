@@ -1,6 +1,40 @@
 {
  "components": {
   "schemas": {
+   "Barrido": {
+    "additionalProperties": false,
+    "properties": {
+     "lado": {
+      "enum": [
+       "arriba",
+       "abajo"
+      ],
+      "title": "Lado",
+      "type": "string"
+     },
+     "nivel": {
+      "title": "Nivel",
+      "type": "number"
+     },
+     "pivote_t": {
+      "title": "Pivote T",
+      "type": "integer"
+     },
+     "t": {
+      "description": "Apertura de la vela que barrió el pivote y cerró de vuelta",
+      "title": "T",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "t",
+     "lado",
+     "nivel",
+     "pivote_t"
+    ],
+    "title": "Barrido",
+    "type": "object"
+   },
    "CalculoRiesgo": {
     "additionalProperties": false,
     "properties": {
@@ -101,6 +135,13 @@
    "CapasReplay": {
     "additionalProperties": false,
     "properties": {
+     "barridos": {
+      "items": {
+       "$ref": "#/components/schemas/Barrido"
+      },
+      "title": "Barridos",
+      "type": "array"
+     },
      "contrato": {
       "default": "nexus.v1",
       "title": "Contrato",
@@ -132,6 +173,13 @@
      "nota": {
       "title": "Nota",
       "type": "string"
+     },
+     "order_blocks": {
+      "items": {
+       "$ref": "#/components/schemas/OrderBlock"
+      },
+      "title": "Order Blocks",
+      "type": "array"
      },
      "pivotes": {
       "items": {
@@ -165,6 +213,8 @@
      "rupturas",
      "estado_estructura",
      "fvg",
+     "barridos",
+     "order_blocks",
      "definiciones",
      "nota"
     ],
@@ -1051,6 +1101,182 @@
     "title": "Evento",
     "type": "object"
    },
+   "FichaMercado": {
+    "additionalProperties": false,
+    "properties": {
+     "cambio": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Contra el cierre diario anterior",
+      "title": "Cambio"
+     },
+     "cambio_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Cambio Pct"
+     },
+     "cierres": {
+      "description": "Últimos 60 cierres diarios",
+      "items": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "title": "Cierres",
+      "type": "array"
+     },
+     "contrato": {
+      "default": "nexus.v1",
+      "title": "Contrato",
+      "type": "string"
+     },
+     "decimales": {
+      "title": "Decimales",
+      "type": "integer"
+     },
+     "distancia_sma_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Distancia Sma Pct"
+     },
+     "maximo_52s": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Maximo 52S"
+     },
+     "minimo_52s": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Minimo 52S"
+     },
+     "nombre": {
+      "title": "Nombre",
+      "type": "string"
+     },
+     "nota": {
+      "title": "Nota",
+      "type": "string"
+     },
+     "posicion_rango_pct": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "0 = mínimo de 52 semanas, 100 = máximo",
+      "title": "Posicion Rango Pct"
+     },
+     "sesgo": {
+      "description": "Tendencia de lab/senales.py: SMA 200 y su pendiente. Descriptivo",
+      "enum": [
+       "alcista",
+       "bajista",
+       "neutral"
+      ],
+      "title": "Sesgo",
+      "type": "string"
+     },
+     "simbolo": {
+      "title": "Simbolo",
+      "type": "string"
+     },
+     "sma200": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sma200"
+     },
+     "texto": {
+      "title": "Texto",
+      "type": "string"
+     },
+     "ultimo": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ultimo"
+     },
+     "ultimo_ms": {
+      "description": "Último minuto disponible (histórico, no en vivo)",
+      "title": "Ultimo Ms",
+      "type": "integer"
+     },
+     "ultimo_ny": {
+      "title": "Ultimo Ny",
+      "type": "string"
+     }
+    },
+    "required": [
+     "contrato",
+     "simbolo",
+     "nombre",
+     "decimales",
+     "ultimo_ms",
+     "ultimo_ny",
+     "ultimo",
+     "cambio",
+     "cambio_pct",
+     "sesgo",
+     "sma200",
+     "distancia_sma_pct",
+     "maximo_52s",
+     "minimo_52s",
+     "posicion_rango_pct",
+     "cierres",
+     "texto",
+     "nota"
+    ],
+    "title": "FichaMercado",
+    "type": "object"
+   },
    "FilaMonteCarlo": {
     "additionalProperties": false,
     "properties": {
@@ -1290,6 +1516,61 @@
      "fuente"
     ],
     "title": "Hipotesis",
+    "type": "object"
+   },
+   "HorarioMercado": {
+    "additionalProperties": false,
+    "properties": {
+     "abierto": {
+      "title": "Abierto",
+      "type": "boolean"
+     },
+     "ahora_ms": {
+      "title": "Ahora Ms",
+      "type": "integer"
+     },
+     "motivo": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Motivo"
+     },
+     "nota": {
+      "title": "Nota",
+      "type": "string"
+     },
+     "proximo": {
+      "enum": [
+       "apertura",
+       "cierre"
+      ],
+      "title": "Proximo",
+      "type": "string"
+     },
+     "proximo_ms": {
+      "title": "Proximo Ms",
+      "type": "integer"
+     },
+     "texto": {
+      "title": "Texto",
+      "type": "string"
+     }
+    },
+    "required": [
+     "abierto",
+     "motivo",
+     "proximo",
+     "proximo_ms",
+     "texto",
+     "ahora_ms",
+     "nota"
+    ],
+    "title": "HorarioMercado",
     "type": "object"
    },
    "Indicadores": {
@@ -1877,6 +2158,63 @@
      "tp"
     ],
     "title": "OrdenSimuladaEntrada",
+    "type": "object"
+   },
+   "OrderBlock": {
+    "additionalProperties": false,
+    "properties": {
+     "abajo": {
+      "title": "Abajo",
+      "type": "number"
+     },
+     "arriba": {
+      "title": "Arriba",
+      "type": "number"
+     },
+     "conocido_ms": {
+      "description": "Cierre de la vela de la ruptura que lo define",
+      "title": "Conocido Ms",
+      "type": "integer"
+     },
+     "lado": {
+      "enum": [
+       "alcista",
+       "bajista"
+      ],
+      "title": "Lado",
+      "type": "string"
+     },
+     "mitigado_ms": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Mitigado Ms"
+     },
+     "ruptura_t": {
+      "title": "Ruptura T",
+      "type": "integer"
+     },
+     "t": {
+      "description": "Apertura de la vela del order block",
+      "title": "T",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "t",
+     "lado",
+     "arriba",
+     "abajo",
+     "ruptura_t",
+     "conocido_ms",
+     "mitigado_ms"
+    ],
+    "title": "OrderBlock",
     "type": "object"
    },
    "PanelDecision": {
@@ -3272,6 +3610,93 @@
      }
     },
     "summary": "Contexto"
+   }
+  },
+  "/api/v1/mercado/horario": {
+   "get": {
+    "description": "Si el mercado del oro está abierto ahora (por horario, sin feriados) y cuánto falta para el próximo cambio.",
+    "operationId": "horario_api_v1_mercado_horario_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "ahora_ms",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Ahora Ms"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HorarioMercado"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Horario"
+   }
+  },
+  "/api/v1/mercado/{simbolo}": {
+   "get": {
+    "description": "Ficha de un instrumento para el Resumen: último dato histórico, cambio, tendencia y rango de 52 semanas.",
+    "operationId": "ficha_mercado_api_v1_mercado__simbolo__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "simbolo",
+      "required": true,
+      "schema": {
+       "title": "Simbolo",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/FichaMercado"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Ficha Mercado"
    }
   },
   "/api/v1/referencias": {
