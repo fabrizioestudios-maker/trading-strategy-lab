@@ -3,7 +3,7 @@
  * siempre el mismo cuadro. La interfaz nunca pide ni guarda datos posteriores al límite.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { api, ErrorApi } from '../../api/cliente';
+import { api, ErrorApi, ESTATICO } from '../../api/cliente';
 import { useAvisos } from '../../app/avisos';
 import type { CapasReplay, CuadroReplay, CuentaSimulada, EstadoOrdenSimulada } from '../../api/contrato.gen';
 import { useEspacio, type OrdenGuardada } from '../../app/espacio';
@@ -79,7 +79,8 @@ export function useReplay(): Replay {
     const ctl = new AbortController();
     const t0 = performance.now();
     setCargando(true);
-    const pedido = ordenes.map(({ simbolo: _s, ...o }) => o);
+    // la versión publicada solo tiene grabada la cuenta sin órdenes
+    const pedido = ESTATICO ? [] : ordenes.map(({ simbolo: _s, ...o }) => o);
     Promise.all([
       api.cuadro(simbolo, tf, limite, cantidad, ctl.signal),
       pedido.length ? api.ordenes({ simbolo, limite_ms: limite, ordenes: pedido }, ctl.signal) : Promise.resolve([] as EstadoOrdenSimulada[]),

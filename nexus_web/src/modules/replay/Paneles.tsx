@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { api } from '../../api/cliente';
+import { api, ESTATICO } from '../../api/cliente';
 import type { CalculoRiesgo, CuadroReplay, EstadoOrdenSimulada, Evento } from '../../api/contrato.gen';
 import { useAvisos } from '../../app/avisos';
 import { useEspacio, type OrdenGuardada } from '../../app/espacio';
@@ -333,12 +333,14 @@ export function PanelOrdenes({
         ) : (
           <p className="tenue">Calculando tamaño y costos…</p>
         )}
-        <button type="submit" className="ticket__crear" disabled={!!problema}>
+        <button type="submit" className="ticket__crear" disabled={!!problema || ESTATICO}>
           {tipo === 'limite' ? `Crear orden límite de ${lado}` : `Crear orden simulada de ${lado}`}
         </button>
         <p className="campo__ayuda">
           <Icono nombre="info" tam={12} /> Simulación: no sale a ningún bróker.{' '}
-          {tipo === 'limite'
+          {ESTATICO
+            ? 'En la versión publicada no se crean órdenes: necesitan NEXUS corriendo en una computadora.'
+            : tipo === 'limite'
             ? 'Se llena al tocar la entrada; si antes llega al objetivo, se cancela (lab/smc.py).'
             : 'Se llena en la apertura del minuto siguiente; si stop y objetivo caen en el mismo minuto, cuenta el stop.'}
         </p>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { api } from '../api/cliente';
+import { api, ESTATICO } from '../api/cliente';
 import type { FichaMercado, Trabajo } from '../api/contrato.gen';
 import { useRecurso } from '../api/recurso';
 import { espaciosGuardados, useEspacio } from '../app/espacio';
@@ -34,6 +34,12 @@ function useFichas(simbolos: string[]) {
 }
 
 function EstadoMercado() {
+  // en la versión publicada el horario quedaría congelado en el momento de la grabación: no se muestra
+  if (ESTATICO) return null;
+  return <EstadoMercadoVivo />;
+}
+
+function EstadoMercadoVivo() {
   const h = useRecurso((s) => api.horario(s), []);
   useEffect(() => {
     const t = setInterval(h.recargar, 30_000);
