@@ -1,5 +1,56 @@
 # NEXUS — Progress log
 
+## 2026-11-27 — Phases 0–5: working terminal on the research engine
+
+Branch: `nexus/rebuild-ux-foundation`. `main` untouched.
+
+### Decisions (with evidence)
+- **Stack.** Modular monolith: FastAPI API (`nexus_api/`) over the existing Python/Numba lab, React 18 + TypeScript + Vite UI
+  (`nexus_web/`) served by the same process. No database, queue or cloud service: jobs persist as JSON with provenance
+  (see `NEXUS/IMPLEMENTATION_AUDIT.md` for the audit behind this choice).
+- **One contract.** Pydantic models (`nexus_api/contratos.py`, contract `nexus.v1`) → OpenAPI snapshot
+  (`nexus_api/openapi.v1.json`) → generated TypeScript (`nexus_web/src/api/contrato.gen.ts`). Tests fail if either drifts.
+- **No look-ahead by construction.** The replay boundary is the open of the last revealed minute. Candle completeness and the
+  last closed daily candle are decided by the calendar, never by data availability (a leak found and fixed by prefix tests).
+  Every layer (candles, sessions, E022 decision, PDH/PDL/PWH/PWL, structure, FVG, simulated orders) is tested to be
+  identical when the data is truncated at the boundary.
+- **No financial math in the UI.** Sizing, costs, order resolution (lab/motor, SL first), metrics and layers come from the API.
+  The UI only formats and builds the equity curve for drawing, with the same definition as `lab/ficha.py` (unit-tested).
+- **Honesty in the interface.** Historical data is labeled historical; synthetic mode (`--sintetico`) shows a permanent
+  warning; candidate figures are not painted green; unimplemented capabilities say "Planificado"/"No implementado" with
+  the reason; simulated orders carry a simulation banner.
+
+### Implemented / partial / planned
+| Area | Status | Notes |
+|---|---|---|
+| Shell, 8 modules, command palette, shortcuts, help | Implemented | Ctrl/⌘ K, `G` + letter, `?`, `[`; module commands register while open |
+| Workspaces | Implemented | Browser storage (no secrets), save/load/export/import, undo on destructive changes |
+| Overview | Implemented | Last historical minute with UTC/NY time and source, D1 chart, candidate, forward tests, registry counts, recent runs/replays |
+| Market Replay | Implemented | Play/pause, ±1, ±N, +1 minute, speed, jump (NY time), timeframe, reset, share link, boundary + unrevealed zone, session strip, decision panel, events, levels, simulated market orders, resizable/collapsible panel |
+| Replay range selection | Partial | Zoom/pan on the chart and candles per frame (Settings); no explicit date-range selector |
+| Strategy Lab | Implemented for E022 | Locked periods, confirmed runs, real stages, cancel/retry, provenance; hypotheses (passes and failures), test budget, forward tests. Other strategies are registry-only (not executable) |
+| Toolkit | Partial | Sessions, PDH/PDL/PWH/PWL, structure (pivots, BOS, CHOCH) and FVG as descriptive layers with evidence notes. iFVG/BPR, sweeps, order blocks, premium/discount/OTE planned |
+| Execution Engine | Partial | Risk sizing and costs via API, cost profiles and assumptions, market orders in replay. Limit/stop orders planned; broker routing not implemented by design |
+| Performance Analytics | Implemented (core) | Metrics with definitions, n, period and cost profile; equity, drawdown; by year/side/session/month; cost sensitivity; trades; run comparison. Walk-forward, benchmarks and Monte Carlo planned (lab modules exist, not yet exposed as jobs) |
+| Data Center | Implemented (core) | Inventory, coverage, SHA-256 provenance, quality checks, minutes per year, serving strategy. Import jobs planned (CLI today) |
+| Settings | Implemented | Workspaces, chart/time zone, risk defaults, sessions (read-only), appearance and accessibility, shortcuts, integrations policy |
+| Hardening | Implemented (local scope) | Keyboard, focus, labels, reduced motion, contrast and text size, phone layout, error/empty/loading states, CI workflow |
+| Deployment | Not done | Needs authorization; the API has no authentication and must stay on 127.0.0.1 |
+
+### Test evidence (this environment)
+- `python -m pytest -q tests` → **64 passed** (27 original lab tests + 37 NEXUS: replay/no-future, layers, strategies, API, contracts, jobs).
+- `cd nexus_web && npm test` → **28 passed** (Vitest).
+- `cd nexus_web && npm run e2e` → **8 passed** (Playwright against the synthetic API: navigation, palette and keys,
+  replay no-future and reproducibility, simulated order states, lab run to analytics, accessibility, phone).
+- Real data check: E022 run from the UI (entry 18:15, base costs) → +0.30 R per trade, 95 % CI [+0.07, +0.53], n = 168,
+  max drawdown 9.11 R; the UI curve's drawdown matches the API's `max_dd`.
+
+### Next steps
+1. Expose walk-forward, benchmarks and Monte Carlo (`lab/walkforward.py`, `lab/benchmarks.py`, `lab/montecarlo.py`) as jobs.
+2. Limit orders in the replay with `lab/smc.simular_ordenes` (fills on touch, expiry) and tests.
+3. iFVG/BPR, sweeps and order blocks as layers, defined without look-ahead and tested like the current ones.
+4. Deployment plan (container + mounted `data/`, authentication) — only with explicit authorization.
+
 ## 2026-11-27 — Foundation and repository handoff
 
 ### Completed

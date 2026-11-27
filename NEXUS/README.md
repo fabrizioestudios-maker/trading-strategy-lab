@@ -22,6 +22,17 @@ This repository currently documents and implements a Python quantitative researc
 
 The NEXUS product work must respect that reality. Do not claim that a terminal screen is connected to a capability until an actual integration exists and has been tested. The existing research lab is a valuable domain engine, not automatically a ready-made web backend.
 
+## Run it
+
+```bash
+pip install -r requirements.txt -r nexus_api/requirements.txt
+cd nexus_web && npm ci && npx vite build && cd ..
+python -m nexus_api              # http://127.0.0.1:8800 (real data from data/, not in git)
+python -m nexus_api --sintetico  # clearly labeled synthetic data, for demos and end-to-end tests
+```
+
+Status, decisions and test evidence: [PROGRESS.md](PROGRESS.md). Interface details: [nexus_web/README.md](../nexus_web/README.md).
+
 ## Start here
 
 1. [Master implementation brief](MASTER_PROMPT.md)

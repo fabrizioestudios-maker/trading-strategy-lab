@@ -1,0 +1,48 @@
+# NEXUS: pruebas del laboratorio y de la API (pytest), y de la interfaz (tipos, Vitest, compilación y Playwright).
+# Las pruebas de punta a punta usan la API en modo sintético: no necesitan data/ (que no está en git).
+name: NEXUS
+
+on:
+  push:
+    branches: ["nexus/**"]
+  pull_request:
+    paths: ["nexus_api/**", "nexus_web/**", "lab/**", "tests/**", "requirements.txt", ".github/workflows/nexus.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: nexus_web/package-lock.json
+      - name: Dependencias de Python
+        run: pip install -r requirements.txt -r nexus_api/requirements.txt
+      - name: Laboratorio y API (pytest)
+        run: python -m pytest -q tests
+      - name: Contrato publicado y tipos de la interfaz al día
+        run: |
+          python -m nexus_api.openapi && python -m nexus_api.tipos_ts
+          git diff --exit-code nexus_api/openapi.v1.json nexus_web/src/api/contrato.gen.ts
+      - name: Dependencias de la interfaz
+        working-directory: nexus_web
+        run: npm ci
+      - name: Tipos, pruebas unitarias y compilación
+        working-directory: nexus_web
+        run: npm run typecheck && npm test && npx vite build
+      - name: Navegador para Playwright
+        working-directory: nexus_web
+        run: npx playwright install --with-deps chromium
+      - name: Pruebas de punta a punta (API sintética)
+        working-directory: nexus_web
+        run: npx playwright test

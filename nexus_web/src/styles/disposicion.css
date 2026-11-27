@@ -287,6 +287,7 @@ button.chip-limite:hover {
 
 .principal:focus-visible {
   box-shadow: none;
+  border-radius: 0;
 }
 
 .pagina {
@@ -552,8 +553,13 @@ button.chip-limite:hover {
     padding-right: 4px;
   }
 
-  .marca__texto {
+  .marca__texto,
+  .buscador .tecla {
     display: none;
+  }
+
+  .buscador {
+    min-width: 0;
   }
 
   .barra {

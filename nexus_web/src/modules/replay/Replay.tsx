@@ -151,7 +151,7 @@ export default function Replay({ params }: { params: Record<string, string> }) {
     { id: 'decision', etiqueta: 'Decisión' },
     { id: 'ordenes', etiqueta: 'Órdenes', contador: r.ordenes.length },
     { id: 'eventos', etiqueta: 'Eventos', contador: c?.eventos.length },
-    { id: 'niveles', etiqueta: 'Niveles y capas' },
+    { id: 'niveles', etiqueta: 'Capas' },
   ];
 
   return (

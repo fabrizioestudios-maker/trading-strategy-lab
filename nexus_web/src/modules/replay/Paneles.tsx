@@ -102,10 +102,13 @@ export function PanelOrdenes({
   const [calculo, setCalculo] = useState<CalculoRiesgo | null>(null);
   const [errorCalc, setErrorCalc] = useState<string | null>(null);
 
+  // mientras el usuario no edite el stop o el objetivo, la propuesta sigue al precio de referencia
+  const [editado, setEditado] = useState(false);
   const proponer = (l: 'compra' | 'venta') => {
     const d = l === 'compra' ? 1 : -1;
     setSl((referencia - d * distancia).toFixed(dec));
     setTp((referencia + d * 2 * distancia).toFixed(dec));
+    setEditado(false);
   };
   useEffect(() => {
     if (ladoInicial) {
@@ -115,7 +118,7 @@ export function PanelOrdenes({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ladoInicial?.n]);
   useEffect(() => {
-    if (!sl && !tp && referencia) proponer(lado);
+    if (referencia && (!editado || (!sl && !tp))) proponer(lado);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [referencia]);
 
@@ -193,15 +196,40 @@ export function PanelOrdenes({
         </div>
         <div className="ticket__campos">
           <Campo etiqueta="Stop (precio)">
-            {(id) => <input id={id} className="entrada" inputMode="decimal" value={sl} onChange={(e) => setSl(e.target.value)} />}
+            {(id) => (
+              <input
+                id={id}
+                className="entrada"
+                inputMode="decimal"
+                value={sl}
+                onChange={(e) => {
+                  setSl(e.target.value);
+                  setEditado(true);
+                }}
+              />
+            )}
           </Campo>
           <Campo etiqueta="Objetivo (precio)">
-            {(id) => <input id={id} className="entrada" inputMode="decimal" value={tp} onChange={(e) => setTp(e.target.value)} />}
+            {(id) => (
+              <input
+                id={id}
+                className="entrada"
+                inputMode="decimal"
+                value={tp}
+                onChange={(e) => {
+                  setTp(e.target.value);
+                  setEditado(true);
+                }}
+              />
+            )}
           </Campo>
         </div>
         {problema ? (
           <p className="campo__error" role="alert">
-            {problema}
+            {problema}{' '}
+            <button type="button" className="boton boton--texto boton--chico" onClick={() => proponer(lado)}>
+              Proponer de nuevo
+            </button>
           </p>
         ) : calculo ? (
           <dl className="definiciones ticket__calculo">
