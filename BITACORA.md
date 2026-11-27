@@ -790,3 +790,75 @@ Son unas 9.500 combinaciones por activo y par, unas 171.000 en total.
    - los parámetros que funcionan en más activos a la vez.
 
 **Antecedente que se registra.** Los 1.584 modelos SMC/ICT de LuxAlgo y el Setup A+ ya probados en oro dieron como máximo 44 % y 42 % de acierto. Con stops intradía chicos, la teoría pide una ventaja muy grande para llegar a 50 % con 1:2.
+
+---
+
+## 2026-11-27 00:57 UTC — Entrada 21: resultados del setup SMC (E023–E024)
+
+**Grilla (E023).** Se probaron 171.072 combinaciones: 6 activos × 3 pares de temporalidades × 9.504. Tardó 60 segundos. US30 queda pendiente por falta de datos.
+- **Paso 1** (elección): pasan 767.
+- **Paso 2** (confirmación): pasan 219.
+- **Con win rate ≥ 50 % en los 5 años: ninguna.**
+
+Mejor win rate de los 5 años por activo y par, entre las combinaciones con al menos 100 operaciones:
+
+| Activo | 15M–1M | 1H–5M | 4H–15M |
+| --- | --- | --- | --- |
+| XAUUSD | 43,1 % | 44,6 % | 48,5 % |
+| EURUSD | 42,5 % | 43,3 % | 48,0 % |
+| GBPUSD | 45,5 % | 47,1 % | 46,8 % |
+| USDCAD | 45,3 % | 45,6 % | 40,4 % |
+| US100 | 42,6 % | 46,5 % | 42,2 % |
+| US500 | 46,6 % | 45,7 % | 46,1 % |
+
+**La prueba que decide.** Las 680 combinaciones que la elección deja como ganadoras (con al menos 30 operaciones en la confirmación) daban +0,156 R por operación en 2021–2024. En 2024–2026 dieron **−0,096 R en promedio**, con 33–35 % de acierto. Todas las combinaciones juntas dieron −0,172 R. Elegir los parámetros por el pasado mejora algo, pero no alcanza para ganar después. Por tipo de entrada, solo la entrada a mercado queda cerca del empate (−0,001 R; la mitad positivas); por activo, solo el oro (+0,010 R).
+
+**Qué ingrediente ayuda** (promedio de las 61.389 combinaciones con al menos 100 operaciones):
+- **En general:** 33,0 % de acierto, lo mismo que entrar al azar con RR 1:2, y −0,17 R por operación (los costos).
+
+| Ingrediente | Mejor | Peor |
+| --- | --- | --- |
+| Par de temporalidades | 4H–15M: −0,10 R | 15M–1M: −0,23 R |
+| Entrada | A mercado al romper la estructura: −0,12 R | OB −0,20 R; OTE −0,19 R |
+| Liquidez barrida | Día anterior: −0,09 R | Swing de ejecución: −0,17 R |
+| L (tamaño del swing) | 5: −0,16 R | 2: −0,18 R |
+| Sesgo, killzones, recuperar el nivel, filtro de liquidez | Sin diferencia (±0,01 R) | |
+
+**Versión literal del setup** (1H–5M, EMA 50/200, barrido de swing, cambio de estructura, FVG en descuento, L 3, W 24, V 12):
+
+| Activo | Operaciones | Win rate | Expectancy | Max DD |
+| --- | --- | --- | --- | --- |
+| XAUUSD | 290 | 35,2 % | −0,09 R | 36,9 R |
+| EURUSD | 257 | 32,3 % | −0,21 R | 63,2 R |
+| GBPUSD | 254 | 36,2 % | −0,10 R | 38,0 R |
+| USDCAD | 187 | 40,6 % | +0,02 R | 23,0 R |
+| US100 | 245 | 34,7 % | −0,09 R | 33,6 R |
+| US500 | 218 | 30,3 % | −0,25 R | 61,9 R |
+
+**Mejor combinación de cada activo** (pasa los dos pasos; E024):
+
+| Activo | Par | Configuración | Ops | Win rate | Expectancy | PF | Max DD |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| GBPUSD | 4H–15M | L 5, swing de 4H, W 24, recupera, sin sesgo, a mercado, todas las horas | 139 | 46,8 % | +0,36 R | 1,65 | 7,2 R |
+| US500 | 4H–15M | L 3, swing de 15M, W 12, recupera, precio vs EMA 200, FVG (borde), V 12 | 94 | 46,8 % | +0,31 R | 1,52 | 8,6 R |
+| US100 | 1H–5M | L 5, swing de 5M, W 24, recupera, precio vs EMA 200, order block, V 12, killzones | 101 | 46,5 % | +0,30 R | 1,51 | 7,2 R |
+| XAUUSD | 4H–15M | L 5, swing de 15M, W 12, recupera, estructura 4H, a mercado, filtro de liquidez | 302 | 43,4 % | +0,26 R | 1,43 | 12,8 R |
+| EURUSD | 4H–15M | L 5, swing de 15M, W 24, sin recuperar, EMA 50/200, a mercado, killzones, filtro de liquidez | 211 | 43,6 % | +0,26 R | 1,43 | 7,2 R |
+| USDCAD | 1H–5M | L 2, swing de 1H, W 12, sin recuperar, EMA 50/200, a mercado, killzones | 107 | 43,9 % | +0,23 R | 1,39 | 8,9 R |
+
+- Todas ganan en los 5 años y siguen positivas con costos × 1,5. Sus vecinos de L y W dan entre −0,05 R y +0,40 R.
+- Ojo: se eligieron mirando los 5 años completos (pasos 1 y 2, más el orden). Por la prueba anterior, lo esperable a futuro está cerca del empate, no en +0,3 R.
+
+**Mismos parámetros en los 6 activos.** Es la única combinación positiva en todos con al menos 60 operaciones por activo:
+- **Parámetros:** 4H–15M, L 5, barrido del máximo o mínimo del día anterior, W 24, sin recuperar, sin sesgo, a mercado, killzones.
+- **Resultado:** 511 operaciones, 38,6 % de acierto y +0,12 R por operación. Da +0,10 R en la elección y +0,15 R en la confirmación.
+- **Por activo cambia de signo según el período:** US500 y USDCAD pierden en la confirmación; GBPUSD y US100 pierden en la elección.
+
+**Conclusión**
+- El setup, llevado a reglas, **no muestra una ventaja que se sostenga con RR 1:2** en los últimos 5 años. El acierto promedio es el del azar (33 %), y los costos lo vuelven perdedor.
+- Ninguna variante llega a 50 %. Las mejores (43–47 %) son, en buena parte, la cola afortunada de una distribución centrada debajo de cero.
+- Lo que más ayuda es estructural: temporalidades más grandes (menos costo por R), entrar al romper la estructura en vez de esperar el retroceso (las órdenes límite se llenan sobre todo cuando el movimiento falla) y usar la liquidez del día anterior.
+
+**Entregable:** `pine/smc_barrido_estructura.pine`, con todo el setup configurable y cargado por defecto con la configuración común a los 6 activos.
+
+**Pendiente:** US30, si Fabrizio exporta 5 años de M1 desde su MT5.

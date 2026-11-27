@@ -12,6 +12,7 @@ Los datos de HistData son precios bid. SL y TP se evalúan sobre esos precios y 
 | GBPUSD | 1,4 pip | |
 | USDJPY | 1,0 pip (0,010) | |
 | AUDUSD | 1,2 pip | |
+| USDCAD | 1,4 pip | Agregado para el setup SMC (E023); igual que GBPUSD |
 | SPX500 | 0,015 % del precio (~0,9 puntos a 6000) | CFD típico: spread 0,5 punto + deslizamiento |
 | NAS100 | 0,012 % del precio (~2,5 puntos a 21000) | CFD típico: spread 1–1,5 punto + deslizamiento |
 | DAX (GER40) | 0,012 % del precio (~2,8 puntos a 23000) | CFD típico: spread 1–1,5 punto + deslizamiento |

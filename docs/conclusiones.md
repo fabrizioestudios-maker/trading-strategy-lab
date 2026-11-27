@@ -20,6 +20,21 @@ A pedido de Fabrizio se buscó una estrategia para los **últimos 5 años**: 185
 
 Cumple el objetivo en los últimos 5 años y es la única finalista que también ganó en los 10 años anteriores, aunque con menos de 50 % de acierto. Funciona solo en oro. Lo esperable a futuro está más cerca de 45–50 % con expectancy positiva que del 55 % reciente.
 
+## El setup SMC de Fabrizio para scalping y daytrading (27/11/2026)
+
+Se probaron 171.072 variantes (E023–E024, `BITACORA.md` entradas 20 y 21) del setup de Fabrizio en los últimos 5 años:
+- **Setup:** barrido de liquidez, cambio de estructura, entrada en una zona de reacción dentro del descuento, dirección de la temporalidad mayor y RR 1:2.
+- **Activos:** XAUUSD, EURUSD, GBPUSD, USDCAD, US100 y US500. US30 queda pendiente por falta de datos.
+- **Temporalidades:** 1H–5M, 4H–15M y 15M–1M.
+
+**Resultados**
+- **Ninguna llega a 50 % de acierto.** El promedio es 33 %, lo mismo que entrar al azar con 1:2, y pierde por los costos.
+- **La versión literal del setup** (1H–5M, EMA 50/200, FVG en descuento) pierde en 5 de los 6 activos: 30–36 % de acierto.
+- **Las mejores de cada activo** dan 43–47 % de acierto y +0,23 a +0,36 R por operación. Pero elegir así no funcionó a futuro: las ganadoras de 2021–2024 dieron −0,10 R en promedio en 2024–2026.
+- **Lo que ayuda:** 4H–15M en vez de 1H–5M o 15M–1M, entrar a mercado al romper la estructura en vez de esperar el FVG, el OB o el OTE, y barrer el máximo o mínimo del día anterior. La dirección con EMA 50/200, las killzones y el filtro de liquidez no cambian el resultado.
+
+**Estrategia para el probador:** `pine/smc_barrido_estructura.pine`, con todas las opciones como parámetros.
+
 ## La estrategia que cumple los criterios mínimos en 2010–2026 (fase 1)
 
 **Nombre:** Tendencia de largo plazo con stop amplio, solo compras ("candidata B").

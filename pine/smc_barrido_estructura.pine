@@ -1,0 +1,270 @@
+//@version=6
+// trading-strategy-lab · E023/E024: el setup SMC de Fabrizio con las mismas reglas que el laboratorio.
+//   1. Liquidez: último swing de la temporalidad de ejecución, último swing de la temporalidad mayor o máximo/mínimo del día anterior.
+//   2. Barrido: una vela perfora ese nivel (opcional: que cierre de vuelta del otro lado). Cada nivel se usa una sola vez.
+//   3. Cambio de estructura: dentro de W velas, un cierre más allá del último swing opuesto (pivote de L velas) conocido al barrido.
+//   4. Rango = extremo del barrido → extremo del tramo. Descuento (compras) o premium (ventas) = del lado del 50 %.
+//   5. Entrada: a mercado al cierre del cambio de estructura, o límite en 50 %, OTE 61,8 %, FVG del tramo (borde o 50 %) u order block,
+//      solo si queda en descuento/premium. La límite vale V velas y se cancela si antes el precio toca el TP.
+//   6. SL detrás del extremo del barrido (+ margen × ATR 14). TP = RR × riesgo. Una operación (u orden) a la vez.
+//   Dirección opcional desde la temporalidad mayor (última vela cerrada): EMA 50/200, precio vs EMA 200 o estructura.
+// Valores por defecto: la configuración que dio positiva en los 6 activos probados (4H → 15M, barrido del día anterior,
+// entrada a mercado, killzones). Usala en un gráfico de 15 minutos. La tabla de la bitácora (entrada 21) tiene las demás.
+strategy("SMC · barrido → cambio de estructura → entrada (RR 1:2)", shorttitle = "SMC Lab", overlay = true,
+     initial_capital = 10000, currency = currency.USD, pyramiding = 0,
+     commission_type = strategy.commission.percent, commission_value = 0.006,
+     margin_long = 0, margin_short = 0, max_bars_back = 500)
+
+grpE = "Liquidez, barrido y estructura"
+L = input.int(5, "Pivote: velas a cada lado (L)", minval = 1, maxval = 10, group = grpE)
+fuente = input.string("Día anterior", "Liquidez que se barre", options = ["Swing de ejecución", "Swing de la temporalidad mayor", "Día anterior"], group = grpE)
+W = input.int(24, "Velas máximas entre barrido y cambio de estructura (W)", minval = 1, maxval = 100, group = grpE)
+recupera = input.bool(false, "La vela del barrido debe cerrar de vuelta del otro lado del nivel", group = grpE)
+
+grpD = "Dirección (temporalidad mayor)"
+tfMayor = input.timeframe("240", "Temporalidad mayor", group = grpD)
+sesgo = input.string("Sin filtro", "Filtro de dirección", options = ["Sin filtro", "EMA 50 sobre EMA 200", "Precio sobre EMA 200", "Estructura"], group = grpD)
+
+grpN = "Entrada y salida"
+entrada = input.string("A mercado", "Entrada", options = ["A mercado", "Equilibrio 50 %", "OTE 61,8 %", "FVG (borde)", "FVG (50 %)", "Order block"], group = grpN)
+V = input.int(12, "Validez de la orden límite (velas)", minval = 1, group = grpN)
+rr = input.float(2.0, "RR (TP = RR × riesgo)", minval = 0.5, step = 0.1, group = grpN)
+margenATR = input.float(0.1, "Margen del SL detrás del barrido (× ATR 14)", minval = 0.0, step = 0.05, group = grpN)
+filtroLiquidez = input.bool(false, "Descartar si hay un swing de la temporalidad mayor entre la entrada y el TP", group = grpN)
+
+grpS = "Sesión, costo, riesgo y fechas"
+sesion = input.string("Killzones (Londres y NY)", "Sesión del cambio de estructura", options = ["Todas", "Killzones (Londres y NY)"], group = grpS)
+costoPct = input.float(0.012, "Costo ida y vuelta (% del precio) para el riesgo mínimo", minval = 0.0, step = 0.001, group = grpS)
+costoAbs = input.float(0.0, "Costo ida y vuelta en precio (0.0001 = 1 pip)", minval = 0.0, step = 0.00001, group = grpS)
+riesgoPct = input.float(1.0, "Riesgo por operación (% del capital)", minval = 0.01, step = 0.25, group = grpS)
+desde = input.time(timestamp("2021-11-15T00:00:00+00:00"), "Desde", group = grpS)
+hasta = input.time(timestamp("2026-11-27T00:00:00+00:00"), "Hasta", group = grpS)
+
+// ── Pivotes iguales a los del laboratorio: alto en el centro si supera a las L velas anteriores y no es superado por las L siguientes
+pivoteAlto(int len) =>
+    bool ok = bar_index >= 2 * len
+    if ok
+        float x = high[len]
+        for k = 1 to len
+            if not (x > high[len + k]) or not (x >= high[len - k])
+                ok := false
+                break
+    ok
+
+pivoteBajo(int len) =>
+    bool ok = bar_index >= 2 * len
+    if ok
+        float x = low[len]
+        for k = 1 to len
+            if not (x < low[len + k]) or not (x <= low[len - k])
+                ok := false
+                break
+    ok
+
+var float ph = na
+var float pl = na
+if pivoteAlto(L)
+    ph := high[L]
+if pivoteBajo(L)
+    pl := low[L]
+float phPrev = ph[1]
+float plPrev = pl[1]
+
+// ── Temporalidad mayor: valores de la última vela mayor cerrada
+datosMayor() =>
+    var float hph = na
+    var float hpl = na
+    var int est = 0
+    float prevH = hph
+    float prevL = hpl
+    if pivoteAlto(3)
+        hph := high[3]
+    if pivoteBajo(3)
+        hpl := low[3]
+    if not na(prevH) and close > prevH
+        est := 1
+    else if not na(prevL) and close < prevL
+        est := -1
+    [ta.ema(close, 50)[1], ta.ema(close, 200)[1], close[1], hph[1], hpl[1], est[1]]
+
+[e50M, e200M, cM, hphM, hplM, estM] = request.security(syminfo.tickerid, tfMayor, datosMayor(), lookahead = barmerge.lookahead_on)
+[pdh, pdl] = request.security(syminfo.tickerid, "D", [high[1], low[1]], lookahead = barmerge.lookahead_on)
+atr14 = ta.atr(14)
+enKZ = not na(time(timeframe.period, "0200-0500:1234567", "America/New_York")) or not na(time(timeframe.period, "0700-1100:1234567", "America/New_York"))
+
+float refLo = fuente == "Swing de ejecución" ? plPrev : fuente == "Swing de la temporalidad mayor" ? hplM : pdl
+float refHi = fuente == "Swing de ejecución" ? phPrev : fuente == "Swing de la temporalidad mayor" ? hphM : pdh
+
+// ── Alcista: barrido de un mínimo y cierre sobre el último máximo de swing
+var bool armU = false
+var int sU = 0
+var float extU = na
+var float nivU = na
+var float usadoLo = na
+bool setupU = false
+float extSetU = na
+float topeU = na
+float fvgU1 = na
+float fvgU2 = na
+float obU = na
+bool nuevoU = false
+if not na(refLo) and (na(usadoLo) or refLo != usadoLo) and low < refLo and (not recupera or close > refLo)
+    if not na(ph) and ph > close
+        armU := true
+        sU := bar_index
+        extU := low
+        nivU := ph
+        usadoLo := refLo
+        nuevoU := true
+if armU and not nuevoU
+    extU := math.min(extU, low)
+    if bar_index - sU > W
+        armU := false
+    else if close > nivU
+        int largo = bar_index - sU
+        float tope = high
+        for j = 0 to largo
+            tope := math.max(tope, high[j])
+        if largo >= 2
+            for j = 0 to largo - 2
+                if low[j] > high[j + 2]
+                    fvgU1 := low[j]
+                    fvgU2 := high[j + 2]
+                    break
+        for j = 0 to largo
+            if close[j] < open[j]
+                obU := high[j]
+                break
+        setupU := true
+        extSetU := extU
+        topeU := tope
+        armU := false
+
+// ── Bajista: barrido de un máximo y cierre bajo el último mínimo de swing
+var bool armD = false
+var int sD = 0
+var float extD = na
+var float nivD = na
+var float usadoHi = na
+bool setupD = false
+float extSetD = na
+float pisoD = na
+float fvgD1 = na
+float fvgD2 = na
+float obD = na
+bool nuevoD = false
+if not na(refHi) and (na(usadoHi) or refHi != usadoHi) and high > refHi and (not recupera or close < refHi)
+    if not na(pl) and pl < close
+        armD := true
+        sD := bar_index
+        extD := high
+        nivD := pl
+        usadoHi := refHi
+        nuevoD := true
+if armD and not nuevoD
+    extD := math.max(extD, high)
+    if bar_index - sD > W
+        armD := false
+    else if close < nivD
+        int largo = bar_index - sD
+        float piso = low
+        for j = 0 to largo
+            piso := math.min(piso, low[j])
+        if largo >= 2
+            for j = 0 to largo - 2
+                if high[j] < low[j + 2]
+                    fvgD1 := high[j]
+                    fvgD2 := low[j + 2]
+                    break
+        for j = 0 to largo
+            if close[j] > open[j]
+                obD := low[j]
+                break
+        setupD := true
+        extSetD := extD
+        pisoD := piso
+        armD := false
+
+// ── Órdenes
+sesgoOK(int d) =>
+    switch sesgo
+        "Sin filtro" => true
+        "EMA 50 sobre EMA 200" => math.sign(e50M - e200M) == d
+        "Precio sobre EMA 200" => math.sign(cM - e200M) == d
+        => estM == d
+
+precioEntrada(float ext, float opu, float f1, float f2, float ob) =>
+    switch entrada
+        "A mercado" => close
+        "Equilibrio 50 %" => opu + (ext - opu) * 0.5
+        "OTE 61,8 %" => opu + (ext - opu) * 0.618
+        "FVG (borde)" => f1
+        "FVG (50 %)" => (f1 + f2) / 2
+        => ob
+
+var bool pendiente = false
+var int barraOrden = 0
+var float tpPend = na
+var int dirPend = 0
+int totalOps = strategy.opentrades + strategy.closedtrades
+if pendiente and totalOps > totalOps[1]
+    pendiente := false
+if pendiente
+    if bar_index - barraOrden >= V or (dirPend == 1 and high >= tpPend) or (dirPend == -1 and low <= tpPend)
+        strategy.cancel("Compra")
+        strategy.cancel("Venta")
+        pendiente := false
+
+bool libre = strategy.position_size == 0 and not pendiente
+bool filtrosOK = time >= desde and time < hasta and (sesion == "Todas" or enKZ) and not na(atr14)
+
+if setupU and libre and filtrosOK and sesgoOK(1)
+    float ent = precioEntrada(extSetU, topeU, fvgU1, fvgU2, obU)
+    float sl = extSetU - margenATR * atr14
+    float riesgo = ent - sl
+    float tp = ent + rr * riesgo
+    bool ok = not na(ent) and riesgo > 0 and riesgo >= 3 * (costoPct / 100 * ent + costoAbs)
+    if entrada != "A mercado"
+        ok := ok and ent <= topeU + (extSetU - topeU) * 0.5 and ent < close
+    if filtroLiquidez and not na(hphM) and hphM > ent and hphM < tp
+        ok := false
+    if ok
+        float cantidad = strategy.equity * riesgoPct / 100 / (riesgo * syminfo.pointvalue)
+        if entrada == "A mercado"
+            strategy.entry("Compra", strategy.long, qty = cantidad)
+        else
+            strategy.entry("Compra", strategy.long, qty = cantidad, limit = ent)
+            pendiente := true
+            barraOrden := bar_index
+            tpPend := tp
+            dirPend := 1
+        strategy.exit("Salida compra", "Compra", stop = sl, limit = tp)
+        libre := false
+
+if setupD and libre and filtrosOK and sesgoOK(-1)
+    float ent = precioEntrada(extSetD, pisoD, fvgD1, fvgD2, obD)
+    float sl = extSetD + margenATR * atr14
+    float riesgo = sl - ent
+    float tp = ent - rr * riesgo
+    bool ok = not na(ent) and riesgo > 0 and riesgo >= 3 * (costoPct / 100 * ent + costoAbs)
+    if entrada != "A mercado"
+        ok := ok and ent >= pisoD + (extSetD - pisoD) * 0.5 and ent > close
+    if filtroLiquidez and not na(hplM) and hplM < ent and hplM > tp
+        ok := false
+    if ok
+        float cantidad = strategy.equity * riesgoPct / 100 / (riesgo * syminfo.pointvalue)
+        if entrada == "A mercado"
+            strategy.entry("Venta", strategy.short, qty = cantidad)
+        else
+            strategy.entry("Venta", strategy.short, qty = cantidad, limit = ent)
+            pendiente := true
+            barraOrden := bar_index
+            tpPend := tp
+            dirPend := -1
+        strategy.exit("Salida venta", "Venta", stop = sl, limit = tp)
+        libre := false
+
+plot(fuente == "Día anterior" ? pdh : na, "Máximo del día anterior", color = color.new(color.gray, 40), style = plot.style_linebr)
+plot(fuente == "Día anterior" ? pdl : na, "Mínimo del día anterior", color = color.new(color.gray, 40), style = plot.style_linebr)
+plotshape(setupU, "Cambio de estructura alcista", shape.triangleup, location.belowbar, color.new(color.teal, 0), size = size.tiny)
+plotshape(setupD, "Cambio de estructura bajista", shape.triangledown, location.abovebar, color.new(color.red, 0), size = size.tiny)

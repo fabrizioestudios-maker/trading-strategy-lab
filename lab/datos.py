@@ -22,6 +22,7 @@ COSTOS = {
     "GBPUSD": ("abs", 0.00014),
     "USDJPY": ("abs", 0.010),
     "AUDUSD": ("abs", 0.00012),
+    "USDCAD": ("abs", 0.00014),
     "SPXUSD": ("pct", 0.00015),
     "NSXUSD": ("pct", 0.00012),
     "GRXEUR": ("pct", 0.00012),
