@@ -1653,3 +1653,50 @@ a favor de la tendencia diaria. E019 ya barrió H1 (sin corrección que sobreviv
   - **meseta:** entrada a las 12:55 y a las 13:05, y salida a las 13:25 y a las 13:35. Los 4 vecinos tienen que seguir
     positivos con costos base en las dos muestras.
 - **Informativo:** la pendiente β de la regresión del retorno de la ventana sobre el retorno de la señal.
+
+---
+
+## 2026-11-27 11:18 UTC — Entrada 38: E045 falla, estado de la línea intradía y prueba a futuro F002 (E022 a las 18:15 NY)
+
+**E045 (momentum intradía, cierre del COMEX): FALLA.** Las 3 variantes pierden con costos en las dos muestras y en todos
+los años de la confirmación:
+
+| Variante | Desarrollo: n / neto base / p | Últimos 5 años: n / neto base / años positivos | Con costos.md (desarrollo / 5 años) | β (desarrollo / 5 años) |
+| --- | --- | --- | --- | --- |
+| A30 | 2.697 / −0,0166 % / 1,00 | 1.168 / −0,0196 % / 0 de 5 | −0,0071 % / −0,0101 % | 0,013 / 0,019 |
+| B30 | 2.781 / −0,0188 % / 1,00 | 1.184 / −0,0189 % / 0 de 5 | −0,0094 % / −0,0093 % | 0,019 / 0,053 |
+| A60 | 2.698 / −0,0200 % / 1,00 | 1.154 / −0,0196 % / 0 de 5 | −0,0099 % / −0,0094 % | 0,004 / 0,027 |
+
+El efecto existe en el oro (β > 0), pero es muy chico: antes de costos la ganancia es casi cero, y el spread lo vuelve
+negativo.
+
+**Estado de la línea XAUUSD scalping/daytrading después de E039–E045:**
+- **Nada intradía pasa:**
+  - sesgo diario + M15 (E039);
+  - deriva horaria, que era un artefacto de la reapertura (E040/E041);
+  - la regla de E022 en H4/H1 (E043);
+  - momentum intradía (E045);
+  - y lo anterior: E005, E019/E031, SMC E023/E024/E038 e ICT E025/E038.
+- **El scalping sigue descartado por costos:** 0,2–0,3 R por operación con stops de M1 (entrada 32).
+- **Lo único con ventaja sólida en los últimos 5 años es E022.** La forma más cercana al daytrading es entrar a las
+  18:15 NY después de la señal y salir a las 16:55 NY del día siguiente: unas 18 h, +0,41 R en los últimos 5 años con
+  costos base, unas 12 operaciones por año.
+- **Recomendación operativa:** E022 con entrada a las 18:15 NY. La salida (TP fijo, 1 día o 5 días) la decide la
+  prueba a futuro.
+
+**F002 · prueba a futuro sellada ahora** (`registro/forward/F002.json`, `experimentos/F002_e022_variantes.py`):
+- E022 con entrada a las 18:15 NY, SL 0,5·ATR(14) diario y tres salidas: TP fijo 2·SL, 1 día y 5 días.
+- Cuenta desde el cierre diario del 27/11/2026 a las 17:00 NY. Costos base. Decisión a las 30 operaciones de cada
+  variante: pasa si la expectancy es > 0 y cae dentro del IP95 de la media de 30.
+
+| Variante | Backtest 2010–2026 (n 181), costos base | IP95 de la media de 30 |
+| --- | --- | --- |
+| TP fijo 2·SL | +0,317 R | [−0,222; +0,856] |
+| 1 día | +0,264 R | [−0,241; +0,770] |
+| 5 días | +0,603 R | [−0,400; +1,605] |
+
+- F001 sigue igual (E022 original e ICT 5).
+- **Ideas que quedan para la línea intradía**, si aparecen datos que hoy no hay gratis:
+  - ticks con spread real para medir de verdad el costo del scalping;
+  - volumen o flujo de órdenes;
+  - posicionamiento en opciones (gamma) del oro.

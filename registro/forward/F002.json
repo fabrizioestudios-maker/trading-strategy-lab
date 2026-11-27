@@ -1,0 +1,50 @@
+{
+ "id": "F002",
+ "sellado_utc": "2026-11-27 11:17",
+ "inicio_utc": "2026-11-27 22:00",
+ "reglas": "F002 — Prueba a futuro de E022 con la entrada de las 18:15 NY (E042) y tres salidas (E044) (BITACORA, entrada 38).\n\n  python experimentos/F002_e022_variantes.py sellar      # una sola vez: registro/forward/F002.json (reglas, huellas, intervalos)\n  python experimentos/F002_e022_variantes.py actualizar  # con data/XAUUSD.npz al día: operaciones nuevas y estado\n\nReglas comunes (E022): vela diaria de 17:00 NY; primer cierre fuera de Bollinger (20, 2 desvíos poblacionales), a favor de\nla SMA 200 diaria; entrada en el primer minuto desde las 18:15 NY después del cierre; SL 0,5·ATR(14) de Wilder.\nSalidas: TP fijo 2·SL | 16:55 NY del primer día (1 día) | 16:55 NY del quinto día (5 días). Costos: perfil base.\nLas operaciones cuentan desde el primer cierre diario posterior al sellado. Decisión al llegar a 30 operaciones de cada\nvariante: pasa si la expectancy es > 0 y cae dentro del intervalo de predicción del 95 % de la media de 30 del backtest.\nSi cambia la huella de algún archivo, `actualizar` avisa y no evalúa.",
+ "backtest": {
+  "periodo": [
+   "2010-11-15",
+   "2026-11-14"
+  ],
+  "costos": "perfil base de lab/ejecucion.py"
+ },
+ "variantes": {
+  "TP fijo 2·SL": {
+   "media_backtest": 0.3167516610973798,
+   "sd_backtest": 1.5057702842275846,
+   "n_backtest": 181,
+   "ip95_media_30": [
+    -0.2220813149496637,
+    0.8555846371444233
+   ]
+  },
+  "1 día": {
+   "media_backtest": 0.26442448530150614,
+   "sd_backtest": 1.413306523044699,
+   "n_backtest": 181,
+   "ip95_media_30": [
+    -0.24132075874780118,
+    0.7701697293508134
+   ]
+  },
+  "5 días": {
+   "media_backtest": 0.6026411922947184,
+   "sd_backtest": 2.802011030834456,
+   "n_backtest": 181,
+   "ip95_media_30": [
+    -0.40004557770995386,
+    1.6053279622993906
+   ]
+  }
+ },
+ "decision": "al llegar a 30 operaciones de cada variante: pasa si expectancy > 0 y dentro del IP95 de la media de 30",
+ "huellas": {
+  "lab/datos.py": "30f685e23732a518b1f10ebba08b4ba1c1ec3cbda83e693351c9816d188017be",
+  "lab/eventos.py": "e4a6f2024a83aec55b48b9163df909333f4726a4138b08a703ec01d06c5d7d53",
+  "lab/ejecucion.py": "f34220bf91db410ad108ad19701231687d1f0facd2891cdba1732e5e6a17d0eb",
+  "lab/senales.py": "99a220ff5630daf1fac7e5f2780600bfa3a3590e579148352423150789d4efc0",
+  "experimentos/F002_e022_variantes.py": "682f27c04bf0c5b791b95ac10cedcd60a1f3b8133039ca92bb0363d44737340f"
+ }
+}
