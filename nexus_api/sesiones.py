@@ -89,6 +89,9 @@ def ventanas(desde_ms: int, hasta_ms: int) -> list[dict]:
     return out
 
 
+DIAS = ("lun", "mar", "mié", "jue", "vie", "sáb", "dom")
+
+
 def proxima_entrada_1815(t_ms: int) -> str:
     """Próximas 18:15 NY en o después de t_ms (día hábil), en texto."""
     d = a_ny(t_ms)
@@ -98,4 +101,4 @@ def proxima_entrada_1815(t_ms: int) -> str:
     while c.weekday() in (4, 5):  # viernes 18:15 y sábado no hay mercado
         c = c + timedelta(days=1)
     c = datetime(c.year, c.month, c.day, 18, 15, tzinfo=NY)
-    return c.strftime("%a %Y-%m-%d 18:15 NY")
+    return f"{DIAS[c.weekday()]} {c:%Y-%m-%d} 18:15 NY"

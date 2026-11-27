@@ -1,0 +1,137 @@
+@import '@fontsource/ibm-plex-sans/latin-400.css';
+@import '@fontsource/ibm-plex-sans/latin-500.css';
+@import '@fontsource/ibm-plex-sans/latin-600.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#raiz {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 var(--fs-3) / 1.45 var(--font);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  line-height: 1.2;
+  text-wrap: balance;
+  letter-spacing: -0.005em;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  box-shadow: var(--focus);
+  border-radius: var(--r-control);
+}
+
+::selection {
+  background: rgb(54 201 214 / 30%);
+}
+
+code,
+.codigo {
+  font-family: inherit;
+  font-size: 0.95em;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0 4px;
+  overflow-wrap: anywhere;
+}
+
+.visualmente-oculto {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.tono-pos {
+  color: var(--pos);
+}
+
+.tono-neg {
+  color: var(--neg);
+}
+
+.tono-aviso {
+  color: var(--warn);
+}
+
+.tenue {
+  color: var(--text-3);
+}
+
+.secundario {
+  color: var(--text-2);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}

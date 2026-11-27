@@ -17,7 +17,8 @@ from . import CONTRATO
 
 
 class Modelo(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    # En las respuestas, los campos con valor por defecto siempre vienen: el esquema de salida los marca obligatorios.
+    model_config = ConfigDict(extra="forbid", json_schema_serialization_defaults_required=True)
 
 
 # --------------------------------------------------------------------------------------------- instrumentos y datos
@@ -254,7 +255,8 @@ class Trabajo(Modelo):
     etapa: Optional[str] = None
     registro: list[dict] = Field(default_factory=list, description="Eventos con hora: etapas reales del trabajo")
     procedencia: dict = Field(default_factory=dict, description="Commit, huellas del código y de los datos")
-    resultado: Optional[ResultadoCorrida] = None
+    resultado: Optional[ResultadoCorrida] = Field(default=None, description="Solo en GET /trabajos/{id}; los listados lo omiten")
+    resumen: Optional[dict] = Field(default=None, description="Listados: métricas clave de la muestra total (n, expectativa, IC, período, perfil)")
     error: Optional[str] = None
 
 
@@ -290,3 +292,106 @@ class Salud(Modelo):
     datos: dict
     pruebas: str
     hora_servidor_ms: int
+
+
+# --------------------------------------------------------------------------------------------- resumen y referencias
+class MinutoDato(Modelo):
+    t: int = Field(description="Apertura del minuto, ms UTC")
+    iso: str
+    ny: Optional[str] = None
+    vela: Optional[Vela] = None
+
+
+class Resumen(Modelo):
+    contrato: str = CONTRATO
+    simbolo: str
+    modo: Literal["histórico", "sintético"] = Field(description="No hay feed en vivo. «sintético»: datos generados para pruebas")
+    ultimo_minuto: MinutoDato
+    primer_minuto: MinutoDato
+    sesion_del_ultimo_minuto: str = Field(description="Sesión de Nueva York en la que cae el último minuto disponible")
+    ultimas_diarias: list[Vela]
+    candidata: Estrategia
+    pruebas_a_futuro: list[dict]
+    hipotesis_por_estado: dict[str, int]
+    corridas_recientes: list[Trabajo]
+
+
+class ContextoInvestigacion(Modelo):
+    contrato: str = CONTRATO
+    presupuesto_pruebas: list[dict] = Field(description="registro/presupuesto_pruebas.csv: configuraciones probadas por familia")
+    total_configuraciones: Optional[str] = Field(description="Fila TOTAL del registro, tal cual (≈ = aproximado)")
+    pruebas_a_futuro: list[dict]
+
+
+class DefinicionSesion(Modelo):
+    nombre: str
+    desde_ny: str
+    hasta_ny: str
+    dias: str
+    nota: Optional[str] = None
+
+
+class PerfilCostos(Modelo):
+    clave: str
+    nombre: str
+    descripcion: str
+    escala_spread: Optional[float] = Field(description="× la parte de spread del costo de docs/costos.md (None: perfil fijo)")
+    deslizamiento: Optional[float] = Field(description="Factor sobre k · σ de 1 minuto en entradas a mercado y salidas por stop")
+    latencia_ms: Optional[int] = None
+    por_sesion: bool = Field(description="Multiplica el spread según la franja horaria de Nueva York")
+    por_volatilidad: bool = Field(description="Multiplica el spread por (σ₆₀ / mediana)^0,5")
+    swap: Optional[str] = Field(description="Escenario de swap: base, adverso o sin swap")
+
+
+class DefinicionEstado(Modelo):
+    clave: str
+    texto: str
+
+
+class Referencias(Modelo):
+    contrato: str = CONTRATO
+    temporalidades: list[int] = Field(description="Minutos por vela soportados por el replay")
+    zona_sesiones: str
+    sesiones: list[DefinicionSesion]
+    perfiles_costos: list[PerfilCostos]
+    supuestos_costos: list[str] = Field(description="Constantes de lab/ejecucion.py en texto")
+    estados_orden: list[DefinicionEstado]
+    estados_trabajo: list[DefinicionEstado]
+
+
+# --------------------------------------------------------------------------------------------- capas del toolkit
+class Pivote(Modelo):
+    t: int = Field(description="Apertura de la vela del pivote")
+    tipo: Literal["alto", "bajo"]
+    precio: float
+    confirmado_ms: int = Field(description="Cierre de la vela que lo confirma (ya revelado)")
+
+
+class Ruptura(Modelo):
+    t: int = Field(description="Apertura de la vela cuyo cierre rompió el pivote")
+    tipo: Literal["BOS", "CHOCH"]
+    lado: Literal["alcista", "bajista"]
+    nivel: float
+    pivote_t: int
+
+
+class ZonaFVG(Modelo):
+    t: int = Field(description="Apertura de la tercera vela del patrón")
+    lado: Literal["alcista", "bajista"]
+    arriba: float
+    abajo: float
+    conocido_ms: int
+    mitigada_ms: Optional[int] = Field(description="Cierre de la vela que volvió a tocar el hueco (None: sin mitigar al límite)")
+
+
+class CapasReplay(Modelo):
+    contrato: str = CONTRATO
+    simbolo: str
+    temporalidad: int
+    limite_ms: int
+    pivotes: list[Pivote]
+    rupturas: list[Ruptura]
+    estado_estructura: int = Field(description="+1 alcista, -1 bajista, 0 sin rupturas en la ventana")
+    fvg: list[ZonaFVG]
+    definiciones: list[str]
+    nota: str

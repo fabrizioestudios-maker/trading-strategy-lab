@@ -12,9 +12,10 @@ from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import CONTRATO, VERSION, catalogo, estrategias as E022, riesgo, sesiones as SE, simulacion
-from .contratos import (CalculoRiesgo, ConfigCorrida, CuadroReplay, EstadoOrdenSimulada, Estrategia, Hipotesis,
-                        InformeCalidad, Instrumento, Paso, PedidoOrdenes, PedidoRiesgo, Salud, Trabajo)
+from . import CONTRATO, VERSION, capas as CAPAS, catalogo, estrategias as E022, referencias, riesgo, sesiones as SE, simulacion
+from .contratos import (CalculoRiesgo, CapasReplay, ConfigCorrida, ContextoInvestigacion, CuadroReplay, EstadoOrdenSimulada, Estrategia,
+                        Hipotesis, InformeCalidad, Instrumento, Paso, PedidoOrdenes, PedidoRiesgo, Referencias, Resumen, Salud,
+                        Trabajo)
 from .datos import TEMPORALIDADES, DatosNoDisponibles, ServicioDatos
 from .trabajos import GestorTrabajos
 
@@ -49,7 +50,8 @@ def crear_app(svc: ServicioDatos | None = None, gestor: GestorTrabajos | None = 
     @app.get("/api/v1/salud", response_model=Salud)
     def salud():
         disp = {i["simbolo"]: i["disponible"] for i in svc.instrumentos()}
-        return dict(version=VERSION, datos=dict(instrumentos_disponibles=[k for k, v in disp.items() if v], modo="histórico (sin feed en vivo)"),
+        modo = "sintético (solo pruebas, no es mercado real)" if svc.sintetico else "histórico (sin feed en vivo)"
+        return dict(version=VERSION, datos=dict(instrumentos_disponibles=[k for k, v in disp.items() if v], modo=modo, sintetico=svc.sintetico),
                     pruebas="pytest -q tests", hora_servidor_ms=int(time.time() * 1000))
 
     @app.get("/api/v1/instrumentos", response_model=list[Instrumento])
@@ -60,7 +62,12 @@ def crear_app(svc: ServicioDatos | None = None, gestor: GestorTrabajos | None = 
     def calidad(simbolo: str):
         return svc.calidad(simbolo)
 
-    @app.get("/api/v1/resumen")
+    @app.get("/api/v1/referencias", response_model=Referencias)
+    def refs():
+        """Definiciones que la interfaz muestra tal cual: sesiones, perfiles de costos, estados de órdenes y de trabajos."""
+        return referencias.referencias()
+
+    @app.get("/api/v1/resumen", response_model=Resumen)
     def resumen(simbolo: str = "XAUUSD"):
         """Datos para Overview: última vela disponible (histórica), estado de la candidata y actividad reciente."""
         primero, ultimo = svc.extremos(simbolo)
@@ -70,9 +77,9 @@ def crear_app(svc: ServicioDatos | None = None, gestor: GestorTrabajos | None = 
         cuenta = {}
         for h in hip:
             cuenta[h["estado"]] = cuenta.get(h["estado"], 0) + 1
-        return dict(contrato=CONTRATO, simbolo=simbolo, modo="histórico",
+        return dict(contrato=CONTRATO, simbolo=simbolo, modo="sintético" if svc.sintetico else "histórico",
                     ultimo_minuto=dict(t=ultimo, iso=SE.iso(ultimo), ny=SE.texto_ny(ultimo), vela=m1[-1] if m1 else None),
-                    primer_minuto=dict(t=primero, iso=SE.iso(primero)),
+                    primer_minuto=dict(t=primero, iso=SE.iso(primero)), sesion_del_ultimo_minuto=SE.sesion(ultimo),
                     ultimas_diarias=d1, candidata=E022.definicion(), pruebas_a_futuro=catalogo.pruebas_a_futuro(),
                     hipotesis_por_estado=cuenta, corridas_recientes=gestor.listar()[:5])
 
@@ -131,6 +138,14 @@ def crear_app(svc: ServicioDatos | None = None, gestor: GestorTrabajos | None = 
         _, ultimo = svc.extremos(simbolo)
         return dict(limite_ms=lim, avanzo_minutos=0, al_final_de_los_datos=lim >= ultimo)
 
+    @app.get("/api/v1/replay/capas", response_model=CapasReplay)
+    def replay_capas(simbolo: str = "XAUUSD", tf: int = 15, limite_ms: int = Query(...), cantidad: int = 300):
+        """Estructura (pivotes, BOS, CHOCH) y FVG con velas cerradas hasta el límite. Descriptivo, no evidencia de ventaja."""
+        _tf(tf)
+        if not (20 <= cantidad <= 1500):
+            raise ValueError("cantidad fuera de rango (20 a 1500)")
+        return CAPAS.capas(svc, simbolo, tf, limite_ms, cantidad)
+
     @app.post("/api/v1/replay/ordenes/estado", response_model=list[EstadoOrdenSimulada])
     def ordenes_estado(p: PedidoOrdenes):
         """Estado de órdenes simuladas en el límite dado (motor del laboratorio, solo minutos revelados)."""
@@ -145,9 +160,12 @@ def crear_app(svc: ServicioDatos | None = None, gestor: GestorTrabajos | None = 
     def hipotesis():
         return catalogo.hipotesis()
 
-    @app.get("/api/v1/investigacion/contexto")
+    @app.get("/api/v1/investigacion/contexto", response_model=ContextoInvestigacion)
     def contexto():
-        return dict(presupuesto_pruebas=catalogo.presupuesto_pruebas(), pruebas_a_futuro=catalogo.pruebas_a_futuro())
+        filas = catalogo.presupuesto_pruebas()
+        total = next((str(f.get("configuraciones", "")) for f in filas if str(f.get("experimento", "")).upper() == "TOTAL"), None)
+        return dict(presupuesto_pruebas=[f for f in filas if str(f.get("experimento", "")).upper() != "TOTAL"],
+                    total_configuraciones=total, pruebas_a_futuro=catalogo.pruebas_a_futuro())
 
     @app.post("/api/v1/trabajos", response_model=Trabajo)
     def enviar(cfg: ConfigCorrida):

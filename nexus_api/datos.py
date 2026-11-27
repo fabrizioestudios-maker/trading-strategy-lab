@@ -23,6 +23,8 @@ import numpy as np
 
 from lab import datos as LD
 
+from .sintetico import FUENTE as FUENTE_SINTETICA  # noqa: E402
+
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(RAIZ, "data")
 
@@ -71,6 +73,7 @@ class ServicioDatos:
     def __init__(self, carpeta: str = DATA, m1_inyectado: dict | None = None):
         """`m1_inyectado` ({simbolo: dict t,o,h,l,c}) permite probar sin archivos."""
         self.carpeta = carpeta
+        self.sintetico = False  # True solo con `python -m nexus_api --sintetico` (datos de prueba, no de mercado)
         self._m1: dict[str, dict] = dict(m1_inyectado or {})
         self._series: dict[tuple[str, int], Serie] = {}
         self._calidad: dict[str, dict] = {}
@@ -104,8 +107,9 @@ class ServicioDatos:
             out.append(dict(
                 simbolo=s, nombre=m["nombre"], clase=m["clase"], moneda_cotizacion=m["moneda"], decimales=m["decimales"],
                 tamano_contrato=m["contrato"], costo_referencia=_costo_texto(s), disponible=disp,
-                cobertura_desde=desde, cobertura_hasta=hasta, velas_m1=n, fuente=FUENTE.get(s, FUENTE_DEFECTO),
-                huella_sha256=fila.get("sha256") or None,
+                cobertura_desde=desde, cobertura_hasta=hasta, velas_m1=n,
+                fuente=FUENTE_SINTETICA if (self.sintetico and s in self._m1) else FUENTE.get(s, FUENTE_DEFECTO),
+                huella_sha256=None if (self.sintetico and s in self._m1) else (fila.get("sha256") or None),
             ))
         return out
 

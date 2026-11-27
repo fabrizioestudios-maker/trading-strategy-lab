@@ -132,3 +132,40 @@ def test_contrato_openapi_sin_cambios_silenciosos(cliente):
     assert sorted(actual["components"]["schemas"]) == sorted(guardado["components"]["schemas"])
     for nombre, esquema in guardado["components"]["schemas"].items():
         assert sorted(actual["components"]["schemas"][nombre].get("properties", {})) == sorted(esquema.get("properties", {})), nombre
+
+
+def test_tipos_typescript_al_dia_con_el_contrato(cliente):
+    from nexus_api import tipos_ts
+
+    generado = tipos_ts.generar(cliente.get("/openapi.json").json())
+    guardado = open(tipos_ts.DESTINO, encoding="utf-8").read()
+    assert generado == guardado, "los tipos de la interfaz quedaron viejos: python -m nexus_api.tipos_ts"
+
+
+def test_resumen_contexto_y_referencias_tipados(cliente):
+    r = cliente.get("/api/v1/resumen").json()
+    assert r["modo"] == "histórico" and r["ultimo_minuto"]["t"] == int(M1["t"][-1])
+    assert r["sesion_del_ultimo_minuto"] in ("Asia", "Londres", "Nueva York", "Cierre", "Reapertura", "Fin de semana", "Fuera de sesión") \
+        or isinstance(r["sesion_del_ultimo_minuto"], str)
+    assert r["candidata"]["nivel"] == "B" and r["candidata"]["ejecutable"]
+    ctx = cliente.get("/api/v1/investigacion/contexto").json()
+    assert all(f["experimento"].upper() != "TOTAL" for f in ctx["presupuesto_pruebas"])
+    assert ctx["total_configuraciones"]  # la fila TOTAL del registro, tal cual
+    ref = cliente.get("/api/v1/referencias").json()
+    assert [p["clave"] for p in ref["perfiles_costos"]][:2] == ["costos_md", "sin_costos"]
+    assert {s["nombre"] for s in ref["sesiones"]} == {"Asia", "Londres", "Nueva York", "Cierre", "Reapertura"}
+    assert {e["clave"] for e in ref["estados_orden"]} == {"posterior_al_limite", "esperando_llenado", "rechazada", "abierta", "cerrada"}
+    assert ref["temporalidades"] == [1, 5, 15, 60, 240, 1440]
+
+
+def test_listado_de_trabajos_es_liviano_y_trae_resumen(cliente):
+    tr = cliente.post("/api/v1/trabajos", json=dict(estrategia="e022", perfil_costos="optimista")).json()
+    for _ in range(300):
+        if cliente.get(f"/api/v1/trabajos/{tr['id']}").json()["estado"] in ("terminado", "fallido"):
+            break
+        time.sleep(0.05)
+    fila = next(t for t in cliente.get("/api/v1/trabajos").json() if t["id"] == tr["id"])
+    assert fila["resultado"] is None
+    completo = cliente.get(f"/api/v1/trabajos/{tr['id']}").json()
+    if completo["estado"] == "terminado" and completo["resultado"]["metricas"]["total"][0]["n"]:
+        assert fila["resumen"]["perfil_costos"] == "optimista" and fila["resumen"]["n"] == completo["resultado"]["metricas"]["total"][0]["n"]

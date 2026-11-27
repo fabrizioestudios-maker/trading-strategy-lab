@@ -82,6 +82,7 @@
      }
     },
     "required": [
+     "contrato",
      "lado",
      "riesgo_moneda",
      "distancia_stop",
@@ -89,10 +90,85 @@
      "riesgo_real_moneda",
      "costo_ida_vuelta_moneda",
      "costo_en_r",
+     "rr",
+     "ganancia_objetivo_moneda",
      "supuestos",
      "avisos"
     ],
     "title": "CalculoRiesgo",
+    "type": "object"
+   },
+   "CapasReplay": {
+    "additionalProperties": false,
+    "properties": {
+     "contrato": {
+      "default": "nexus.v1",
+      "title": "Contrato",
+      "type": "string"
+     },
+     "definiciones": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Definiciones",
+      "type": "array"
+     },
+     "estado_estructura": {
+      "description": "+1 alcista, -1 bajista, 0 sin rupturas en la ventana",
+      "title": "Estado Estructura",
+      "type": "integer"
+     },
+     "fvg": {
+      "items": {
+       "$ref": "#/components/schemas/ZonaFVG"
+      },
+      "title": "Fvg",
+      "type": "array"
+     },
+     "limite_ms": {
+      "title": "Limite Ms",
+      "type": "integer"
+     },
+     "nota": {
+      "title": "Nota",
+      "type": "string"
+     },
+     "pivotes": {
+      "items": {
+       "$ref": "#/components/schemas/Pivote"
+      },
+      "title": "Pivotes",
+      "type": "array"
+     },
+     "rupturas": {
+      "items": {
+       "$ref": "#/components/schemas/Ruptura"
+      },
+      "title": "Rupturas",
+      "type": "array"
+     },
+     "simbolo": {
+      "title": "Simbolo",
+      "type": "string"
+     },
+     "temporalidad": {
+      "title": "Temporalidad",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "contrato",
+     "simbolo",
+     "temporalidad",
+     "limite_ms",
+     "pivotes",
+     "rupturas",
+     "estado_estructura",
+     "fvg",
+     "definiciones",
+     "nota"
+    ],
+    "title": "CapasReplay",
     "type": "object"
    },
    "ChequeoCalidad": {
@@ -167,12 +243,13 @@
     "required": [
      "clave",
      "texto",
-     "cumple"
+     "cumple",
+     "valor"
     ],
     "title": "Condicion",
     "type": "object"
    },
-   "ConfigCorrida": {
+   "ConfigCorrida-Input": {
     "additionalProperties": false,
     "properties": {
      "confirmacion_desde": {
@@ -233,6 +310,123 @@
      "estrategia"
     ],
     "title": "ConfigCorrida",
+    "type": "object"
+   },
+   "ConfigCorrida-Output": {
+    "additionalProperties": false,
+    "properties": {
+     "confirmacion_desde": {
+      "default": "2021-11-15",
+      "title": "Confirmacion Desde",
+      "type": "string"
+     },
+     "confirmacion_hasta": {
+      "default": "2026-11-14",
+      "title": "Confirmacion Hasta",
+      "type": "string"
+     },
+     "eleccion_desde": {
+      "default": "2011-11-15",
+      "title": "Eleccion Desde",
+      "type": "string"
+     },
+     "eleccion_hasta": {
+      "default": "2021-11-15",
+      "title": "Eleccion Hasta",
+      "type": "string"
+     },
+     "entrada": {
+      "default": "18:15",
+      "enum": [
+       "reapertura",
+       "18:15"
+      ],
+      "title": "Entrada",
+      "type": "string"
+     },
+     "estrategia": {
+      "const": "e022",
+      "title": "Estrategia",
+      "type": "string"
+     },
+     "perfil_costos": {
+      "default": "base",
+      "enum": [
+       "costos_md",
+       "sin_costos",
+       "optimista",
+       "base",
+       "conservador",
+       "estres"
+      ],
+      "title": "Perfil Costos",
+      "type": "string"
+     },
+     "version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Version",
+      "type": "string"
+     }
+    },
+    "required": [
+     "estrategia",
+     "version",
+     "entrada",
+     "perfil_costos",
+     "eleccion_desde",
+     "eleccion_hasta",
+     "confirmacion_desde",
+     "confirmacion_hasta"
+    ],
+    "title": "ConfigCorrida",
+    "type": "object"
+   },
+   "ContextoInvestigacion": {
+    "additionalProperties": false,
+    "properties": {
+     "contrato": {
+      "default": "nexus.v1",
+      "title": "Contrato",
+      "type": "string"
+     },
+     "presupuesto_pruebas": {
+      "description": "registro/presupuesto_pruebas.csv: configuraciones probadas por familia",
+      "items": {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      "title": "Presupuesto Pruebas",
+      "type": "array"
+     },
+     "pruebas_a_futuro": {
+      "items": {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      "title": "Pruebas A Futuro",
+      "type": "array"
+     },
+     "total_configuraciones": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Fila TOTAL del registro, tal cual (≈ = aproximado)",
+      "title": "Total Configuraciones"
+     }
+    },
+    "required": [
+     "contrato",
+     "presupuesto_pruebas",
+     "total_configuraciones",
+     "pruebas_a_futuro"
+    ],
+    "title": "ContextoInvestigacion",
     "type": "object"
    },
    "CuadroReplay": {
@@ -303,16 +497,79 @@
      }
     },
     "required": [
+     "contrato",
      "simbolo",
      "temporalidad",
      "limite",
      "velas",
      "sesiones",
      "eventos",
+     "decision",
+     "niveles",
      "hay_mas_atras",
      "al_final_de_los_datos"
     ],
     "title": "CuadroReplay",
+    "type": "object"
+   },
+   "DefinicionEstado": {
+    "additionalProperties": false,
+    "properties": {
+     "clave": {
+      "title": "Clave",
+      "type": "string"
+     },
+     "texto": {
+      "title": "Texto",
+      "type": "string"
+     }
+    },
+    "required": [
+     "clave",
+     "texto"
+    ],
+    "title": "DefinicionEstado",
+    "type": "object"
+   },
+   "DefinicionSesion": {
+    "additionalProperties": false,
+    "properties": {
+     "desde_ny": {
+      "title": "Desde Ny",
+      "type": "string"
+     },
+     "dias": {
+      "title": "Dias",
+      "type": "string"
+     },
+     "hasta_ny": {
+      "title": "Hasta Ny",
+      "type": "string"
+     },
+     "nombre": {
+      "title": "Nombre",
+      "type": "string"
+     },
+     "nota": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Nota"
+     }
+    },
+    "required": [
+     "nombre",
+     "desde_ny",
+     "hasta_ny",
+     "dias",
+     "nota"
+    ],
+    "title": "DefinicionSesion",
     "type": "object"
    },
    "EstadoOrdenSimulada": {
@@ -571,7 +828,8 @@
      "t",
      "tipo",
      "titulo",
-     "detalle"
+     "detalle",
+     "lado"
     ],
     "title": "Evento",
     "type": "object"
@@ -687,6 +945,7 @@
      }
     },
     "required": [
+     "contrato",
      "simbolo",
      "velas_m1",
      "desde",
@@ -803,7 +1062,11 @@
      "tamano_contrato",
      "costo_referencia",
      "disponible",
-     "fuente"
+     "cobertura_desde",
+     "cobertura_hasta",
+     "velas_m1",
+     "fuente",
+     "huella_sha256"
     ],
     "title": "Instrumento",
     "type": "object"
@@ -893,6 +1156,49 @@
      "perfil_costos"
     ],
     "title": "Metrica",
+    "type": "object"
+   },
+   "MinutoDato": {
+    "additionalProperties": false,
+    "properties": {
+     "iso": {
+      "title": "Iso",
+      "type": "string"
+     },
+     "ny": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ny"
+     },
+     "t": {
+      "description": "Apertura del minuto, ms UTC",
+      "title": "T",
+      "type": "integer"
+     },
+     "vela": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/Vela"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     }
+    },
+    "required": [
+     "t",
+     "iso",
+     "ny",
+     "vela"
+    ],
+    "title": "MinutoDato",
     "type": "object"
    },
    "Nivel": {
@@ -1138,6 +1444,9 @@
      "condiciones",
      "decision",
      "explicacion",
+     "stop_distancia",
+     "objetivo_distancia",
+     "entrada_prevista",
      "nivel"
     ],
     "title": "PanelDecision",
@@ -1188,6 +1497,7 @@
      "clave",
      "nombre",
      "valor",
+     "unidad",
      "definicion"
     ],
     "title": "Parametro",
@@ -1302,6 +1612,198 @@
     "title": "PedidoRiesgo",
     "type": "object"
    },
+   "PerfilCostos": {
+    "additionalProperties": false,
+    "properties": {
+     "clave": {
+      "title": "Clave",
+      "type": "string"
+     },
+     "descripcion": {
+      "title": "Descripcion",
+      "type": "string"
+     },
+     "deslizamiento": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Factor sobre k · σ de 1 minuto en entradas a mercado y salidas por stop",
+      "title": "Deslizamiento"
+     },
+     "escala_spread": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "× la parte de spread del costo de docs/costos.md (None: perfil fijo)",
+      "title": "Escala Spread"
+     },
+     "latencia_ms": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Latencia Ms"
+     },
+     "nombre": {
+      "title": "Nombre",
+      "type": "string"
+     },
+     "por_sesion": {
+      "description": "Multiplica el spread según la franja horaria de Nueva York",
+      "title": "Por Sesion",
+      "type": "boolean"
+     },
+     "por_volatilidad": {
+      "description": "Multiplica el spread por (σ₆₀ / mediana)^0,5",
+      "title": "Por Volatilidad",
+      "type": "boolean"
+     },
+     "swap": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Escenario de swap: base, adverso o sin swap",
+      "title": "Swap"
+     }
+    },
+    "required": [
+     "clave",
+     "nombre",
+     "descripcion",
+     "escala_spread",
+     "deslizamiento",
+     "latencia_ms",
+     "por_sesion",
+     "por_volatilidad",
+     "swap"
+    ],
+    "title": "PerfilCostos",
+    "type": "object"
+   },
+   "Pivote": {
+    "additionalProperties": false,
+    "properties": {
+     "confirmado_ms": {
+      "description": "Cierre de la vela que lo confirma (ya revelado)",
+      "title": "Confirmado Ms",
+      "type": "integer"
+     },
+     "precio": {
+      "title": "Precio",
+      "type": "number"
+     },
+     "t": {
+      "description": "Apertura de la vela del pivote",
+      "title": "T",
+      "type": "integer"
+     },
+     "tipo": {
+      "enum": [
+       "alto",
+       "bajo"
+      ],
+      "title": "Tipo",
+      "type": "string"
+     }
+    },
+    "required": [
+     "t",
+     "tipo",
+     "precio",
+     "confirmado_ms"
+    ],
+    "title": "Pivote",
+    "type": "object"
+   },
+   "Referencias": {
+    "additionalProperties": false,
+    "properties": {
+     "contrato": {
+      "default": "nexus.v1",
+      "title": "Contrato",
+      "type": "string"
+     },
+     "estados_orden": {
+      "items": {
+       "$ref": "#/components/schemas/DefinicionEstado"
+      },
+      "title": "Estados Orden",
+      "type": "array"
+     },
+     "estados_trabajo": {
+      "items": {
+       "$ref": "#/components/schemas/DefinicionEstado"
+      },
+      "title": "Estados Trabajo",
+      "type": "array"
+     },
+     "perfiles_costos": {
+      "items": {
+       "$ref": "#/components/schemas/PerfilCostos"
+      },
+      "title": "Perfiles Costos",
+      "type": "array"
+     },
+     "sesiones": {
+      "items": {
+       "$ref": "#/components/schemas/DefinicionSesion"
+      },
+      "title": "Sesiones",
+      "type": "array"
+     },
+     "supuestos_costos": {
+      "description": "Constantes de lab/ejecucion.py en texto",
+      "items": {
+       "type": "string"
+      },
+      "title": "Supuestos Costos",
+      "type": "array"
+     },
+     "temporalidades": {
+      "description": "Minutos por vela soportados por el replay",
+      "items": {
+       "type": "integer"
+      },
+      "title": "Temporalidades",
+      "type": "array"
+     },
+     "zona_sesiones": {
+      "title": "Zona Sesiones",
+      "type": "string"
+     }
+    },
+    "required": [
+     "contrato",
+     "temporalidades",
+     "zona_sesiones",
+     "sesiones",
+     "perfiles_costos",
+     "supuestos_costos",
+     "estados_orden",
+     "estados_trabajo"
+    ],
+    "title": "Referencias",
+    "type": "object"
+   },
    "ResultadoCorrida": {
     "additionalProperties": false,
     "properties": {
@@ -1362,11 +1864,136 @@
     "required": [
      "metricas",
      "por_anio",
+     "desgloses",
      "sensibilidad_costos",
      "operaciones",
      "avisos"
     ],
     "title": "ResultadoCorrida",
+    "type": "object"
+   },
+   "Resumen": {
+    "additionalProperties": false,
+    "properties": {
+     "candidata": {
+      "$ref": "#/components/schemas/Estrategia"
+     },
+     "contrato": {
+      "default": "nexus.v1",
+      "title": "Contrato",
+      "type": "string"
+     },
+     "corridas_recientes": {
+      "items": {
+       "$ref": "#/components/schemas/Trabajo"
+      },
+      "title": "Corridas Recientes",
+      "type": "array"
+     },
+     "hipotesis_por_estado": {
+      "additionalProperties": {
+       "type": "integer"
+      },
+      "title": "Hipotesis Por Estado",
+      "type": "object"
+     },
+     "modo": {
+      "description": "No hay feed en vivo. «sintético»: datos generados para pruebas",
+      "enum": [
+       "histórico",
+       "sintético"
+      ],
+      "title": "Modo",
+      "type": "string"
+     },
+     "primer_minuto": {
+      "$ref": "#/components/schemas/MinutoDato"
+     },
+     "pruebas_a_futuro": {
+      "items": {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      "title": "Pruebas A Futuro",
+      "type": "array"
+     },
+     "sesion_del_ultimo_minuto": {
+      "description": "Sesión de Nueva York en la que cae el último minuto disponible",
+      "title": "Sesion Del Ultimo Minuto",
+      "type": "string"
+     },
+     "simbolo": {
+      "title": "Simbolo",
+      "type": "string"
+     },
+     "ultimas_diarias": {
+      "items": {
+       "$ref": "#/components/schemas/Vela"
+      },
+      "title": "Ultimas Diarias",
+      "type": "array"
+     },
+     "ultimo_minuto": {
+      "$ref": "#/components/schemas/MinutoDato"
+     }
+    },
+    "required": [
+     "contrato",
+     "simbolo",
+     "modo",
+     "ultimo_minuto",
+     "primer_minuto",
+     "sesion_del_ultimo_minuto",
+     "ultimas_diarias",
+     "candidata",
+     "pruebas_a_futuro",
+     "hipotesis_por_estado",
+     "corridas_recientes"
+    ],
+    "title": "Resumen",
+    "type": "object"
+   },
+   "Ruptura": {
+    "additionalProperties": false,
+    "properties": {
+     "lado": {
+      "enum": [
+       "alcista",
+       "bajista"
+      ],
+      "title": "Lado",
+      "type": "string"
+     },
+     "nivel": {
+      "title": "Nivel",
+      "type": "number"
+     },
+     "pivote_t": {
+      "title": "Pivote T",
+      "type": "integer"
+     },
+     "t": {
+      "description": "Apertura de la vela cuyo cierre rompió el pivote",
+      "title": "T",
+      "type": "integer"
+     },
+     "tipo": {
+      "enum": [
+       "BOS",
+       "CHOCH"
+      ],
+      "title": "Tipo",
+      "type": "string"
+     }
+    },
+    "required": [
+     "t",
+     "tipo",
+     "lado",
+     "nivel",
+     "pivote_t"
+    ],
+    "title": "Ruptura",
     "type": "object"
    },
    "Salud": {
@@ -1396,6 +2023,7 @@
      }
     },
     "required": [
+     "contrato",
      "version",
      "datos",
      "pruebas",
@@ -1412,7 +2040,7 @@
       "type": "integer"
      },
      "config": {
-      "$ref": "#/components/schemas/ConfigCorrida"
+      "$ref": "#/components/schemas/ConfigCorrida-Output"
      },
      "contrato": {
       "default": "nexus.v1",
@@ -1488,7 +2116,21 @@
        {
         "type": "null"
        }
-      ]
+      ],
+      "description": "Solo en GET /trabajos/{id}; los listados lo omiten"
+     },
+     "resumen": {
+      "anyOf": [
+       {
+        "additionalProperties": true,
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Listados: métricas clave de la muestra total (n, expectativa, IC, período, perfil)",
+      "title": "Resumen"
      },
      "tipo": {
       "const": "investigacion",
@@ -1497,13 +2139,20 @@
      }
     },
     "required": [
+     "contrato",
      "id",
      "tipo",
      "estado",
      "config",
      "huella_config",
      "creado_ms",
-     "actualizado_ms"
+     "actualizado_ms",
+     "etapa",
+     "registro",
+     "procedencia",
+     "resultado",
+     "resumen",
+     "error"
     ],
     "title": "Trabajo",
     "type": "object"
@@ -1584,7 +2233,8 @@
      "o",
      "h",
      "l",
-     "c"
+     "c",
+     "parcial"
     ],
     "title": "Vela",
     "type": "object"
@@ -1626,9 +2276,62 @@
     "required": [
      "nombre",
      "desde_ms",
-     "hasta_ms"
+     "hasta_ms",
+     "aviso"
     ],
     "title": "VentanaSesion",
+    "type": "object"
+   },
+   "ZonaFVG": {
+    "additionalProperties": false,
+    "properties": {
+     "abajo": {
+      "title": "Abajo",
+      "type": "number"
+     },
+     "arriba": {
+      "title": "Arriba",
+      "type": "number"
+     },
+     "conocido_ms": {
+      "title": "Conocido Ms",
+      "type": "integer"
+     },
+     "lado": {
+      "enum": [
+       "alcista",
+       "bajista"
+      ],
+      "title": "Lado",
+      "type": "string"
+     },
+     "mitigada_ms": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Cierre de la vela que volvió a tocar el hueco (None: sin mitigar al límite)",
+      "title": "Mitigada Ms"
+     },
+     "t": {
+      "description": "Apertura de la tercera vela del patrón",
+      "title": "T",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "t",
+     "lado",
+     "arriba",
+     "abajo",
+     "conocido_ms",
+     "mitigada_ms"
+    ],
+    "title": "ZonaFVG",
     "type": "object"
    }
   }
@@ -1752,13 +2455,104 @@
      "200": {
       "content": {
        "application/json": {
-        "schema": {}
+        "schema": {
+         "$ref": "#/components/schemas/ContextoInvestigacion"
+        }
        }
       },
       "description": "Successful Response"
      }
     },
     "summary": "Contexto"
+   }
+  },
+  "/api/v1/referencias": {
+   "get": {
+    "description": "Definiciones que la interfaz muestra tal cual: sesiones, perfiles de costos, estados de órdenes y de trabajos.",
+    "operationId": "refs_api_v1_referencias_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Referencias"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Refs"
+   }
+  },
+  "/api/v1/replay/capas": {
+   "get": {
+    "description": "Estructura (pivotes, BOS, CHOCH) y FVG con velas cerradas hasta el límite. Descriptivo, no evidencia de ventaja.",
+    "operationId": "replay_capas_api_v1_replay_capas_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "simbolo",
+      "required": false,
+      "schema": {
+       "default": "XAUUSD",
+       "title": "Simbolo",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "tf",
+      "required": false,
+      "schema": {
+       "default": 15,
+       "title": "Tf",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limite_ms",
+      "required": true,
+      "schema": {
+       "title": "Limite Ms",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "cantidad",
+      "required": false,
+      "schema": {
+       "default": 300,
+       "title": "Cantidad",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CapasReplay"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Replay Capas"
    }
   },
   "/api/v1/replay/cuadro": {
@@ -2086,7 +2880,9 @@
      "200": {
       "content": {
        "application/json": {
-        "schema": {}
+        "schema": {
+         "$ref": "#/components/schemas/Resumen"
+        }
        }
       },
       "description": "Successful Response"
@@ -2188,7 +2984,7 @@
      "content": {
       "application/json": {
        "schema": {
-        "$ref": "#/components/schemas/ConfigCorrida"
+        "$ref": "#/components/schemas/ConfigCorrida-Input"
        }
       }
      },

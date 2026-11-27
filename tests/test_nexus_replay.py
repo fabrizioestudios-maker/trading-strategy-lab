@@ -146,3 +146,41 @@ def test_salto_en_hora_de_nueva_york():
     r = c.get("/api/v1/replay/fecha", params=dict(fecha_ny=ny)).json()
     assert r["limite_ms"] == t
     assert c.get("/api/v1/replay/fecha", params=dict(fecha_ny="27/11/2026")).status_code == 422
+
+
+# ------------------------------------------------------------------ capas del toolkit (estructura y FVG)
+@pytest.mark.parametrize("tf", [5, 15, 60])
+def test_capas_sin_futuro_y_prefijo_identico(svc, tf):
+    from nexus_api import capas as CA
+
+    for lim in _limites(8, semilla=11):
+        a = CA.capas(svc, "XAUUSD", tf, lim, 200)
+        j = svc.indice_limite("XAUUSD", lim)
+        b = CA.capas(ServicioDatos(m1_inyectado={"XAUUSD": truncar(M1, j)}), "XAUUSD", tf, lim, 200)
+        assert a == b  # lo que se dibuja no depende de minutos posteriores al límite
+        fin = lim + 60_000
+        assert all(p["confirmado_ms"] <= fin and p["t"] < p["confirmado_ms"] for p in a["pivotes"])
+        assert all(r["t"] + tf * 60_000 <= fin for r in a["rupturas"])
+        assert all(z["conocido_ms"] <= fin and (z["mitigada_ms"] is None or z["mitigada_ms"] <= fin) for z in a["fvg"])
+        assert all(z["arriba"] > z["abajo"] for z in a["fvg"])
+
+
+def test_pivotes_iguales_a_los_del_laboratorio():
+    from nexus_api import capas as CA
+
+    v = LD.velas(M1, 15)
+    assert CA.coincide_con_laboratorio(np.asarray(v["h"][:3000], float), np.asarray(v["l"][:3000], float))
+
+
+def test_rupturas_alternan_bos_y_choch_con_el_estado():
+    from nexus_api import capas as CA
+
+    svc = ServicioDatos(m1_inyectado={"XAUUSD": M1})
+    r = CA.capas(svc, "XAUUSD", 15, int(M1["t"][-1]), 800)["rupturas"]
+    assert r, "la ventana sintética debería tener rupturas"
+    estado = None  # la primera ruptura de la ventana puede ser CHOCH respecto de un estado anterior a la ventana
+    for x in r:
+        nuevo = 1 if x["lado"] == "alcista" else -1
+        if estado is not None:
+            assert (x["tipo"] == "CHOCH") == (estado != nuevo)
+        estado = nuevo

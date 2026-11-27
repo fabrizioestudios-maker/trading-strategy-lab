@@ -42,6 +42,16 @@ def procedencia(svc) -> dict:
                 huella_codigo=hashlib.sha256(json.dumps(cod, sort_keys=True).encode()).hexdigest()[:16])
 
 
+def _resumen(tr: dict) -> dict | None:
+    res = tr.get("resultado")
+    if not res or not res.get("metricas", {}).get("total"):
+        return None
+    m = {x["clave"]: x for x in res["metricas"]["total"]}
+    e = m.get("expectancy", {})
+    return dict(n=e.get("n"), expectativa=e.get("valor"), ic_lo=m.get("ic_lo", {}).get("valor"), ic_hi=m.get("ic_hi", {}).get("valor"),
+                acierto=m.get("wr", {}).get("valor"), periodo=e.get("periodo"), perfil_costos=e.get("perfil_costos"))
+
+
 class GestorTrabajos:
     def __init__(self, svc, carpeta: str = CARPETA, ejecutor: ThreadPoolExecutor | None = None):
         self.svc = svc
@@ -76,7 +86,8 @@ class GestorTrabajos:
         self._guardar(tr)
 
     def listar(self) -> list[dict]:
-        return sorted((dict(t, resultado=None) for t in self._trabajos.values()), key=lambda t: -t["creado_ms"])
+        """Listado liviano: sin el resultado completo, con las métricas clave de la muestra total."""
+        return sorted((dict(t, resultado=None, resumen=_resumen(t)) for t in self._trabajos.values()), key=lambda t: -t["creado_ms"])
 
     def obtener(self, id: str) -> dict | None:
         return self._trabajos.get(id)

@@ -1,0 +1,107 @@
+/*
+ * NEXUS · tokens de diseño. Los componentes usan solo estas variables (ningún color suelto en los componentes).
+ * Paleta base del brief: Obsidian, Graphite, Gold (identidad, con moderación), Neural Cyan (estado activo y foco), White.
+ * Alza/baja validados para daltonismo (protan/deután ΔE ≥ 10 sobre --chart-bg) y siempre con una segunda señal
+ * (vela hueca/llena, signo, ícono o texto).
+ */
+:root {
+  --obsidian: #080b12;
+  --graphite: #111827;
+  --gold: #c6a15b;
+  --cyan: #36c9d6;
+  --white: #f4f6fa;
+
+  --bg: var(--obsidian);
+  --surface: var(--graphite);
+  --surface-2: #161f31;
+  --surface-3: #1c2740;
+  --chart-bg: #0c111b;
+  --line: #212c40;
+  --line-strong: #2f3c55;
+  --scrim: rgb(4 6 10 / 72%);
+
+  --text: var(--white);
+  --text-2: #b3bccb;
+  --text-3: #8590a3;
+  --text-off: #5b6577;
+
+  --accent: var(--cyan);
+  --accent-ink: #062126;
+  --accent-soft: rgb(54 201 214 / 12%);
+  --identity: var(--gold);
+  --identity-soft: rgb(198 161 91 / 14%);
+
+  --pos: #2bae95;
+  --neg: #e06b4a;
+  --warn: #e3b341;
+  --pos-soft: rgb(43 174 149 / 14%);
+  --neg-soft: rgb(224 107 74 / 14%);
+  --warn-soft: rgb(227 179 65 / 13%);
+
+  --focus: 0 0 0 2px var(--bg), 0 0 0 4px var(--cyan);
+  --shadow-pop: 0 18px 48px rgb(0 0 0 / 45%), 0 0 0 1px var(--line-strong);
+
+  --font: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --fs-1: 11px;
+  --fs-2: 12px;
+  --fs-3: 13px;
+  --fs-4: 15px;
+  --fs-5: 18px;
+  --fs-6: 24px;
+  --fs-7: 32px;
+
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+
+  --r-control: 6px;
+  --r-panel: 10px;
+  --r-pill: 999px;
+
+  --control-h: 30px;
+  --row-h: 30px;
+  --topbar-h: 48px;
+  --nav-w: 212px;
+  --nav-w-collapsed: 56px;
+
+  --t-fast: 120ms;
+  --t-med: 200ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  color-scheme: dark;
+}
+
+:root[data-densidad="comoda"] {
+  --control-h: 34px;
+  --row-h: 36px;
+}
+
+:root[data-contraste="alto"] {
+  --text-2: #d3d9e3;
+  --text-3: #aab3c2;
+  --line: #34425c;
+  --line-strong: #4a5a78;
+}
+
+:root[data-texto="112"] {
+  --fs-1: 12px;
+  --fs-2: 13.5px;
+  --fs-3: 14.5px;
+  --fs-4: 16.5px;
+  --fs-5: 20px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --t-fast: 0ms;
+    --t-med: 0ms;
+  }
+}
+
+:root[data-movimiento="reducido"] {
+  --t-fast: 0ms;
+  --t-med: 0ms;
+}
