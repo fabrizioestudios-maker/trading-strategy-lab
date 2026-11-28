@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api, ESTATICO } from '../api/cliente';
+import { useFichas } from '../api/fichas';
 import type { FichaMercado, Trabajo } from '../api/contrato.gen';
 import { useRecurso } from '../api/recurso';
 import { espaciosGuardados, useEspacio } from '../app/espacio';
@@ -15,23 +16,6 @@ import { conSigno, entero, etiquetaTf, fecha, fechaHora, hace, porcentaje, preci
 import { armarRuta } from '../lib/rutas';
 
 const DESTACADOS = ['XAUUSD', 'EURUSD', 'USDJPY', 'SPXUSD'];
-
-/** Fichas de mercado de varios instrumentos, en paralelo; cada una aparece cuando llega. */
-function useFichas(simbolos: string[]) {
-  const [fichas, setFichas] = useState<Record<string, FichaMercado | Error>>({});
-  const clave = simbolos.join(',');
-  useEffect(() => {
-    const ctl = new AbortController();
-    for (const s of simbolos)
-      api
-        .mercado(s, ctl.signal)
-        .then((f) => !ctl.signal.aborted && setFichas((x) => ({ ...x, [s]: f })))
-        .catch((e) => !ctl.signal.aborted && setFichas((x) => ({ ...x, [s]: e instanceof Error ? e : new Error(String(e)) })));
-    return () => ctl.abort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [clave]);
-  return fichas;
-}
 
 function EstadoMercado() {
   // en la versión publicada el horario quedaría congelado en el momento de la grabación: no se muestra

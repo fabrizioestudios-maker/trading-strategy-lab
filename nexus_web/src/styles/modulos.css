@@ -1051,9 +1051,9 @@ input.selector--chico {
 .terminal__herramientas {
   display: flex;
   align-items: center;
-  gap: 8px 12px;
+  gap: 6px 8px;
   flex-wrap: wrap;
-  padding: 6px 12px;
+  padding: 6px 10px;
   border-bottom: 1px solid var(--line);
 }
 
@@ -1984,3 +1984,35 @@ input.selector--chico {
 .ajustes-ind__fila label { color: var(--text-2); }
 .ajustes-ind__licencia { margin: 0; }
 .espaciador { flex: 1; }
+
+/* ------------------------------------------------------------------ herramientas de dibujo y lista */
+.terminal__velas { position: relative; }
+.herr-dibujo {
+  position: absolute;
+  z-index: 4;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgb(13 17 24 / 92%);
+}
+.herr-dibujo .boton-icono { width: 28px; height: 28px; }
+.herr-dibujo__sep { height: 1px; margin: 3px 2px; background: var(--line); }
+.terminal__velas .grafico__leyenda,
+.terminal__velas .grafico__indicadores { left: 50px; }
+.grafico.es-dibujando .grafico__lienzo { cursor: crosshair; }
+.boton-icono--texto { width: auto; min-width: 30px; padding: 0 6px; font-size: var(--fs-1); font-weight: 600; }
+.lista-seg .tabla tr.es-activo td { background: rgb(232 168 58 / 8%); }
+.lista-seg__sim { display: flex; flex-direction: column; align-items: flex-start; gap: 0; text-align: left; }
+.lista-seg__sim .tenue { font-size: var(--fs-1); font-weight: 400; }
+@media (max-width: 640px) {
+  .herr-dibujo { flex-direction: row; top: auto; bottom: 34px; left: 50%; transform: translateX(-50%); }
+  .herr-dibujo__sep { width: 1px; height: auto; margin: 2px 3px; }
+  .terminal__velas .grafico__leyenda,
+  .terminal__velas .grafico__indicadores { left: 10px; }
+}

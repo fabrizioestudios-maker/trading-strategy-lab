@@ -8,6 +8,8 @@ import { Atribucion, GraficoVelas, type LineaPrecio, type Marca } from '../../co
 import { Icono } from '../../components/iconos';
 import { Menu } from '../../components/Menu';
 import { PanelIndicador } from '../../components/PanelIndicador';
+import { ListaSeguimiento } from './ListaSeguimiento';
+import { HERRAMIENTAS_DIBUJO, TIPOS_GRAFICO, type Dibujo, type TipoDibujo, type TipoGrafico } from '../../lib/grafico';
 import { AjustesIndicador, BibliotecaIndicadores, LeyendaIndicador, useCatalogo } from '../../components/Indicadores';
 import { nuevaInstancia, type InstanciaIndicador } from '../../lib/indicadores';
 import { Boton, BotonIcono, Cargando, ErrorEstado, Pestanas, copiarTexto } from '../../components/ui';
@@ -19,7 +21,7 @@ import { MapaNiveles } from './MapaNiveles';
 import { PanelDecision, PanelEventos, PanelOrdenes } from './Paneles';
 import { useReplay } from './useReplay';
 
-type Pestana = 'operar' | 'ordenes' | 'decision' | 'eventos';
+type Pestana = 'operar' | 'ordenes' | 'decision' | 'eventos' | 'lista';
 
 const CAPAS: [keyof ReturnType<typeof useEspacio>['estado']['prefs']['capas'], string][] = [
   ['sesiones', 'Sesiones de Nueva York'],
@@ -45,6 +47,26 @@ export default function Replay({ params }: { params: Record<string, string> }) {
   const [bibliotecaAbierta, setBibliotecaAbierta] = useState(false);
   const [ajustesDe, setAjustesDe] = useState<string | null>(null);
   const catalogo = useCatalogo();
+  const [herramienta, setHerramienta] = useState<TipoDibujo | null>(null);
+  const [selDibujo, setSelDibujo] = useState<string | null>(null);
+  const dibujos = estado.dibujos[estado.simbolo] ?? [];
+  const fijarDibujos = (l: Dibujo[]) => despachar({ tipo: 'dibujos', simbolo: estado.simbolo, dibujos: l });
+  useEffect(() => {
+    const k = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (el && (el.tagName === 'INPUT' || el.tagName === 'SELECT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
+      if (e.key === 'Escape' && (herramienta || selDibujo)) {
+        setHerramienta(null);
+        setSelDibujo(null);
+      } else if ((e.key === 'Delete' || e.key === 'Backspace') && selDibujo) {
+        e.preventDefault();
+        fijarDibujos(dibujos.filter((d) => d.id !== selDibujo));
+        setSelDibujo(null);
+      }
+    };
+    window.addEventListener('keydown', k);
+    return () => window.removeEventListener('keydown', k);
+  });
   useEffect(() => {
     if (saltoAbierto) requestAnimationFrame(() => entradaFecha.current?.focus());
   }, [saltoAbierto]);
@@ -168,6 +190,7 @@ export default function Replay({ params }: { params: Record<string, string> }) {
     { id: 'ordenes', etiqueta: 'Órdenes', contador: r.ordenes.length },
     { id: 'decision', etiqueta: 'Decisión' },
     { id: 'eventos', etiqueta: 'Eventos', contador: c?.eventos.length },
+    { id: 'lista', etiqueta: 'Lista' },
   ];
   const capas = prefs.capas;
   // ---------------------------------------------------------------- indicadores de la biblioteca
@@ -191,7 +214,7 @@ export default function Replay({ params }: { params: Record<string, string> }) {
   );
   const enAjustes = instancias.find((x) => x.instancia === ajustesDe) ?? null;
   const dinero = useMemo(() => new Map((r.cuenta?.por_orden ?? []).map((x) => [x.id, x.resultado_moneda ?? null])), [r.cuenta]);
-  const pestana: Pestana = (['operar', 'ordenes', 'decision', 'eventos'] as Pestana[]).includes(panel.pestana as Pestana) ? (panel.pestana as Pestana) : 'operar';
+  const pestana: Pestana = (['operar', 'ordenes', 'decision', 'eventos', 'lista'] as Pestana[]).includes(panel.pestana as Pestana) ? (panel.pestana as Pestana) : 'operar';
 
   return (
     <div className="terminal" data-panel={panel.visible ? 'visible' : 'oculto'}>
@@ -234,6 +257,28 @@ export default function Replay({ params }: { params: Record<string, string> }) {
               </button>
             ))}
           </div>
+          <select
+            className="selector selector--chico"
+            aria-label="Tipo de gráfico"
+            title="Tipo de gráfico"
+            value={prefs.tipoGrafico}
+            onChange={(e) => despachar({ tipo: 'prefs', prefs: { tipoGrafico: e.target.value as TipoGrafico } })}
+          >
+            {TIPOS_GRAFICO.map((x) => (
+              <option key={x.id} value={x.id}>
+                {x.nombre}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            className={`boton-icono boton-icono--texto${prefs.escalaLog ? ' es-activo' : ''}`}
+            aria-pressed={prefs.escalaLog}
+            title="Escala logarítmica"
+            onClick={() => despachar({ tipo: 'prefs', prefs: { escalaLog: !prefs.escalaLog } })}
+          >
+            log
+          </button>
           <Boton chico className="boton--fantasma" icono="mas" onClick={() => setBibliotecaAbierta(true)} title="Agregar indicadores (/)">
             Indicadores
           </Boton>
@@ -356,7 +401,53 @@ export default function Replay({ params }: { params: Record<string, string> }) {
           {c ? (
             <>
               <div className="terminal__velas">
+                <div className="herr-dibujo" role="toolbar" aria-label="Herramientas de dibujo" aria-orientation="vertical">
+                  <BotonIcono etiqueta="Cursor (Esc)" icono="cursor" activo={!herramienta} onClick={() => setHerramienta(null)} />
+                  {HERRAMIENTAS_DIBUJO.map((h) => (
+                    <BotonIcono
+                      key={h.id}
+                      etiqueta={`${h.nombre} (${h.puntos === 1 ? 'un clic' : 'dos clics'})`}
+                      icono={h.id}
+                      activo={herramienta === h.id}
+                      onClick={() => {
+                        setSelDibujo(null);
+                        setHerramienta(herramienta === h.id ? null : h.id);
+                      }}
+                    />
+                  ))}
+                  <span className="herr-dibujo__sep" aria-hidden="true" />
+                  <BotonIcono
+                    etiqueta="Borrar el dibujo seleccionado (Supr)"
+                    icono="papelera"
+                    disabled={!selDibujo}
+                    onClick={() => {
+                      fijarDibujos(dibujos.filter((d) => d.id !== selDibujo));
+                      setSelDibujo(null);
+                    }}
+                  />
+                  <BotonIcono
+                    etiqueta={`Borrar todos los dibujos de ${estado.simbolo}`}
+                    icono="cruz"
+                    disabled={!dibujos.length}
+                    onClick={() => {
+                      fijarDibujos([]);
+                      setSelDibujo(null);
+                    }}
+                  />
+                </div>
                 <GraficoVelas
+                  tipo={prefs.tipoGrafico}
+                  escalaLog={prefs.escalaLog}
+                  dibujos={dibujos}
+                  herramienta={herramienta}
+                  seleccionado={selDibujo}
+                  onSeleccion={setSelDibujo}
+                  onDibujo={(d) => {
+                    fijarDibujos([...dibujos, d]);
+                    setHerramienta(null);
+                    setSelDibujo(d.id);
+                  }}
+                  decimales={dec}
                   velas={c.velas}
                   tf={c.temporalidad}
                   zona={zona}
@@ -448,6 +539,8 @@ export default function Replay({ params }: { params: Record<string, string> }) {
               <PanelOrdenes cuadro={c} limite={c.limite.limite_ms} ordenes={r.ordenes} estados={r.estadosOrdenes} zona={zona} vista="lista" dinero={dinero} />
             ) : pestana === 'decision' ? (
               <PanelDecision cuadro={c} />
+            ) : pestana === 'lista' ? (
+              <ListaSeguimiento />
             ) : (
               <PanelEventos eventos={c.eventos} estados={r.estadosOrdenes} zona={zona} />
             )}

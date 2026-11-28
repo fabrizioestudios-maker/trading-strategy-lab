@@ -5,6 +5,7 @@
 import { createContext, useContext, useEffect, useMemo, useReducer, type ReactNode } from 'react';
 import type { OrdenSimuladaEntrada } from '../api/contrato.gen';
 import { guardar, leer } from '../lib/almacen';
+import { TIPOS_GRAFICO, sanearDibujos, type Dibujo, type TipoGrafico } from '../lib/grafico';
 import { INDICADORES_INICIALES, sanearIndicadores, type InstanciaIndicador } from '../lib/indicadores';
 
 export interface Preferencias {
@@ -20,7 +21,9 @@ export interface Preferencias {
   pasoLote: number;
   apalancamiento: number;
   navColapsada: boolean;
-  panelReplay: { visible: boolean; ancho: number; pestana: 'operar' | 'ordenes' | 'decision' | 'eventos' };
+  panelReplay: { visible: boolean; ancho: number; pestana: 'operar' | 'ordenes' | 'decision' | 'eventos' | 'lista' };
+  tipoGrafico: TipoGrafico;
+  escalaLog: boolean;
   capas: { sesiones: boolean; niveles: boolean; ordenes: boolean; senales: boolean };
   /** Indicadores agregados desde la biblioteca (orden = orden en el gráfico) */
   indicadores: InstanciaIndicador[];
@@ -40,6 +43,8 @@ export const PREFS_INICIALES: Preferencias = {
   apalancamiento: 50,
   navColapsada: false,
   panelReplay: { visible: true, ancho: 340, pestana: 'operar' },
+  tipoGrafico: 'velas',
+  escalaLog: false,
   capas: { sesiones: true, niveles: true, ordenes: true, senales: true },
   indicadores: INDICADORES_INICIALES,
 };
@@ -63,6 +68,8 @@ export interface EstadoEspacio {
   /** fines: dónde se detiene la reproducción por instrumento (límite en ms, del selector de rango). */
   replay: { limites: Record<string, number>; fines: Record<string, number>; velocidad: number; pasoN: number; ordenes: OrdenGuardada[] };
   recientes: ReplayReciente[];
+  /** Dibujos del usuario por instrumento */
+  dibujos: Record<string, Dibujo[]>;
 }
 
 export const ESTADO_INICIAL: EstadoEspacio = {
@@ -73,6 +80,7 @@ export const ESTADO_INICIAL: EstadoEspacio = {
   prefs: PREFS_INICIALES,
   replay: { limites: {}, fines: {}, velocidad: 2, pasoN: 10, ordenes: [] },
   recientes: [],
+  dibujos: {},
 };
 
 export interface EspacioGuardado {
@@ -87,6 +95,7 @@ type Accion =
   | { tipo: 'tf'; tf: number }
   | { tipo: 'limite'; simbolo: string; limiteMs: number }
   | { tipo: 'fin'; simbolo: string; finMs: number | null }
+  | { tipo: 'dibujos'; simbolo: string; dibujos: Dibujo[] }
   | { tipo: 'velocidad'; velocidad: number }
   | { tipo: 'pasoN'; pasoN: number }
   | { tipo: 'ordenes'; ordenes: OrdenGuardada[] }
@@ -109,7 +118,9 @@ export function sanear(x: unknown): EstadoEspacio {
   prefs.velasPorCuadro = Math.min(800, Math.max(100, Number(prefs.velasPorCuadro) || 300));
   prefs.apalancamiento = Math.min(1000, Math.max(1, Number(prefs.apalancamiento) || 50));
   prefs.panelReplay.ancho = Math.min(560, Math.max(260, Number(prefs.panelReplay.ancho) || 340));
-  if (!['operar', 'ordenes', 'decision', 'eventos'].includes(prefs.panelReplay.pestana)) prefs.panelReplay.pestana = 'operar';
+  if (!['operar', 'ordenes', 'decision', 'eventos', 'lista'].includes(prefs.panelReplay.pestana)) prefs.panelReplay.pestana = 'operar';
+  if (!TIPOS_GRAFICO.some((x) => x.id === prefs.tipoGrafico)) prefs.tipoGrafico = 'velas';
+  prefs.escalaLog = prefs.escalaLog === true;
   const r = (e.replay ?? {}) as Partial<EstadoEspacio['replay']>;
   const ordenes = Array.isArray(r.ordenes)
     ? r.ordenes
@@ -140,6 +151,7 @@ export function sanear(x: unknown): EstadoEspacio {
       ordenes: ordenes.slice(0, 200),
     },
     recientes: Array.isArray(e.recientes) ? e.recientes.filter((x) => x && x.limiteMs > 0).slice(0, 8) : [],
+    dibujos: sanearDibujos(e.dibujos),
   };
 }
 
@@ -153,6 +165,8 @@ export function reducir(s: EstadoEspacio, a: Accion): EstadoEspacio {
       return { ...s, tf: a.tf };
     case 'limite':
       return { ...s, replay: { ...s.replay, limites: { ...s.replay.limites, [a.simbolo]: a.limiteMs } } };
+    case 'dibujos':
+      return { ...s, dibujos: { ...s.dibujos, [a.simbolo]: a.dibujos } };
     case 'fin': {
       const fines = { ...s.replay.fines };
       if (a.finMs === null) delete fines[a.simbolo];

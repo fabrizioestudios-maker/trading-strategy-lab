@@ -22,6 +22,8 @@ import {
 import type { ReactNode } from 'react';
 import type { ResultadoIndicador } from '../api/contrato.gen';
 import { PrimitivaIndicadores } from './primitivaIndicadores';
+import { PrimitivaDibujos, tiempoDeLogico } from './primitivaDibujos';
+import { HERRAMIENTAS_DIBUJO, heikinAshi, type Dibujo, type Punto, type TipoDibujo, type TipoGrafico } from '../lib/grafico';
 import { useEffect, useRef, useState } from 'react';
 import type { Vela, VentanaSesion } from '../api/contrato.gen';
 import { fechaHora, hora, partes, precio, type Zona } from '../lib/formato';
@@ -83,6 +85,15 @@ export function GraficoVelas({
   onRango,
   superpuestos = [],
   children,
+  tipo = 'velas',
+  escalaLog = false,
+  dibujos = [],
+  herramienta = null,
+  colorDibujo = '#e8a83a',
+  seleccionado = null,
+  onDibujo,
+  onSeleccion,
+  decimales = 2,
 }: {
   velas: Vela[];
   tf: number;
@@ -103,6 +114,16 @@ export function GraficoVelas({
   superpuestos?: ResultadoIndicador[];
   /** Controles encima del gráfico (leyenda de indicadores) */
   children?: ReactNode;
+  tipo?: TipoGrafico;
+  escalaLog?: boolean;
+  dibujos?: Dibujo[];
+  /** Herramienta de dibujo activa (null = cursor) */
+  herramienta?: TipoDibujo | null;
+  colorDibujo?: string;
+  seleccionado?: string | null;
+  onDibujo?: (d: Dibujo) => void;
+  onSeleccion?: (id: string | null) => void;
+  decimales?: number;
 }) {
   const caja = useRef<HTMLDivElement>(null);
   const grafico = useRef<IChartApi | null>(null);
@@ -118,6 +139,13 @@ export function GraficoVelas({
   const [geo, setGeo] = useState<Geometria>({ limiteX: null, anchoTrazado: 0, altoTrazado: 0, sesiones: [] });
   const [leyenda, setLeyenda] = useState<Vela | null>(null);
   const primitiva = useRef(new PrimitivaIndicadores());
+  const dib = useRef(new PrimitivaDibujos());
+  const extra = useRef<ISeriesApi<'Bar' | 'Line' | 'Area'> | null>(null);
+  const herramientaRef = useRef(herramienta);
+  herramientaRef.current = herramienta;
+  const enCurso = useRef<Punto | null>(null);
+  const cbRef = useRef({ onDibujo, onSeleccion, colorDibujo });
+  cbRef.current = { onDibujo, onSeleccion, colorDibujo };
   const seriesInd = useRef(new Map<string, { firma: string; series: ISeriesApi<'Line' | 'Histogram'>[] }>());
 
   // ---------------------------------------------------------------- creación
@@ -152,6 +180,53 @@ export function GraficoVelas({
     grafico.current = g;
     serie.current = s;
     s.attachPrimitive(primitiva.current);
+    s.attachPrimitive(dib.current);
+    // dibujo: el primer clic fija un punto; el segundo (o el único, en la línea horizontal) termina el dibujo
+    const puntoDe = (p: { logical?: number; point?: { x: number; y: number } }): Punto | null => {
+      if (p.logical === undefined || !p.point) return null;
+      const precioY = s.coordinateToPrice(p.point.y);
+      if (precioY === null) return null;
+      return { t: Math.round(tiempoDeLogico(velasRef.current.map((x) => x.t), estadoRef.current.tf * 60_000, p.logical)), p: precioY };
+    };
+    const alClic = (p: { logical?: number; point?: { x: number; y: number } }) => {
+      const h = herramientaRef.current;
+      if (!h) {
+        if (p.point) cbRef.current.onSeleccion?.(dib.current.buscar(p.point.x, p.point.y, caja.current?.clientWidth ?? 0));
+        return;
+      }
+      const pt = puntoDe(p as never);
+      if (!pt) return;
+      const def = HERRAMIENTAS_DIBUJO.find((x) => x.id === h)!;
+      // un doble clic no cierra un dibujo de largo cero
+      if (enCurso.current && p.point && Math.abs(pt.t - enCurso.current.t) < 1 && Math.abs(pt.p - enCurso.current.p) < 1e-9) return;
+      if (def.puntos === 1 || enCurso.current) {
+        const puntos = def.puntos === 1 ? [pt] : [enCurso.current!, pt];
+        enCurso.current = null;
+        dib.current.fijar({ provisional: null });
+        cbRef.current.onDibujo?.({ id: `d${Date.now().toString(36)}`, tipo: h, puntos, color: cbRef.current.colorDibujo });
+      } else enCurso.current = pt;
+    };
+    // clics del navegador (no los del gráfico, que agrupan dos clics rápidos en un doble clic); un arrastre no cuenta
+    let abajo: { x: number; y: number } | null = null;
+    const nodo = caja.current;
+    const alBajar = (e: PointerEvent) => (abajo = { x: e.clientX, y: e.clientY });
+    const alSoltar = (e: MouseEvent) => {
+      if (!abajo || Math.hypot(e.clientX - abajo.x, e.clientY - abajo.y) > 4) return;
+      const r = nodo.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      const y = e.clientY - r.top;
+      if (x < 0 || y < 0 || x > r.width - g.priceScale('right').width() || y > r.height - g.timeScale().height()) return;
+      const logical = g.timeScale().coordinateToLogical(x);
+      alClic({ logical: logical === null ? undefined : (logical as number), point: { x, y } });
+    };
+    nodo.addEventListener('pointerdown', alBajar);
+    nodo.addEventListener('click', alSoltar);
+    g.subscribeCrosshairMove((p) => {
+      const h = herramientaRef.current;
+      if (!h || !enCurso.current) return;
+      const pt = puntoDe(p as never);
+      if (pt) dib.current.fijar({ provisional: { id: 'provisional', tipo: h, puntos: [enCurso.current, pt], color: cbRef.current.colorDibujo } });
+    });
 
     let vivo = true;
     const recalcular = () => {
@@ -206,6 +281,8 @@ export function GraficoVelas({
     (g as unknown as { __recalcular: () => void }).__recalcular = diferido;
     return () => {
       vivo = false;
+      nodo.removeEventListener('pointerdown', alBajar);
+      nodo.removeEventListener('click', alSoltar);
       ro.disconnect();
       g.remove();
       grafico.current = null;
@@ -246,9 +323,15 @@ export function GraficoVelas({
     const ts = g.timeScale();
     const pegadoALaDerecha = ts.scrollPosition() > 2;
     const cambioTf = estadoRef.current.tf !== tf;
-    const colores = superpuestos.find((r) => r.colores_velas && r.colores_velas.length === velas.length)?.colores_velas ?? null;
+    const colores = tipo === 'velas' || tipo === 'heikin' ? (superpuestos.find((r) => r.colores_velas && r.colores_velas.length === velas.length)?.colores_velas ?? null) : null;
+    const base = tipo === 'heikin' ? heikinAshi(velas) : velas;
+    const ex = extra.current;
+    if (ex) {
+      if (tipo === 'barras') (ex as ISeriesApi<'Bar'>).setData(velas.map((v) => ({ time: (v.t / 1000) as UTCTimestamp, open: v.o, high: v.h, low: v.l, close: v.c })));
+      else (ex as ISeriesApi<'Line'>).setData(velas.map((v) => ({ time: (v.t / 1000) as UTCTimestamp, value: v.c })));
+    }
     s.setData(
-      velas.map((v, i) => {
+      base.map((v, i) => {
         const base = { time: (v.t / 1000) as UTCTimestamp, open: v.o, high: v.h, low: v.l, close: v.c };
         const cv = colores?.[i];
         if (!v.parcial) return cv ? { ...base, color: cv, borderColor: cv, wickColor: cv } : base;
@@ -264,7 +347,48 @@ export function GraficoVelas({
     }
     estadoRef.current = { tf, n: velas.length };
     (g as unknown as { __recalcular: () => void }).__recalcular?.();
-  }, [velas, tf, superpuestos]);
+  }, [velas, tf, superpuestos, tipo]);
+
+  // ---------------------------------------------------------------- tipo de gráfico y escala
+  useEffect(() => {
+    const g = grafico.current;
+    const s = serie.current;
+    if (!g || !s) return;
+    if (extra.current) {
+      g.removeSeries(extra.current);
+      extra.current = null;
+    }
+    const velasVisibles = tipo === 'velas' || tipo === 'heikin';
+    const nada = 'rgba(0,0,0,0)';
+    s.applyOptions(
+      velasVisibles
+        ? { upColor: css('--alza'), downColor: css('--baja'), borderVisible: true, wickVisible: true, priceLineVisible: true }
+        : { upColor: nada, downColor: nada, borderVisible: false, wickVisible: false, priceLineVisible: false },
+    );
+    const oro = css('--gold');
+    if (tipo === 'barras') extra.current = g.addBarSeries({ upColor: css('--alza'), downColor: css('--baja'), thinBars: false, priceLineVisible: false, lastValueVisible: false });
+    if (tipo === 'linea') extra.current = g.addLineSeries({ color: oro, lineWidth: 2, priceLineVisible: false, lastValueVisible: false });
+    if (tipo === 'area') extra.current = g.addAreaSeries({ lineColor: oro, topColor: `${oro}55`, bottomColor: `${oro}05`, lineWidth: 2, priceLineVisible: false, lastValueVisible: false });
+    const v = velasRef.current;
+    if (extra.current && v.length) {
+      if (tipo === 'barras') (extra.current as ISeriesApi<'Bar'>).setData(v.map((x) => ({ time: (x.t / 1000) as UTCTimestamp, open: x.o, high: x.h, low: x.l, close: x.c })));
+      else (extra.current as ISeriesApi<'Line'>).setData(v.map((x) => ({ time: (x.t / 1000) as UTCTimestamp, value: x.c })));
+    }
+  }, [tipo]);
+
+  useEffect(() => {
+    grafico.current?.priceScale('right').applyOptions({ mode: escalaLog ? 1 : 0 });
+  }, [escalaLog]);
+
+  useEffect(() => {
+    dib.current.fijar({ dibujos, seleccionado, tiempos: velas.map((v) => v.t), tfMs: tf * 60_000, decimales });
+  }, [dibujos, seleccionado, velas, tf, decimales]);
+
+  useEffect(() => {
+    // cambiar de herramienta descarta el dibujo a medio hacer
+    enCurso.current = null;
+    dib.current.fijar({ provisional: null });
+  }, [herramienta]);
 
   // ---------------------------------------------------------------- indicadores superpuestos
   useEffect(() => {
@@ -380,7 +504,7 @@ export function GraficoVelas({
   const etiquetaDentro = anchoRegion > 150;
 
   return (
-    <div className="grafico" style={{ height: alto }} role="img" aria-label={etiqueta}>
+    <div className={`grafico${herramienta ? ' es-dibujando' : ''}`} style={{ height: alto }} role="img" aria-label={etiqueta}>
       <div ref={caja} className="grafico__lienzo" />
       {children}
       {v && (
