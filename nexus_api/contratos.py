@@ -709,3 +709,77 @@ class ResultadoProbador(Modelo):
     veredicto: str
     segundos: float
     avisos: list[str]
+
+
+# --------------------------------------------------------------------------------------------- cuentas y administración
+class Usuario(Modelo):
+    id: str
+    email: str
+    nombre: str
+    rol: Literal["usuario", "admin"]
+    activo: bool
+    google: bool = Field(description="Tiene Google vinculado")
+    contrasena: bool = Field(description="Tiene contraseña propia")
+    creado_ms: int
+    ultimo_acceso_ms: Optional[int]
+
+
+class ConfigAuth(Modelo):
+    login_requerido: bool = Field(description="False: la API corre sin cuentas (uso local); todos son administradores")
+    google_client_id: Optional[str] = Field(description="Client ID público de Google Identity Services (None: sin Google)")
+    min_contrasena: int
+
+
+class PedidoRegistro(Modelo):
+    email: str = Field(max_length=254)
+    nombre: str = Field(max_length=80)
+    contrasena: str = Field(max_length=200)
+
+
+class PedidoIngreso(Modelo):
+    email: str = Field(max_length=254)
+    contrasena: str = Field(max_length=200)
+
+
+class PedidoGoogle(Modelo):
+    credencial: str = Field(max_length=5000, description="ID token que entrega Google Identity Services")
+
+
+class CambioUsuario(Modelo):
+    rol: Optional[Literal["usuario", "admin"]] = None
+    activo: Optional[bool] = None
+
+
+class EventoAuditoria(Modelo):
+    t: int
+    tipo: str
+    email: Optional[str]
+    detalle: Optional[str]
+    ip: Optional[str]
+
+
+class Documento(Modelo):
+    ruta: str
+    titulo: str
+    bytes: int
+    modificado_ms: int
+
+
+class DocumentoTexto(Documento):
+    texto: str
+
+
+class ResumenAdmin(Modelo):
+    contrato: str = CONTRATO
+    version: str
+    commit: Optional[str]
+    python: str
+    plataforma: str
+    activo_desde_ms: int
+    configuracion: dict[str, ValorParametro | None]
+    usuarios: dict[str, int]
+    datos: dict[str, ValorParametro | None]
+    laboratorio: dict[str, ValorParametro | None]
+    probador: dict[str, int]
+    sistema: dict[str, ValorParametro | None]
+    licencias: list[dict[str, str]]

@@ -245,6 +245,39 @@
     "title": "CalculoRiesgo",
     "type": "object"
    },
+   "CambioUsuario": {
+    "additionalProperties": false,
+    "properties": {
+     "activo": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Activo"
+     },
+     "rol": {
+      "anyOf": [
+       {
+        "enum": [
+         "usuario",
+         "admin"
+        ],
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Rol"
+     }
+    },
+    "title": "CambioUsuario",
+    "type": "object"
+   },
    "ChequeoCalidad": {
     "additionalProperties": false,
     "properties": {
@@ -445,6 +478,39 @@
      "valor"
     ],
     "title": "Condicion",
+    "type": "object"
+   },
+   "ConfigAuth": {
+    "additionalProperties": false,
+    "properties": {
+     "google_client_id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Client ID público de Google Identity Services (None: sin Google)",
+      "title": "Google Client Id"
+     },
+     "login_requerido": {
+      "description": "False: la API corre sin cuentas (uso local); todos son administradores",
+      "title": "Login Requerido",
+      "type": "boolean"
+     },
+     "min_contrasena": {
+      "title": "Min Contrasena",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "login_requerido",
+     "google_client_id",
+     "min_contrasena"
+    ],
+    "title": "ConfigAuth",
     "type": "object"
    },
    "ConfigCorrida-Input": {
@@ -995,6 +1061,69 @@
     "title": "DefinicionSesion",
     "type": "object"
    },
+   "Documento": {
+    "additionalProperties": false,
+    "properties": {
+     "bytes": {
+      "title": "Bytes",
+      "type": "integer"
+     },
+     "modificado_ms": {
+      "title": "Modificado Ms",
+      "type": "integer"
+     },
+     "ruta": {
+      "title": "Ruta",
+      "type": "string"
+     },
+     "titulo": {
+      "title": "Titulo",
+      "type": "string"
+     }
+    },
+    "required": [
+     "ruta",
+     "titulo",
+     "bytes",
+     "modificado_ms"
+    ],
+    "title": "Documento",
+    "type": "object"
+   },
+   "DocumentoTexto": {
+    "additionalProperties": false,
+    "properties": {
+     "bytes": {
+      "title": "Bytes",
+      "type": "integer"
+     },
+     "modificado_ms": {
+      "title": "Modificado Ms",
+      "type": "integer"
+     },
+     "ruta": {
+      "title": "Ruta",
+      "type": "string"
+     },
+     "texto": {
+      "title": "Texto",
+      "type": "string"
+     },
+     "titulo": {
+      "title": "Titulo",
+      "type": "string"
+     }
+    },
+    "required": [
+     "ruta",
+     "titulo",
+     "bytes",
+     "modificado_ms",
+     "texto"
+    ],
+    "title": "DocumentoTexto",
+    "type": "object"
+   },
    "EstadoOrdenSimulada": {
     "additionalProperties": false,
     "properties": {
@@ -1291,6 +1420,61 @@
      "lado"
     ],
     "title": "Evento",
+    "type": "object"
+   },
+   "EventoAuditoria": {
+    "additionalProperties": false,
+    "properties": {
+     "detalle": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Detalle"
+     },
+     "email": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Email"
+     },
+     "ip": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ip"
+     },
+     "t": {
+      "title": "T",
+      "type": "integer"
+     },
+     "tipo": {
+      "title": "Tipo",
+      "type": "string"
+     }
+    },
+    "required": [
+     "t",
+     "tipo",
+     "email",
+     "detalle",
+     "ip"
+    ],
+    "title": "EventoAuditoria",
     "type": "object"
    },
    "FichaMercado": {
@@ -2969,6 +3153,22 @@
     "title": "PedidoCuenta",
     "type": "object"
    },
+   "PedidoGoogle": {
+    "additionalProperties": false,
+    "properties": {
+     "credencial": {
+      "description": "ID token que entrega Google Identity Services",
+      "maxLength": 5000,
+      "title": "Credencial",
+      "type": "string"
+     }
+    },
+    "required": [
+     "credencial"
+    ],
+    "title": "PedidoGoogle",
+    "type": "object"
+   },
    "PedidoIndicador": {
     "additionalProperties": false,
     "properties": {
@@ -3044,6 +3244,27 @@
      "indicadores"
     ],
     "title": "PedidoIndicadores",
+    "type": "object"
+   },
+   "PedidoIngreso": {
+    "additionalProperties": false,
+    "properties": {
+     "contrasena": {
+      "maxLength": 200,
+      "title": "Contrasena",
+      "type": "string"
+     },
+     "email": {
+      "maxLength": 254,
+      "title": "Email",
+      "type": "string"
+     }
+    },
+    "required": [
+     "email",
+     "contrasena"
+    ],
+    "title": "PedidoIngreso",
     "type": "object"
    },
    "PedidoOrdenes": {
@@ -3182,6 +3403,33 @@
      "hasta"
     ],
     "title": "PedidoProbador",
+    "type": "object"
+   },
+   "PedidoRegistro": {
+    "additionalProperties": false,
+    "properties": {
+     "contrasena": {
+      "maxLength": 200,
+      "title": "Contrasena",
+      "type": "string"
+     },
+     "email": {
+      "maxLength": 254,
+      "title": "Email",
+      "type": "string"
+     },
+     "nombre": {
+      "maxLength": 80,
+      "title": "Nombre",
+      "type": "string"
+     }
+    },
+    "required": [
+     "email",
+     "nombre",
+     "contrasena"
+    ],
+    "title": "PedidoRegistro",
     "type": "object"
    },
    "PedidoRiesgo": {
@@ -3999,6 +4247,176 @@
     "title": "Resumen",
     "type": "object"
    },
+   "ResumenAdmin": {
+    "additionalProperties": false,
+    "properties": {
+     "activo_desde_ms": {
+      "title": "Activo Desde Ms",
+      "type": "integer"
+     },
+     "commit": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Commit"
+     },
+     "configuracion": {
+      "additionalProperties": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "integer"
+        },
+        {
+         "type": "number"
+        },
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "title": "Configuracion",
+      "type": "object"
+     },
+     "contrato": {
+      "default": "nexus.v1",
+      "title": "Contrato",
+      "type": "string"
+     },
+     "datos": {
+      "additionalProperties": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "integer"
+        },
+        {
+         "type": "number"
+        },
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "title": "Datos",
+      "type": "object"
+     },
+     "laboratorio": {
+      "additionalProperties": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "integer"
+        },
+        {
+         "type": "number"
+        },
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "title": "Laboratorio",
+      "type": "object"
+     },
+     "licencias": {
+      "items": {
+       "additionalProperties": {
+        "type": "string"
+       },
+       "type": "object"
+      },
+      "title": "Licencias",
+      "type": "array"
+     },
+     "plataforma": {
+      "title": "Plataforma",
+      "type": "string"
+     },
+     "probador": {
+      "additionalProperties": {
+       "type": "integer"
+      },
+      "title": "Probador",
+      "type": "object"
+     },
+     "python": {
+      "title": "Python",
+      "type": "string"
+     },
+     "sistema": {
+      "additionalProperties": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "integer"
+        },
+        {
+         "type": "number"
+        },
+        {
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "title": "Sistema",
+      "type": "object"
+     },
+     "usuarios": {
+      "additionalProperties": {
+       "type": "integer"
+      },
+      "title": "Usuarios",
+      "type": "object"
+     },
+     "version": {
+      "title": "Version",
+      "type": "string"
+     }
+    },
+    "required": [
+     "contrato",
+     "version",
+     "commit",
+     "python",
+     "plataforma",
+     "activo_desde_ms",
+     "configuracion",
+     "usuarios",
+     "datos",
+     "laboratorio",
+     "probador",
+     "sistema",
+     "licencias"
+    ],
+    "title": "ResumenAdmin",
+    "type": "object"
+   },
    "Robustez": {
     "additionalProperties": false,
     "properties": {
@@ -4399,6 +4817,73 @@
     "title": "Trabajo",
     "type": "object"
    },
+   "Usuario": {
+    "additionalProperties": false,
+    "properties": {
+     "activo": {
+      "title": "Activo",
+      "type": "boolean"
+     },
+     "contrasena": {
+      "description": "Tiene contraseña propia",
+      "title": "Contrasena",
+      "type": "boolean"
+     },
+     "creado_ms": {
+      "title": "Creado Ms",
+      "type": "integer"
+     },
+     "email": {
+      "title": "Email",
+      "type": "string"
+     },
+     "google": {
+      "description": "Tiene Google vinculado",
+      "title": "Google",
+      "type": "boolean"
+     },
+     "id": {
+      "title": "Id",
+      "type": "string"
+     },
+     "nombre": {
+      "title": "Nombre",
+      "type": "string"
+     },
+     "rol": {
+      "enum": [
+       "usuario",
+       "admin"
+      ],
+      "title": "Rol",
+      "type": "string"
+     },
+     "ultimo_acceso_ms": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ultimo Acceso Ms"
+     }
+    },
+    "required": [
+     "id",
+     "email",
+     "nombre",
+     "rol",
+     "activo",
+     "google",
+     "contrasena",
+     "creado_ms",
+     "ultimo_acceso_ms"
+    ],
+    "title": "Usuario",
+    "type": "object"
+   },
    "ValidationError": {
     "properties": {
      "ctx": {
@@ -4533,6 +5018,368 @@
  },
  "openapi": "3.1.0",
  "paths": {
+  "/api/v1/admin/documento": {
+   "get": {
+    "operationId": "admin_documento_api_v1_admin_documento_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "ruta",
+      "required": true,
+      "schema": {
+       "title": "Ruta",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DocumentoTexto"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Admin Documento"
+   }
+  },
+  "/api/v1/admin/documentos": {
+   "get": {
+    "operationId": "admin_documentos_api_v1_admin_documentos_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/Documento"
+         },
+         "title": "Response Admin Documentos Api V1 Admin Documentos Get",
+         "type": "array"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Admin Documentos"
+   }
+  },
+  "/api/v1/admin/eventos": {
+   "get": {
+    "operationId": "admin_eventos_api_v1_admin_eventos_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "limite",
+      "required": false,
+      "schema": {
+       "default": 200,
+       "maximum": 2000,
+       "minimum": 1,
+       "title": "Limite",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/EventoAuditoria"
+         },
+         "title": "Response Admin Eventos Api V1 Admin Eventos Get",
+         "type": "array"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Admin Eventos"
+   }
+  },
+  "/api/v1/admin/resumen": {
+   "get": {
+    "operationId": "admin_resumen_api_v1_admin_resumen_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ResumenAdmin"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Admin Resumen"
+   }
+  },
+  "/api/v1/admin/usuarios": {
+   "get": {
+    "operationId": "admin_usuarios_api_v1_admin_usuarios_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/Usuario"
+         },
+         "title": "Response Admin Usuarios Api V1 Admin Usuarios Get",
+         "type": "array"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Admin Usuarios"
+   }
+  },
+  "/api/v1/admin/usuarios/{uid}": {
+   "patch": {
+    "operationId": "admin_cambiar_api_v1_admin_usuarios__uid__patch",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "uid",
+      "required": true,
+      "schema": {
+       "title": "Uid",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CambioUsuario"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Usuario"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Admin Cambiar"
+   }
+  },
+  "/api/v1/auth/config": {
+   "get": {
+    "operationId": "auth_config_api_v1_auth_config_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ConfigAuth"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Auth Config"
+   }
+  },
+  "/api/v1/auth/google": {
+   "post": {
+    "operationId": "auth_google_api_v1_auth_google_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PedidoGoogle"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Usuario"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Auth Google"
+   }
+  },
+  "/api/v1/auth/ingresar": {
+   "post": {
+    "operationId": "auth_ingresar_api_v1_auth_ingresar_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PedidoIngreso"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Usuario"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Auth Ingresar"
+   }
+  },
+  "/api/v1/auth/registro": {
+   "post": {
+    "operationId": "auth_registro_api_v1_auth_registro_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PedidoRegistro"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Usuario"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Auth Registro"
+   }
+  },
+  "/api/v1/auth/salir": {
+   "post": {
+    "operationId": "auth_salir_api_v1_auth_salir_post",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {}
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Auth Salir"
+   }
+  },
+  "/api/v1/auth/yo": {
+   "get": {
+    "operationId": "auth_yo_api_v1_auth_yo_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Usuario"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Auth Yo"
+   }
+  },
   "/api/v1/datos/{simbolo}/calidad": {
    "get": {
     "operationId": "calidad_api_v1_datos__simbolo__calidad_get",

@@ -42,6 +42,11 @@ export interface CalculoRiesgo {
   avisos: Array<string>;
 }
 
+export interface CambioUsuario {
+  rol?: "usuario" | "admin" | null;
+  activo?: boolean | null;
+}
+
 export interface ChequeoCalidad {
   nombre: string;
   resultado: "ok" | "aviso" | "error";
@@ -73,6 +78,14 @@ export interface Condicion_Output {
   /** None = no se puede evaluar con los datos revelados */
   cumple: boolean | null;
   valor: string | null;
+}
+
+export interface ConfigAuth {
+  /** False: la API corre sin cuentas (uso local); todos son administradores */
+  login_requerido: boolean;
+  /** Client ID público de Google Identity Services (None: sin Google) */
+  google_client_id: string | null;
+  min_contrasena: number;
 }
 
 export interface ConfigCorrida_Input {
@@ -179,6 +192,21 @@ export interface DefinicionSesion {
   nota: string | null;
 }
 
+export interface Documento {
+  ruta: string;
+  titulo: string;
+  bytes: number;
+  modificado_ms: number;
+}
+
+export interface DocumentoTexto {
+  ruta: string;
+  titulo: string;
+  bytes: number;
+  modificado_ms: number;
+  texto: string;
+}
+
 export interface EstadoOrdenSimulada {
   id: string;
   estado: "posterior_al_limite" | "esperando_llenado" | "rechazada" | "abierta" | "cerrada" | "cancelada" | "vencida";
@@ -225,6 +253,14 @@ export interface Evento {
   titulo: string;
   detalle: string;
   lado: "compra" | "venta" | null;
+}
+
+export interface EventoAuditoria {
+  t: number;
+  tipo: string;
+  email: string | null;
+  detalle: string | null;
+  ip: string | null;
 }
 
 export interface FichaMercado {
@@ -501,6 +537,11 @@ export interface PedidoCuenta {
   ordenes: Array<OrdenSimuladaEntrada>;
 }
 
+export interface PedidoGoogle {
+  /** ID token que entrega Google Identity Services */
+  credencial: string;
+}
+
 export interface PedidoIndicador {
   /** Identificador de esta copia del indicador en el gráfico */
   instancia: string;
@@ -514,6 +555,11 @@ export interface PedidoIndicadores {
   limite_ms: number;
   cantidad?: number;
   indicadores: Array<PedidoIndicador>;
+}
+
+export interface PedidoIngreso {
+  email: string;
+  contrasena: string;
 }
 
 export interface PedidoOrdenes {
@@ -539,6 +585,12 @@ export interface PedidoProbador {
   /** 0 = sin límite de tiempo */
   max_velas?: number;
   perfil_costos?: "sin_costos" | "optimista" | "costos_md" | "base" | "conservador" | "estres";
+}
+
+export interface PedidoRegistro {
+  email: string;
+  nombre: string;
+  contrasena: string;
 }
 
 export interface PedidoRiesgo {
@@ -683,6 +735,22 @@ export interface Resumen {
   corridas_recientes: Array<Trabajo>;
 }
 
+export interface ResumenAdmin {
+  contrato: string;
+  version: string;
+  commit: string | null;
+  python: string;
+  plataforma: string;
+  activo_desde_ms: number;
+  configuracion: Record<string, boolean | number | string | null>;
+  usuarios: Record<string, number>;
+  datos: Record<string, boolean | number | string | null>;
+  laboratorio: Record<string, boolean | number | string | null>;
+  probador: Record<string, number>;
+  sistema: Record<string, boolean | number | string | null>;
+  licencias: Array<Record<string, string>>;
+}
+
 export interface Robustez {
   pliegues: Array<PliegueAnual>;
   pliegues_con_operaciones: number;
@@ -747,6 +815,20 @@ export interface Trabajo {
   /** Listados: métricas clave de la muestra total (n, expectativa, IC, período, perfil) */
   resumen: Record<string, unknown> | null;
   error: string | null;
+}
+
+export interface Usuario {
+  id: string;
+  email: string;
+  nombre: string;
+  rol: "usuario" | "admin";
+  activo: boolean;
+  /** Tiene Google vinculado */
+  google: boolean;
+  /** Tiene contraseña propia */
+  contrasena: boolean;
+  creado_ms: number;
+  ultimo_acceso_ms: number | null;
 }
 
 export interface ValidationError {

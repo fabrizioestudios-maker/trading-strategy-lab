@@ -12,22 +12,141 @@ from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import CONTRATO, VERSION, biblioteca, probador, catalogo, estrategias as E022, indicadores as IND, mercados, referencias, riesgo, sesiones as SE, simulacion
-from .contratos import (PedidoProbador, ResultadoProbador, DefinicionIndicador, PedidoIndicadores, RespuestaIndicadores, CalculoRiesgo, ConfigCorrida, CuentaSimulada, FichaMercado, HorarioMercado, PedidoCuenta, ContextoInvestigacion, CuadroReplay, EstadoOrdenSimulada, Estrategia,
+from . import CONTRATO, VERSION, admin as ADM, biblioteca, probador, catalogo, estrategias as E022, indicadores as IND, mercados, referencias, riesgo, sesiones as SE, simulacion
+from .contratos import (CambioUsuario, ConfigAuth, Documento, DocumentoTexto, EventoAuditoria, PedidoGoogle, PedidoIngreso, PedidoRegistro, ResumenAdmin, Usuario, PedidoProbador, ResultadoProbador, DefinicionIndicador, PedidoIndicadores, RespuestaIndicadores, CalculoRiesgo, ConfigCorrida, CuentaSimulada, FichaMercado, HorarioMercado, PedidoCuenta, ContextoInvestigacion, CuadroReplay, EstadoOrdenSimulada, Estrategia,
                         Hipotesis, InformeCalidad, Instrumento, Paso, PedidoOrdenes, PedidoRiesgo, Referencias, Resumen, Salud,
                         Trabajo)
 from .datos import TEMPORALIDADES, DatosNoDisponibles, ServicioDatos
-from .trabajos import GestorTrabajos
+from .trabajos import GestorTrabajos, procedencia
+from .usuarios import COOKIE, DURACION_S, MIN_CONTRASENA, ErrorAuth, Usuarios, verificar_google
 
 RAIZ = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WEB = os.path.join(RAIZ, "nexus_web", "dist")
 
 
-def crear_app(svc: ServicioDatos | None = None, gestor: GestorTrabajos | None = None) -> FastAPI:
+LOCAL = dict(id="local", email="local", nombre="Uso local", rol="admin", activo=True, google=False, contrasena=False, creado_ms=0, ultimo_acceso_ms=None)
+PUBLICAS = {"/api/v1/salud", "/api/v1/auth/config", "/api/v1/auth/registro", "/api/v1/auth/ingresar", "/api/v1/auth/google", "/api/v1/auth/salir"}
+
+
+def crear_app(svc: ServicioDatos | None = None, gestor: GestorTrabajos | None = None, login: bool | None = None,
+              usuarios: Usuarios | None = None, google_client_id: str | None = None) -> FastAPI:
+    """login=None lee NEXUS_LOGIN ("1" = cuentas obligatorias). Sin login, todo el que llega es el administrador local."""
     svc = svc or ServicioDatos()
     gestor = gestor or GestorTrabajos(svc)
+    login = os.environ.get("NEXUS_LOGIN") == "1" if login is None else login
+    google_client_id = google_client_id if google_client_id is not None else (os.environ.get("NEXUS_GOOGLE_CLIENT_ID") or None)
+    cuentas: dict[str, Usuarios | None] = {"u": usuarios}
+
+    def U() -> Usuarios:
+        if cuentas["u"] is None:
+            cuentas["u"] = Usuarios()
+        return cuentas["u"]
+
+    inicio = time.time()
     app = FastAPI(title="NEXUS API", version=VERSION, description=f"Contrato {CONTRATO}. Terminal de investigación XAUUSD.")
     app.state.svc, app.state.gestor = svc, gestor
+    registros_ip: dict[str, list[float]] = {}
+
+    @app.middleware("http")
+    async def _sesion(request: Request, llamar):
+        ruta = request.url.path
+        if not ruta.startswith("/api/"):
+            return await llamar(request)
+        # pedidos que cambian algo: solo JSON (un formulario de otro sitio no puede mandarlo sin permiso del navegador)
+        if request.method in ("POST", "PATCH", "PUT", "DELETE") and not (request.headers.get("content-type") or "").startswith("application/json"):
+            return JSONResponse(status_code=415, content=dict(error="pedido_invalido", detalle="Se espera JSON"))
+        if not login:
+            request.state.usuario = LOCAL
+        else:
+            request.state.usuario = U().de_sesion(request.cookies.get(COOKIE))
+            if request.state.usuario is None and ruta not in PUBLICAS:
+                return JSONResponse(status_code=401, content=dict(error="sin_sesion", detalle="Ingresá para usar NEXUS"))
+        if ruta.startswith("/api/v1/admin/") and (request.state.usuario or {}).get("rol") != "admin":
+            return JSONResponse(status_code=403, content=dict(error="prohibido", detalle="Solo para administradores"))
+        request.state.usuario_id = (request.state.usuario or {}).get("id")
+        return await llamar(request)
+
+    @app.exception_handler(ErrorAuth)
+    async def _auth(_: Request, e: ErrorAuth):
+        return JSONResponse(status_code=e.codigo, content=dict(error="auth", detalle=e.detalle))
+
+    def _ip(r: Request) -> str | None:
+        return r.client.host if r.client else None
+
+    def _con_sesion(u: dict, request: Request) -> JSONResponse:
+        token = U().crear_sesion(u["id"], _ip(request), request.headers.get("user-agent"))
+        res = JSONResponse(content=u)
+        segura = request.url.scheme == "https" or os.environ.get("NEXUS_COOKIE_SEGURA") == "1"
+        res.set_cookie(COOKIE, token, max_age=DURACION_S, httponly=True, samesite="lax", secure=segura, path="/")
+        return res
+
+    # ------------------------------------------------------------------ cuentas
+    @app.get("/api/v1/auth/config", response_model=ConfigAuth)
+    def auth_config():
+        return dict(login_requerido=login, google_client_id=google_client_id, min_contrasena=MIN_CONTRASENA)
+
+    @app.get("/api/v1/auth/yo", response_model=Usuario)
+    def auth_yo(request: Request):
+        return request.state.usuario
+
+    @app.post("/api/v1/auth/registro", response_model=Usuario)
+    def auth_registro(p: PedidoRegistro, request: Request):
+        if not login:
+            raise ErrorAuth(409, "Este servidor corre sin cuentas (uso local)")
+        ip = _ip(request) or "?"
+        recientes = [x for x in registros_ip.get(ip, []) if time.time() - x < 3600]
+        if len(recientes) >= 10:
+            raise ErrorAuth(429, "Demasiados registros desde esta conexión. Probá más tarde.")
+        registros_ip[ip] = recientes + [time.time()]
+        return _con_sesion(U().registrar(p.email, p.nombre, p.contrasena, ip), request)
+
+    @app.post("/api/v1/auth/ingresar", response_model=Usuario)
+    def auth_ingresar(p: PedidoIngreso, request: Request):
+        if not login:
+            raise ErrorAuth(409, "Este servidor corre sin cuentas (uso local)")
+        return _con_sesion(U().ingresar(p.email, p.contrasena, _ip(request)), request)
+
+    @app.post("/api/v1/auth/google", response_model=Usuario)
+    def auth_google(p: PedidoGoogle, request: Request):
+        if not login or not google_client_id:
+            raise ErrorAuth(409, "El ingreso con Google no está configurado en este servidor")
+        datos = app.state.verificar_google(p.credencial, google_client_id)
+        return _con_sesion(U().ingresar_google(datos, _ip(request)), request)
+
+    app.state.verificar_google = verificar_google
+
+    @app.post("/api/v1/auth/salir")
+    def auth_salir(request: Request):
+        if login:
+            U().cerrar_sesion(request.cookies.get(COOKIE))
+        res = JSONResponse(content=dict(ok=True))
+        res.delete_cookie(COOKIE, path="/")
+        return res
+
+    # ------------------------------------------------------------------ administración
+    @app.get("/api/v1/admin/resumen", response_model=ResumenAdmin)
+    def admin_resumen():
+        return ADM.resumen(svc, gestor, U() if login or cuentas["u"] else None, procedencia(svc), login, google_client_id, inicio)
+
+    @app.get("/api/v1/admin/usuarios", response_model=list[Usuario])
+    def admin_usuarios():
+        return U().listar()
+
+    @app.patch("/api/v1/admin/usuarios/{uid}", response_model=Usuario)
+    def admin_cambiar(uid: str, p: CambioUsuario, request: Request):
+        return U().cambiar(request.state.usuario_id, uid, p.rol, p.activo, _ip(request))
+
+    @app.get("/api/v1/admin/eventos", response_model=list[EventoAuditoria])
+    def admin_eventos(limite: int = Query(200, ge=1, le=2000)):
+        return U().eventos(limite)
+
+    @app.get("/api/v1/admin/documentos", response_model=list[Documento])
+    def admin_documentos():
+        return ADM.documentos()
+
+    @app.get("/api/v1/admin/documento", response_model=DocumentoTexto)
+    def admin_documento(ruta: str):
+        return ADM.documento(ruta)
 
     @app.exception_handler(DatosNoDisponibles)
     async def _sin_datos(_: Request, e: DatosNoDisponibles):
