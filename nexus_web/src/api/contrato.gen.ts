@@ -162,6 +162,8 @@ export interface DefinicionIndicador {
   /** True: se dibuja sobre el precio; False: en un panel propio */
   superpuesto: boolean;
   descripcion: string;
+  /** Series que se pueden usar en reglas del probador */
+  lineas: Array<string>;
   autor: string;
   /** Licencia de terceros (p. ej. CC BY-NC-SA 4.0 de LuxAlgo) */
   licencia: string | null;

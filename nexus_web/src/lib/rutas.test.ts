@@ -2,10 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { MODULOS, armarRuta, leerRuta } from './rutas';
 
 describe('rutas', () => {
-  it('tiene los ocho módulos del producto', () => {
+  it('tiene los nueve módulos del producto', () => {
     expect(MODULOS.map((m) => m.ingles)).toEqual([
       'Overview',
       'Market Replay',
+      'Strategy Tester',
       'Strategy Lab',
       'Indicators',
       'Execution Engine',
@@ -13,7 +14,7 @@ describe('rutas', () => {
       'Data Center',
       'Settings',
     ]);
-    expect(new Set(MODULOS.map((m) => m.tecla)).size).toBe(8);
+    expect(new Set(MODULOS.map((m) => m.tecla)).size).toBe(MODULOS.length);
   });
   it('lee módulo y parámetros; lo desconocido va al resumen', () => {
     expect(leerRuta('')).toEqual({ modulo: 'resumen', params: {} });

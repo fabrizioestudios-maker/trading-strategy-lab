@@ -913,6 +913,14 @@
       "description": "Licencia de terceros (p. ej. CC BY-NC-SA 4.0 de LuxAlgo)",
       "title": "Licencia"
      },
+     "lineas": {
+      "description": "Series que se pueden usar en reglas del probador",
+      "items": {
+       "type": "string"
+      },
+      "title": "Lineas",
+      "type": "array"
+     },
      "nombre": {
       "title": "Nombre",
       "type": "string"
@@ -937,6 +945,7 @@
      "categoria",
      "superpuesto",
      "descripcion",
+     "lineas",
      "autor",
      "licencia",
      "fuente",

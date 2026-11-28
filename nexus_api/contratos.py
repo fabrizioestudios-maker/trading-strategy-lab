@@ -527,6 +527,7 @@ class DefinicionIndicador(Modelo):
     categoria: str
     superpuesto: bool = Field(description="True: se dibuja sobre el precio; False: en un panel propio")
     descripcion: str
+    lineas: list[str] = Field(default_factory=list, description="Series que se pueden usar en reglas del probador")
     autor: str
     licencia: Optional[str] = Field(default=None, description="Licencia de terceros (p. ej. CC BY-NC-SA 4.0 de LuxAlgo)")
     fuente: Optional[str] = None

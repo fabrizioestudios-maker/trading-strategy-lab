@@ -66,6 +66,7 @@ class Definicion:
     licencia: str | None = None
     fuente: str | None = None
     rango: tuple[float, float] | None = None
+    lineas: list[str] = field(default_factory=list)
 
     def nombre_con(self, p: dict) -> str:
         visibles = [str(p[x.id]) for x in self.parametros if x.tipo in ("entero", "decimal") and x.grupo is None]
@@ -73,7 +74,7 @@ class Definicion:
 
     def publica(self) -> dict:
         return dict(id=self.id, nombre=self.nombre, corto=self.corto, categoria=self.categoria, superpuesto=self.superpuesto,
-                    descripcion=self.descripcion, autor=self.autor, licencia=self.licencia, fuente=self.fuente,
+                    descripcion=self.descripcion, lineas=self.lineas, autor=self.autor, licencia=self.licencia, fuente=self.fuente,
                     parametros=[dict(id=x.id, nombre=x.nombre, tipo=x.tipo, defecto=x.defecto, minimo=x.minimo, maximo=x.maximo,
                                      paso=x.paso, opciones=x.opciones, grupo=x.grupo, ayuda=x.ayuda) for x in self.parametros])
 

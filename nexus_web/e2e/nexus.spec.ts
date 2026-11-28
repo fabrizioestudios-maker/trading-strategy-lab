@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-const MODULOS = ['Resumen', 'Replay', 'Lab', 'Indicadores', 'Ejecución', 'Analítica', 'Datos', 'Ajustes'];
+const MODULOS = ['Resumen', 'Replay', 'Probador', 'Lab', 'Indicadores', 'Ejecución', 'Analítica', 'Datos', 'Ajustes'];
 
 function vigilarErrores(page: Page) {
   const errores: string[] = [];
@@ -19,7 +19,7 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test('los ocho módulos se abren desde la navegación, con un título y sin errores', async ({ page }) => {
+test('los módulos se abren desde la navegación, con un título y sin errores', async ({ page }) => {
   const errores = vigilarErrores(page);
   await page.goto('/');
   const nav = page.getByRole('navigation', { name: 'Módulos' }).first();
@@ -153,7 +153,7 @@ test('laboratorio: una corrida real pasa por sus estados y termina en la analít
 
 test('ningún gráfico de barras se sale de su caja y no hay errores en ninguna pantalla', async ({ page }) => {
   const errores = vigilarErrores(page);
-  for (const ruta of ['resumen', 'replay', 'laboratorio', 'indicadores', 'ejecucion', 'analitica', 'datos', 'ajustes']) {
+  for (const ruta of ['resumen', 'replay', 'probador', 'laboratorio', 'indicadores', 'ejecucion', 'analitica', 'datos', 'ajustes']) {
     await page.goto(`/#/${ruta}`);
     await page.waitForLoadState('networkidle');
     const fuera = await page.$$eval('.barras__trazado', (cajas) =>
@@ -203,7 +203,7 @@ test.describe('teléfono', () => {
     const abajo = page.locator('.nav-movil');
     await expect(abajo).toBeVisible();
     await expect(page.locator('.riel')).toBeHidden();
-    for (const ruta of ['resumen', 'replay', 'laboratorio', 'analitica', 'ejecucion', 'datos', 'ajustes', 'indicadores']) {
+    for (const ruta of ['resumen', 'replay', 'probador', 'laboratorio', 'analitica', 'ejecucion', 'datos', 'ajustes', 'indicadores']) {
       await page.goto(`/#/${ruta}`);
       await page.waitForLoadState('networkidle');
       const desborde = await page.evaluate(() => {

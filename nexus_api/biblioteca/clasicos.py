@@ -25,7 +25,7 @@ def _fuente_param():
 # ------------------------------------------------------------------ superpuestos al precio
 def _ma(fn, corto):
     def calc(v, p):
-        return Salida().linea(f"{corto} {p['periodo']}", lista(fn(fuente(v, p["fuente"]), p["periodo"])), p.get("color", ORO), 2)
+        return Salida().linea(corto, lista(fn(fuente(v, p["fuente"]), p["periodo"])), p.get("color", ORO), 2)
     return calc
 
 
@@ -236,3 +236,10 @@ DEFINICIONES = [
     Definicion("adx", "Índice direccional medio", "ADX", "Tendencia", False, "Fuerza de la tendencia (ADX) con +DI y −DI.",
                [_ent("periodo", "Longitud DI", 14, 1, 200), _ent("suavizado", "Suavizado ADX", 14, 1, 200)], _adx, lambda p: max(300, 10 * (p["periodo"] + p["suavizado"]))),
 ]
+
+
+LINEAS = {"sma": ["SMA"], "ema": ["EMA"], "wma": ["WMA"], "bb": ["Media", "Superior", "Inferior"], "donchian": ["Superior", "Inferior", "Media"],
+          "keltner": ["Media", "Superior", "Inferior"], "psar": ["SAR"], "rsi": ["RSI"], "macd": ["MACD", "Señal", "Histograma"],
+          "estocastico": ["%K", "%D"], "cci": ["CCI"], "williams": ["%R"], "roc": ["ROC"], "atr": ["ATR"], "adx": ["ADX", "+DI", "−DI"]}
+for _d in DEFINICIONES:
+    _d.lineas = LINEAS[_d.id]

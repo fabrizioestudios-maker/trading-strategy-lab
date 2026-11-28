@@ -6,6 +6,8 @@ import type {
   CalculoRiesgo,
   CuentaSimulada,
   DefinicionIndicador,
+  PedidoProbador,
+  ResultadoProbador,
   PedidoIndicadores,
   RespuestaIndicadores,
   FichaMercado,
@@ -162,5 +164,6 @@ export const api = {
   cancelar: (id: string) => pedir<Trabajo>(`/trabajos/${encodeURIComponent(id)}/cancelar`, { method: 'POST' }),
   catalogoIndicadores: (s?: AbortSignal) => pedir<DefinicionIndicador[]>('/indicadores/catalogo', { signal: s }),
   indicadores: (p: PedidoIndicadores, s?: AbortSignal) => pedir<RespuestaIndicadores>('/indicadores/calcular', post(p, s), 60_000),
+  probar: (p: PedidoProbador, s?: AbortSignal) => pedir<ResultadoProbador>('/probador/correr', post(p, s), 180_000),
   riesgo: (p: PedidoRiesgo, s?: AbortSignal) => pedir<CalculoRiesgo>('/riesgo', post(p, s)),
 };

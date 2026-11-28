@@ -107,3 +107,12 @@ def test_api_valida_parametros_y_licencia():
     assert c.post("/api/v1/indicadores/calcular", json=dict(limite_ms=lim, indicadores=[dict(instancia="a", id="ema", parametros=dict(periodo=0))])).status_code == 422
     assert c.post("/api/v1/indicadores/calcular", json=dict(limite_ms=lim, indicadores=[dict(instancia="a", id="ema", parametros=dict(x=1))])).status_code == 422
     assert c.post("/api/v1/indicadores/calcular", json=dict(limite_ms=lim, indicadores=[dict(instancia="a", id="nada", parametros={})])).status_code == 404
+
+
+def test_lineas_declaradas_coinciden_con_las_calculadas(svc):
+    lim = int(M1["t"][-1])
+    for d in B.CATALOGO.values():
+        if d.id == "luxalgo_smc":
+            continue
+        r = B.calcular(svc, "XAUUSD", 15, lim, 100, [dict(instancia="x", id=d.id, parametros={})])["resultados"][0]
+        assert sorted([x["nombre"] for x in r["lineas"]] + [h["nombre"] for h in r["histogramas"]]) == sorted(d.lineas), d.id
