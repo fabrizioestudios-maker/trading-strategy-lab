@@ -107,8 +107,13 @@ def ema(x, n):
 
 
 def wma(x, n):
+    x = np.asarray(x, float)
+    out = np.full(len(x), np.nan)
+    if len(x) < n:
+        return out
     w = np.arange(1, n + 1, dtype=float)
-    return pd.Series(x).rolling(n, min_periods=n).apply(lambda a: float(np.dot(a, w) / w.sum()), raw=True).values
+    out[n - 1:] = np.convolve(x, w[::-1], "valid") / w.sum()
+    return out
 
 
 def rma(x, n):

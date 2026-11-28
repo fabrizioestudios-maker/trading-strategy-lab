@@ -1,6 +1,16 @@
 // Generado por `python -m nexus_api.tipos_ts` desde el contrato OpenAPI. No editar a mano.
 // Contrato: Contrato nexus. Versión de la API: 0.1.0.
 
+export interface Azar {
+  simulaciones: number;
+  /** R medio sin costos de la estrategia */
+  media_observada: number;
+  media_azar: number | null;
+  p95_azar: number | null;
+  /** Proporción de juegos al azar con media ≥ la observada */
+  p: number | null;
+}
+
 export interface CajaIndicador {
   t0: number;
   /** None: llega hasta la última vela */
@@ -51,7 +61,13 @@ export interface ComparacionBenchmark {
   sharpe_benchmark: number | null;
 }
 
-export interface Condicion {
+export interface Condicion_Input {
+  izq: Operando;
+  op: "cruza_arriba" | "cruza_abajo" | "mayor" | "menor";
+  der: Operando;
+}
+
+export interface Condicion_Output {
   clave: string;
   texto: string;
   /** None = no se puede evaluar con los datos revelados */
@@ -88,6 +104,11 @@ export interface ContextoInvestigacion {
   /** Fila TOTAL del registro, tal cual (≈ = aproximado) */
   total_configuraciones: string | null;
   pruebas_a_futuro: Array<Record<string, unknown>>;
+}
+
+export interface Criterio {
+  nombre: string;
+  ok: boolean;
 }
 
 export interface CuadroReplay {
@@ -386,6 +407,30 @@ export interface Operacion {
   muestra: "eleccion" | "confirmacion" | "fuera";
 }
 
+export interface OperacionProbador {
+  entrada_ms: number;
+  salida_ms: number;
+  lado: "compra" | "venta";
+  precio_entrada: number;
+  precio_salida: number;
+  sl: number;
+  tp: number;
+  motivo: string;
+  r: number;
+  muestra: "eleccion" | "validacion";
+}
+
+export interface Operando {
+  tipo: "indicador" | "precio" | "valor";
+  /** Indicador de la biblioteca (tipo indicador) */
+  id?: string | null;
+  parametros?: Record<string, boolean | number | string>;
+  /** Línea del indicador (p. ej. «Superior»); por defecto la primera */
+  linea?: string | null;
+  campo?: "close" | "open" | "high" | "low" | null;
+  valor?: number | null;
+}
+
 export interface OrdenSimuladaEntrada {
   id: string;
   lado: "compra" | "venta";
@@ -407,7 +452,7 @@ export interface PanelDecision {
   version: string;
   /** Apertura de la última vela diaria cerrada antes del límite */
   vela_diaria_ms: number | null;
-  condiciones: Array<Condicion>;
+  condiciones: Array<Condicion_Output>;
   decision: "compra" | "venta" | "espera" | "sin_datos";
   explicacion: string;
   stop_distancia: number | null;
@@ -475,6 +520,25 @@ export interface PedidoOrdenes {
   ordenes: Array<OrdenSimuladaEntrada>;
 }
 
+export interface PedidoProbador {
+  nombre?: string | null;
+  simbolo?: string;
+  /** 15, 60, 240 o 1440 minutos */
+  tf?: number;
+  desde: string;
+  hasta: string;
+  /** Parte final del período reservada para validar */
+  fraccion_validacion?: number;
+  compra?: Array<Condicion_Input>;
+  venta?: Array<Condicion_Input>;
+  sl_atr?: number;
+  rr?: number;
+  atr_n?: number;
+  /** 0 = sin límite de tiempo */
+  max_velas?: number;
+  perfil_costos?: "sin_costos" | "optimista" | "costos_md" | "base" | "conservador" | "estres";
+}
+
 export interface PedidoRiesgo {
   simbolo?: string;
   capital: number;
@@ -509,6 +573,15 @@ export interface PliegueAnual {
   expectativa: number | null;
   r_total: number;
   muestra: "eleccion" | "confirmacion";
+}
+
+export interface Pruebas {
+  /** Configuraciones distintas que probó este usuario */
+  acumuladas: number;
+  sharpe_eleccion: number | null;
+  deflated_sharpe: number | null;
+  varianza_usada: number;
+  fuente_varianza: string;
 }
 
 export interface Referencias {
@@ -570,6 +643,26 @@ export interface ResultadoOrden {
   estado: string;
   /** Realizado si está cerrada, no realizado si está abierta (con costos) */
   resultado_moneda: number | null;
+}
+
+export interface ResultadoProbador {
+  huella: string;
+  simbolo: string;
+  temporalidad: number;
+  perfil_costos: string;
+  corte_validacion: string;
+  /** Por muestra: eleccion, validacion, total */
+  metricas: Record<string, Array<Metrica>>;
+  por_anio: Array<Record<string, unknown>>;
+  sensibilidad_costos: Array<Record<string, unknown>>;
+  operaciones: Array<OperacionProbador>;
+  azar: Azar;
+  pruebas: Pruebas;
+  montecarlo: Array<FilaMonteCarlo>;
+  criterios: Array<Criterio>;
+  veredicto: string;
+  segundos: number;
+  avisos: Array<string>;
 }
 
 export interface Resumen {

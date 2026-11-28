@@ -159,8 +159,11 @@ def _adx(v, p):
 def _cci(v, p):
     tp = fuente(v, p["fuente"])
     m = sma(tp, p["periodo"])
-    import pandas as pd
-    md = pd.Series(tp).rolling(p["periodo"], min_periods=p["periodo"]).apply(lambda a: float(np.mean(np.abs(a - a.mean()))), raw=True).values
+    n = p["periodo"]
+    md = np.full(len(tp), np.nan)
+    if len(tp) >= n:
+        ventanas = np.lib.stride_tricks.sliding_window_view(tp, n)
+        md[n - 1:] = np.mean(np.abs(ventanas - ventanas.mean(axis=1, keepdims=True)), axis=1)
     with np.errstate(divide="ignore", invalid="ignore"):
         cci = (tp - m) / (0.015 * md)
     s = Salida().linea("CCI", lista(cci, 4), CIAN)

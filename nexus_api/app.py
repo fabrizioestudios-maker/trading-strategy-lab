@@ -12,8 +12,8 @@ from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import CONTRATO, VERSION, biblioteca, catalogo, estrategias as E022, indicadores as IND, mercados, referencias, riesgo, sesiones as SE, simulacion
-from .contratos import (DefinicionIndicador, PedidoIndicadores, RespuestaIndicadores, CalculoRiesgo, ConfigCorrida, CuentaSimulada, FichaMercado, HorarioMercado, PedidoCuenta, ContextoInvestigacion, CuadroReplay, EstadoOrdenSimulada, Estrategia,
+from . import CONTRATO, VERSION, biblioteca, probador, catalogo, estrategias as E022, indicadores as IND, mercados, referencias, riesgo, sesiones as SE, simulacion
+from .contratos import (PedidoProbador, ResultadoProbador, DefinicionIndicador, PedidoIndicadores, RespuestaIndicadores, CalculoRiesgo, ConfigCorrida, CuentaSimulada, FichaMercado, HorarioMercado, PedidoCuenta, ContextoInvestigacion, CuadroReplay, EstadoOrdenSimulada, Estrategia,
                         Hipotesis, InformeCalidad, Instrumento, Paso, PedidoOrdenes, PedidoRiesgo, Referencias, Resumen, Salud,
                         Trabajo)
 from .datos import TEMPORALIDADES, DatosNoDisponibles, ServicioDatos
@@ -161,6 +161,12 @@ def crear_app(svc: ServicioDatos | None = None, gestor: GestorTrabajos | None = 
         if not (20 <= p.cantidad <= 1500):
             raise ValueError("cantidad fuera de rango (20 a 1500)")
         return biblioteca.calcular(svc, p.simbolo, p.tf, p.limite_ms, p.cantidad, [x.model_dump() for x in p.indicadores])
+
+    @app.post("/api/v1/probador/correr", response_model=ResultadoProbador)
+    def correr_probador(p: PedidoProbador, request: Request):
+        """Prueba reglas armadas con indicadores clásicos: simulación minuto a minuto, costos, validación, azar y pruebas múltiples."""
+        usuario = getattr(request.state, "usuario_id", None) or "local"
+        return probador.correr(svc, p.model_dump(), usuario)
 
     @app.post("/api/v1/replay/cuenta", response_model=CuentaSimulada)
     def replay_cuenta(p: PedidoCuenta):

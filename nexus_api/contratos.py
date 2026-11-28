@@ -623,3 +623,88 @@ class RespuestaIndicadores(Modelo):
     limite_ms: int
     tiempos: list[int] = Field(description="Apertura de cada vela visible (ms UTC), la misma que devuelve el cuadro")
     resultados: list[ResultadoIndicador]
+
+
+# --------------------------------------------------------------------------------------------- probador de estrategias
+class Operando(Modelo):
+    tipo: Literal["indicador", "precio", "valor"]
+    id: Optional[str] = Field(default=None, description="Indicador de la biblioteca (tipo indicador)")
+    parametros: dict[str, ValorParametro] = Field(default_factory=dict)
+    linea: Optional[str] = Field(default=None, description="Línea del indicador (p. ej. «Superior»); por defecto la primera")
+    campo: Optional[Literal["close", "open", "high", "low"]] = None
+    valor: Optional[float] = None
+
+
+class Condicion(Modelo):
+    izq: Operando
+    op: Literal["cruza_arriba", "cruza_abajo", "mayor", "menor"]
+    der: Operando
+
+
+class PedidoProbador(Modelo):
+    nombre: Optional[str] = Field(default=None, max_length=80)
+    simbolo: str = "XAUUSD"
+    tf: int = Field(default=60, description="15, 60, 240 o 1440 minutos")
+    desde: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}$")
+    hasta: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}$")
+    fraccion_validacion: float = Field(default=0.3, ge=0.1, le=0.5, description="Parte final del período reservada para validar")
+    compra: list[Condicion] = Field(default_factory=list, max_length=6)
+    venta: list[Condicion] = Field(default_factory=list, max_length=6)
+    sl_atr: float = Field(default=1.5, ge=0.2, le=10)
+    rr: float = Field(default=2.0, ge=0.3, le=10)
+    atr_n: int = Field(default=14, ge=2, le=200)
+    max_velas: int = Field(default=0, ge=0, le=2000, description="0 = sin límite de tiempo")
+    perfil_costos: Literal["sin_costos", "optimista", "costos_md", "base", "conservador", "estres"] = "base"
+
+
+class OperacionProbador(Modelo):
+    entrada_ms: int
+    salida_ms: int
+    lado: Literal["compra", "venta"]
+    precio_entrada: float
+    precio_salida: float
+    sl: float
+    tp: float
+    motivo: str
+    r: float
+    muestra: Literal["eleccion", "validacion"]
+
+
+class Azar(Modelo):
+    simulaciones: int
+    media_observada: float = Field(description="R medio sin costos de la estrategia")
+    media_azar: Optional[float]
+    p95_azar: Optional[float]
+    p: Optional[float] = Field(description="Proporción de juegos al azar con media ≥ la observada")
+
+
+class Pruebas(Modelo):
+    acumuladas: int = Field(description="Configuraciones distintas que probó este usuario")
+    sharpe_eleccion: Optional[float]
+    deflated_sharpe: Optional[float]
+    varianza_usada: float
+    fuente_varianza: str
+
+
+class Criterio(Modelo):
+    nombre: str
+    ok: bool
+
+
+class ResultadoProbador(Modelo):
+    huella: str
+    simbolo: str
+    temporalidad: int
+    perfil_costos: str
+    corte_validacion: str
+    metricas: dict[str, list[Metrica]] = Field(description="Por muestra: eleccion, validacion, total")
+    por_anio: list[dict]
+    sensibilidad_costos: list[dict]
+    operaciones: list[OperacionProbador]
+    azar: Azar
+    pruebas: Pruebas
+    montecarlo: list[FilaMonteCarlo]
+    criterios: list[Criterio]
+    veredicto: str
+    segundos: float
+    avisos: list[str]

@@ -1,6 +1,63 @@
 {
  "components": {
   "schemas": {
+   "Azar": {
+    "additionalProperties": false,
+    "properties": {
+     "media_azar": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Media Azar"
+     },
+     "media_observada": {
+      "description": "R medio sin costos de la estrategia",
+      "title": "Media Observada",
+      "type": "number"
+     },
+     "p": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Proporción de juegos al azar con media ≥ la observada",
+      "title": "P"
+     },
+     "p95_azar": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "P95 Azar"
+     },
+     "simulaciones": {
+      "title": "Simulaciones",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "simulaciones",
+     "media_observada",
+     "media_azar",
+     "p95_azar",
+     "p"
+    ],
+    "title": "Azar",
+    "type": "object"
+   },
    "CajaIndicador": {
     "additionalProperties": false,
     "properties": {
@@ -318,7 +375,35 @@
     "title": "ComparacionBenchmark",
     "type": "object"
    },
-   "Condicion": {
+   "Condicion-Input": {
+    "additionalProperties": false,
+    "properties": {
+     "der": {
+      "$ref": "#/components/schemas/Operando"
+     },
+     "izq": {
+      "$ref": "#/components/schemas/Operando"
+     },
+     "op": {
+      "enum": [
+       "cruza_arriba",
+       "cruza_abajo",
+       "mayor",
+       "menor"
+      ],
+      "title": "Op",
+      "type": "string"
+     }
+    },
+    "required": [
+     "izq",
+     "op",
+     "der"
+    ],
+    "title": "Condicion",
+    "type": "object"
+   },
+   "Condicion-Output": {
     "additionalProperties": false,
     "properties": {
      "clave": {
@@ -540,6 +625,25 @@
      "pruebas_a_futuro"
     ],
     "title": "ContextoInvestigacion",
+    "type": "object"
+   },
+   "Criterio": {
+    "additionalProperties": false,
+    "properties": {
+     "nombre": {
+      "title": "Nombre",
+      "type": "string"
+     },
+     "ok": {
+      "title": "Ok",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "nombre",
+     "ok"
+    ],
+    "title": "Criterio",
     "type": "object"
    },
    "CuadroReplay": {
@@ -2274,6 +2378,164 @@
     "title": "Operacion",
     "type": "object"
    },
+   "OperacionProbador": {
+    "additionalProperties": false,
+    "properties": {
+     "entrada_ms": {
+      "title": "Entrada Ms",
+      "type": "integer"
+     },
+     "lado": {
+      "enum": [
+       "compra",
+       "venta"
+      ],
+      "title": "Lado",
+      "type": "string"
+     },
+     "motivo": {
+      "title": "Motivo",
+      "type": "string"
+     },
+     "muestra": {
+      "enum": [
+       "eleccion",
+       "validacion"
+      ],
+      "title": "Muestra",
+      "type": "string"
+     },
+     "precio_entrada": {
+      "title": "Precio Entrada",
+      "type": "number"
+     },
+     "precio_salida": {
+      "title": "Precio Salida",
+      "type": "number"
+     },
+     "r": {
+      "title": "R",
+      "type": "number"
+     },
+     "salida_ms": {
+      "title": "Salida Ms",
+      "type": "integer"
+     },
+     "sl": {
+      "title": "Sl",
+      "type": "number"
+     },
+     "tp": {
+      "title": "Tp",
+      "type": "number"
+     }
+    },
+    "required": [
+     "entrada_ms",
+     "salida_ms",
+     "lado",
+     "precio_entrada",
+     "precio_salida",
+     "sl",
+     "tp",
+     "motivo",
+     "r",
+     "muestra"
+    ],
+    "title": "OperacionProbador",
+    "type": "object"
+   },
+   "Operando": {
+    "additionalProperties": false,
+    "properties": {
+     "campo": {
+      "anyOf": [
+       {
+        "enum": [
+         "close",
+         "open",
+         "high",
+         "low"
+        ],
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Campo"
+     },
+     "id": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Indicador de la biblioteca (tipo indicador)",
+      "title": "Id"
+     },
+     "linea": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Línea del indicador (p. ej. «Superior»); por defecto la primera",
+      "title": "Linea"
+     },
+     "parametros": {
+      "additionalProperties": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "integer"
+        },
+        {
+         "type": "number"
+        },
+        {
+         "type": "string"
+        }
+       ]
+      },
+      "title": "Parametros",
+      "type": "object"
+     },
+     "tipo": {
+      "enum": [
+       "indicador",
+       "precio",
+       "valor"
+      ],
+      "title": "Tipo",
+      "type": "string"
+     },
+     "valor": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Valor"
+     }
+    },
+    "required": [
+     "tipo"
+    ],
+    "title": "Operando",
+    "type": "object"
+   },
    "OrdenSimuladaEntrada": {
     "additionalProperties": false,
     "properties": {
@@ -2364,7 +2626,7 @@
     "properties": {
      "condiciones": {
       "items": {
-       "$ref": "#/components/schemas/Condicion"
+       "$ref": "#/components/schemas/Condicion-Output"
       },
       "title": "Condiciones",
       "type": "array"
@@ -2803,6 +3065,116 @@
     "title": "PedidoOrdenes",
     "type": "object"
    },
+   "PedidoProbador": {
+    "additionalProperties": false,
+    "properties": {
+     "atr_n": {
+      "default": 14,
+      "maximum": 200.0,
+      "minimum": 2.0,
+      "title": "Atr N",
+      "type": "integer"
+     },
+     "compra": {
+      "items": {
+       "$ref": "#/components/schemas/Condicion-Input"
+      },
+      "maxItems": 6,
+      "title": "Compra",
+      "type": "array"
+     },
+     "desde": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "title": "Desde",
+      "type": "string"
+     },
+     "fraccion_validacion": {
+      "default": 0.3,
+      "description": "Parte final del período reservada para validar",
+      "maximum": 0.5,
+      "minimum": 0.1,
+      "title": "Fraccion Validacion",
+      "type": "number"
+     },
+     "hasta": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "title": "Hasta",
+      "type": "string"
+     },
+     "max_velas": {
+      "default": 0,
+      "description": "0 = sin límite de tiempo",
+      "maximum": 2000.0,
+      "minimum": 0.0,
+      "title": "Max Velas",
+      "type": "integer"
+     },
+     "nombre": {
+      "anyOf": [
+       {
+        "maxLength": 80,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Nombre"
+     },
+     "perfil_costos": {
+      "default": "base",
+      "enum": [
+       "sin_costos",
+       "optimista",
+       "costos_md",
+       "base",
+       "conservador",
+       "estres"
+      ],
+      "title": "Perfil Costos",
+      "type": "string"
+     },
+     "rr": {
+      "default": 2.0,
+      "maximum": 10.0,
+      "minimum": 0.3,
+      "title": "Rr",
+      "type": "number"
+     },
+     "simbolo": {
+      "default": "XAUUSD",
+      "title": "Simbolo",
+      "type": "string"
+     },
+     "sl_atr": {
+      "default": 1.5,
+      "maximum": 10.0,
+      "minimum": 0.2,
+      "title": "Sl Atr",
+      "type": "number"
+     },
+     "tf": {
+      "default": 60,
+      "description": "15, 60, 240 o 1440 minutos",
+      "title": "Tf",
+      "type": "integer"
+     },
+     "venta": {
+      "items": {
+       "$ref": "#/components/schemas/Condicion-Input"
+      },
+      "maxItems": 6,
+      "title": "Venta",
+      "type": "array"
+     }
+    },
+    "required": [
+     "desde",
+     "hasta"
+    ],
+    "title": "PedidoProbador",
+    "type": "object"
+   },
    "PedidoRiesgo": {
     "additionalProperties": false,
     "properties": {
@@ -2995,6 +3367,55 @@
      "muestra"
     ],
     "title": "PliegueAnual",
+    "type": "object"
+   },
+   "Pruebas": {
+    "additionalProperties": false,
+    "properties": {
+     "acumuladas": {
+      "description": "Configuraciones distintas que probó este usuario",
+      "title": "Acumuladas",
+      "type": "integer"
+     },
+     "deflated_sharpe": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Deflated Sharpe"
+     },
+     "fuente_varianza": {
+      "title": "Fuente Varianza",
+      "type": "string"
+     },
+     "sharpe_eleccion": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sharpe Eleccion"
+     },
+     "varianza_usada": {
+      "title": "Varianza Usada",
+      "type": "number"
+     }
+    },
+    "required": [
+     "acumuladas",
+     "sharpe_eleccion",
+     "deflated_sharpe",
+     "varianza_usada",
+     "fuente_varianza"
+    ],
+    "title": "Pruebas",
     "type": "object"
    },
    "Referencias": {
@@ -3372,6 +3793,120 @@
      "resultado_moneda"
     ],
     "title": "ResultadoOrden",
+    "type": "object"
+   },
+   "ResultadoProbador": {
+    "additionalProperties": false,
+    "properties": {
+     "avisos": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Avisos",
+      "type": "array"
+     },
+     "azar": {
+      "$ref": "#/components/schemas/Azar"
+     },
+     "corte_validacion": {
+      "title": "Corte Validacion",
+      "type": "string"
+     },
+     "criterios": {
+      "items": {
+       "$ref": "#/components/schemas/Criterio"
+      },
+      "title": "Criterios",
+      "type": "array"
+     },
+     "huella": {
+      "title": "Huella",
+      "type": "string"
+     },
+     "metricas": {
+      "additionalProperties": {
+       "items": {
+        "$ref": "#/components/schemas/Metrica"
+       },
+       "type": "array"
+      },
+      "description": "Por muestra: eleccion, validacion, total",
+      "title": "Metricas",
+      "type": "object"
+     },
+     "montecarlo": {
+      "items": {
+       "$ref": "#/components/schemas/FilaMonteCarlo"
+      },
+      "title": "Montecarlo",
+      "type": "array"
+     },
+     "operaciones": {
+      "items": {
+       "$ref": "#/components/schemas/OperacionProbador"
+      },
+      "title": "Operaciones",
+      "type": "array"
+     },
+     "perfil_costos": {
+      "title": "Perfil Costos",
+      "type": "string"
+     },
+     "por_anio": {
+      "items": {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      "title": "Por Anio",
+      "type": "array"
+     },
+     "pruebas": {
+      "$ref": "#/components/schemas/Pruebas"
+     },
+     "segundos": {
+      "title": "Segundos",
+      "type": "number"
+     },
+     "sensibilidad_costos": {
+      "items": {
+       "additionalProperties": true,
+       "type": "object"
+      },
+      "title": "Sensibilidad Costos",
+      "type": "array"
+     },
+     "simbolo": {
+      "title": "Simbolo",
+      "type": "string"
+     },
+     "temporalidad": {
+      "title": "Temporalidad",
+      "type": "integer"
+     },
+     "veredicto": {
+      "title": "Veredicto",
+      "type": "string"
+     }
+    },
+    "required": [
+     "huella",
+     "simbolo",
+     "temporalidad",
+     "perfil_costos",
+     "corte_validacion",
+     "metricas",
+     "por_anio",
+     "sensibilidad_costos",
+     "operaciones",
+     "azar",
+     "pruebas",
+     "montecarlo",
+     "criterios",
+     "veredicto",
+     "segundos",
+     "avisos"
+    ],
+    "title": "ResultadoProbador",
     "type": "object"
    },
    "Resumen": {
@@ -4259,6 +4794,45 @@
      }
     },
     "summary": "Ficha Mercado"
+   }
+  },
+  "/api/v1/probador/correr": {
+   "post": {
+    "description": "Prueba reglas armadas con indicadores clásicos: simulación minuto a minuto, costos, validación, azar y pruebas múltiples.",
+    "operationId": "correr_probador_api_v1_probador_correr_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PedidoProbador"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ResultadoProbador"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Correr Probador"
    }
   },
   "/api/v1/referencias": {
