@@ -1,5 +1,5 @@
 /**
- * Junta las respuestas grabadas (instantanea/<clave>.json) en 16 fragmentos instantanea/<primer carácter>.json,
+ * Junta las respuestas grabadas (instantanea/<clave>.json) en 16 fragmentos instantanea/<último carácter>.json,
  * que es lo que lee la versión publicada (src/api/cliente.ts). Uso: node scripts/empaquetar-instantanea.mjs <carpeta>
  */
 import { readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
@@ -11,7 +11,7 @@ const frag = {};
 let n = 0;
 for (const f of readdirSync(DIR)) {
   if (!/^[0-9a-f]{14}\.json$/.test(f)) continue;
-  (frag[f[0]] ??= {})[f.slice(0, 14)] = JSON.parse(readFileSync(join(DIR, f), 'utf8'));
+  (frag[f[13]] ??= {})[f.slice(0, 14)] = JSON.parse(readFileSync(join(DIR, f), 'utf8'));
   rmSync(join(DIR, f));
   n++;
 }

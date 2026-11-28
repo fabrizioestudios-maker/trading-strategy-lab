@@ -97,7 +97,7 @@ function detalleDe(cuerpo: unknown): string {
   return 'Sin detalle';
 }
 
-// las respuestas grabadas van en 16 fragmentos (por el primer carácter de la clave): pocos archivos y cada uno se baja una vez
+// las respuestas grabadas van en 16 fragmentos (por el último carácter de la clave): pocos archivos y cada uno se baja una vez
 const fragmentos = new Map<string, Promise<Record<string, unknown>>>();
 function fragmento(c: string): Promise<Record<string, unknown>> {
   let f = fragmentos.get(c);
@@ -115,7 +115,7 @@ async function pedirGrabado<T>(ruta: string, init: RequestInit): Promise<T> {
   const clave = claveRespuesta(metodo, BASE + ruta, cuerpo);
   let mapa: Record<string, unknown>;
   try {
-    mapa = await fragmento(clave[0]);
+    mapa = await fragmento(clave[clave.length - 1]);
   } catch {
     if (init.signal?.aborted) throw new ErrorApi('cancelado', 'Pedido cancelado');
     throw new ErrorApi('sin_conexion', 'No se pudieron leer los datos publicados');
