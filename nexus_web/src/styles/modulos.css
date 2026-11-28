@@ -2056,3 +2056,43 @@ td.es-validacion { background: rgb(232 168 58 / 6%); }
 @media (max-width: 1100px) {
   .probador__cuerpo { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* ------------------------------------------------------------------ acceso y administración */
+.acceso {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding-block: 32px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background:
+    radial-gradient(900px 500px at 15% -10%, rgb(232 168 58 / 14%), transparent 60%),
+    radial-gradient(700px 500px at 110% 110%, rgb(232 168 58 / 8%), transparent 60%),
+    var(--bg);
+}
+.acceso__tarjeta { width: min(420px, 100%); display: flex; flex-direction: column; gap: 14px; padding: 28px; border: 1px solid var(--line); border-radius: 16px; background: rgb(13 17 24 / 92%); box-shadow: 0 30px 80px rgb(0 0 0 / 45%); }
+.acceso__marca { display: flex; align-items: center; gap: 10px; color: var(--gold); font-weight: 700; letter-spacing: 0.22em; }
+.acceso h1 { margin: 6px 0 0; font-size: 22px; }
+.acceso__google { min-height: 44px; display: flex; justify-content: center; }
+.acceso__o { display: flex; align-items: center; gap: 10px; color: var(--text-3); font-size: var(--fs-1); }
+.acceso__o::before, .acceso__o::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.acceso__form { display: flex; flex-direction: column; gap: 12px; }
+.acceso__form label { display: flex; flex-direction: column; gap: 5px; color: var(--text-2); font-size: var(--fs-2); }
+.acceso__cambiar { margin: 0; color: var(--text-2); text-align: center; }
+.acceso__legal { margin: 0; text-align: center; }
+.riel__avatar { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: rgb(232 168 58 / 18%); color: var(--gold); font-weight: 700; font-size: 12px; }
+.admin-columnas { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: var(--s4); }
+.admin-tarjetas { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin: 0; }
+.admin-tarjeta { border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; background: var(--surface-2); }
+.admin-tarjeta dt { font-size: var(--fs-1); color: var(--text-3); }
+.admin-tarjeta dd { margin: 4px 0 0; font-size: 18px; font-weight: 600; overflow-wrap: anywhere; }
+.admin-fila { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.admin-acciones { gap: 6px; justify-content: flex-end; }
+.admin-docs { display: grid; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); gap: var(--s4); align-items: start; }
+.admin-docs__lista { max-height: 70vh; overflow-y: auto; }
+.admin-docs__item { width: 100%; text-align: left; display: flex; flex-direction: column; gap: 2px; padding: 9px 14px; border: 0; background: none; color: var(--text); font: inherit; cursor: pointer; border-bottom: 1px solid var(--line); }
+.admin-docs__item:hover, .admin-docs__item.es-activo { background: var(--surface-2); }
+.admin-docs__item .tenue { font-size: var(--fs-1); }
+.admin-docs__texto { margin: 0; max-height: 70vh; overflow: auto; white-space: pre-wrap; word-break: break-word; font: 13px/1.55 var(--font-mono, ui-monospace, monospace); color: var(--text-2); }
+tr.es-aviso td { background: rgb(224 83 58 / 7%); }
+@media (max-width: 900px) { .admin-docs { grid-template-columns: minmax(0, 1fr); } }

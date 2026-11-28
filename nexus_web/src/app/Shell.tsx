@@ -13,6 +13,7 @@ import { useAtajos, useComandos, useRegistrarComandos, type Comando } from './co
 import { espaciosGuardados, guardarEspacios, useEspacio } from './espacio';
 import { useGlobales } from './globales';
 import { useRuta } from './ruta';
+import { useSesion } from './sesion';
 
 export const ICONO_MODULO: Record<Modulo, NombreIcono> = {
   resumen: 'resumen',
@@ -24,6 +25,7 @@ export const ICONO_MODULO: Record<Modulo, NombreIcono> = {
   analitica: 'analitica',
   datos: 'datos',
   ajustes: 'ajustes',
+  admin: 'servidor',
 };
 
 function Marca() {
@@ -108,6 +110,7 @@ const ETIQUETA_RIEL: Record<Modulo, string> = {
   analitica: 'Analítica',
   datos: 'Datos',
   ajustes: 'Ajustes',
+  admin: 'Admin',
 };
 
 export function Shell({ children }: { children: ReactNode }) {
@@ -115,12 +118,14 @@ export function Shell({ children }: { children: ReactNode }) {
   const { instrumentos, salud } = useGlobales();
   const { abrirPaleta, abrirAyuda } = useComandos();
   const { ruta, ir } = useRuta();
+  const sesion = useSesion();
+  const esAdmin = sesion.esAdmin;
   const [guardando, setGuardando] = useState(false);
   const [masAbierto, setMasAbierto] = useState(false);
 
   const globales = useMemo<Comando[]>(
     () => [
-      ...MODULOS.map((m) => ({
+      ...MODULOS.filter((m) => m.id !== 'admin' || esAdmin).map((m) => ({
         id: `ir-${m.id}`,
         titulo: `Ir a ${m.nombre}`,
         grupo: 'Navegación',
@@ -141,7 +146,7 @@ export function Shell({ children }: { children: ReactNode }) {
         .filter((i) => i.disponible)
         .map((i) => ({ id: `ins-${i.simbolo}`, titulo: `Instrumento ${i.simbolo}`, grupo: 'Contexto', palabras: i.nombre, ejecutar: () => despachar({ tipo: 'simbolo', simbolo: i.simbolo }) })),
     ],
-    [ir, despachar, abrirAyuda, instrumentos.datos],
+    [ir, despachar, abrirAyuda, instrumentos.datos, esAdmin],
   );
   useRegistrarComandos('global', globales);
 
@@ -177,7 +182,7 @@ export function Shell({ children }: { children: ReactNode }) {
       <nav className="riel" aria-label="Módulos">
         <Marca />
         <div className="riel__modulos">
-          {MODULOS.filter((m) => m.id !== 'ajustes').map((m) => (
+          {MODULOS.filter((m) => m.id !== 'ajustes' && m.id !== 'admin').map((m) => (
             <a key={m.id} href={`#/${m.id}`} className="riel__item" aria-current={ruta.modulo === m.id ? 'page' : undefined} title={m.nombre}>
               <Icono nombre={ICONO_MODULO[m.id]} tam={20} />
               <span>{ETIQUETA_RIEL[m.id]}</span>
@@ -204,6 +209,30 @@ export function Shell({ children }: { children: ReactNode }) {
               </button>
             )}
           />
+          {esAdmin && (
+            <a href="#/admin" className="riel__item" aria-current={ruta.modulo === 'admin' ? 'page' : undefined} title="Administración">
+              <Icono nombre="servidor" tam={20} />
+              <span>Admin</span>
+            </a>
+          )}
+          {sesion.usuario && sesion.config?.login_requerido && (
+            <Menu
+              etiqueta="Tu cuenta"
+              arriba
+              items={[
+                { id: 'quien', texto: sesion.usuario.nombre, detalle: sesion.usuario.email, alElegir: () => undefined },
+                { id: 'salir', texto: 'Cerrar sesión', alElegir: () => void sesion.salir() },
+              ]}
+              boton={(p) => (
+                <button type="button" className="riel__item riel__usuario" {...p} aria-label={`Cuenta de ${sesion.usuario!.nombre}`} title={sesion.usuario!.email}>
+                  <span className="riel__avatar" aria-hidden="true">
+                    {sesion.usuario!.nombre.trim().slice(0, 1).toUpperCase()}
+                  </span>
+                  <span>Cuenta</span>
+                </button>
+              )}
+            />
+          )}
           <a href="#/ajustes" className="riel__item" aria-current={ruta.modulo === 'ajustes' ? 'page' : undefined} title="Ajustes">
             <Icono nombre="ajustes" tam={20} />
             <span>Ajustes</span>
@@ -243,7 +272,7 @@ export function Shell({ children }: { children: ReactNode }) {
 
       <Dialogo abierto={masAbierto} titulo="Módulos" onCerrar={() => setMasAbierto(false)}>
         <ul className="lista">
-          {MODULOS.map((m) => (
+          {MODULOS.filter((m) => m.id !== 'admin' || esAdmin).map((m) => (
             <li key={m.id}>
               <a className="nav__item" href={`#/${m.id}`} aria-current={ruta.modulo === m.id ? 'page' : undefined} onClick={() => setMasAbierto(false)}>
                 <Icono nombre={ICONO_MODULO[m.id]} tam={18} />

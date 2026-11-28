@@ -5,6 +5,13 @@
 import type {
   CalculoRiesgo,
   CuentaSimulada,
+  CambioUsuario,
+  ConfigAuth,
+  Documento,
+  DocumentoTexto,
+  EventoAuditoria,
+  ResumenAdmin,
+  Usuario,
   DefinicionIndicador,
   PedidoProbador,
   ResultadoProbador,
@@ -36,7 +43,7 @@ export const BASE = '/api/v1';
 /** Versión publicada sin servidor: las respuestas se leen de archivos grabados (scripts/grabar-instantanea.mjs). */
 export const ESTATICO = import.meta.env.VITE_ESTATICO === '1';
 
-export type TipoError = 'sin_conexion' | 'datos_no_disponibles' | 'no_existe' | 'pedido_invalido' | 'servidor' | 'cancelado' | 'solo_completa';
+export type TipoError = 'sin_conexion' | 'datos_no_disponibles' | 'no_existe' | 'pedido_invalido' | 'servidor' | 'cancelado' | 'solo_completa' | 'sin_sesion' | 'prohibido' | 'limite';
 
 export class ErrorApi extends Error {
   constructor(
@@ -60,6 +67,12 @@ export function explicarError(e: unknown): { titulo: string; detalle: string } {
         return { titulo: 'No existe', detalle: e.detalle };
       case 'pedido_invalido':
         return { titulo: 'Pedido inválido', detalle: e.detalle };
+      case 'sin_sesion':
+        return { titulo: 'Tu sesión terminó', detalle: 'Ingresá de nuevo para seguir.' };
+      case 'prohibido':
+        return { titulo: 'Sin permiso', detalle: e.detalle };
+      case 'limite':
+        return { titulo: 'Demasiados intentos', detalle: e.detalle };
       case 'solo_completa':
         return { titulo: 'Disponible en la versión completa', detalle: e.detalle };
       case 'cancelado':
@@ -125,7 +138,9 @@ export async function pedir<T>(ruta: string, init: RequestInit = {}, espera = 30
     cuerpo = null;
   }
   if (!r.ok) {
-    const tipo: TipoError = r.status === 503 ? 'datos_no_disponibles' : r.status === 404 ? 'no_existe' : r.status === 422 ? 'pedido_invalido' : 'servidor';
+    if (r.status === 401 && !ruta.startsWith('/auth/')) window.dispatchEvent(new Event('nexus:sin-sesion'));
+    const tipo: TipoError =
+      r.status === 503 ? 'datos_no_disponibles' : r.status === 404 ? 'no_existe' : r.status === 422 || r.status === 409 ? 'pedido_invalido' : r.status === 401 ? 'sin_sesion' : r.status === 403 ? 'prohibido' : r.status === 429 ? 'limite' : 'servidor';
     throw new ErrorApi(tipo, detalleDe(cuerpo), r.status);
   }
   return cuerpo as T;
@@ -165,5 +180,17 @@ export const api = {
   catalogoIndicadores: (s?: AbortSignal) => pedir<DefinicionIndicador[]>('/indicadores/catalogo', { signal: s }),
   indicadores: (p: PedidoIndicadores, s?: AbortSignal) => pedir<RespuestaIndicadores>('/indicadores/calcular', post(p, s), 60_000),
   probar: (p: PedidoProbador, s?: AbortSignal) => pedir<ResultadoProbador>('/probador/correr', post(p, s), 180_000),
+  authConfig: (s?: AbortSignal) => pedir<ConfigAuth>('/auth/config', { signal: s }),
+  yo: (s?: AbortSignal) => pedir<Usuario>('/auth/yo', { signal: s }),
+  registrar: (p: { email: string; nombre: string; contrasena: string }) => pedir<Usuario>('/auth/registro', post(p)),
+  ingresar: (p: { email: string; contrasena: string }) => pedir<Usuario>('/auth/ingresar', post(p)),
+  google: (credencial: string) => pedir<Usuario>('/auth/google', post({ credencial })),
+  salir: () => pedir<{ ok: boolean }>('/auth/salir', post({})),
+  adminResumen: (s?: AbortSignal) => pedir<ResumenAdmin>('/admin/resumen', { signal: s }),
+  adminUsuarios: (s?: AbortSignal) => pedir<Usuario[]>('/admin/usuarios', { signal: s }),
+  adminCambiar: (id: string, c: CambioUsuario) => pedir<Usuario>(`/admin/usuarios/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify(c) }),
+  adminEventos: (s?: AbortSignal) => pedir<EventoAuditoria[]>('/admin/eventos?limite=300', { signal: s }),
+  adminDocumentos: (s?: AbortSignal) => pedir<Documento[]>('/admin/documentos', { signal: s }),
+  adminDocumento: (ruta: string, s?: AbortSignal) => pedir<DocumentoTexto>(`/admin/documento${q({ ruta })}`, { signal: s }),
   riesgo: (p: PedidoRiesgo, s?: AbortSignal) => pedir<CalculoRiesgo>('/riesgo', post(p, s)),
 };

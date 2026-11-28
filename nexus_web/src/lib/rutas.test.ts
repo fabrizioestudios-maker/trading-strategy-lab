@@ -12,6 +12,7 @@ describe('rutas', () => {
       'Execution Engine',
       'Performance Analytics',
       'Data Center',
+      'Admin',
       'Settings',
     ]);
     expect(new Set(MODULOS.map((m) => m.tecla)).size).toBe(MODULOS.length);

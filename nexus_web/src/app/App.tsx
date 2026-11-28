@@ -1,4 +1,4 @@
-import { lazy, Suspense, type ComponentType, type LazyExoticComponent } from 'react';
+import React, { lazy, Suspense, type ComponentType, type LazyExoticComponent } from 'react';
 import { Cargando } from '../components/ui';
 import type { Modulo } from '../lib/rutas';
 import { ProveedorAvisos } from './avisos';
@@ -7,6 +7,9 @@ import { ProveedorEspacio } from './espacio';
 import { ProveedorGlobales } from './globales';
 import { useRuta } from './ruta';
 import { Shell } from './Shell';
+import { ProveedorSesion, useSesion } from './sesion';
+
+const Acceso = lazy(() => import('../modules/Acceso'));
 
 const MODULOS: Record<Modulo, LazyExoticComponent<ComponentType<{ params: Record<string, string> }>>> = {
   resumen: lazy(() => import('../modules/Resumen')),
@@ -18,6 +21,7 @@ const MODULOS: Record<Modulo, LazyExoticComponent<ComponentType<{ params: Record
   analitica: lazy(() => import('../modules/Analitica')),
   datos: lazy(() => import('../modules/CentroDatos')),
   ajustes: lazy(() => import('../modules/Ajustes')),
+  admin: lazy(() => import('../modules/Admin')),
 };
 
 function Rutas() {
@@ -30,9 +34,23 @@ function Rutas() {
   );
 }
 
+function Puerta({ children }: { children: React.ReactNode }) {
+  const { config, usuario, cargando } = useSesion();
+  if (cargando) return <Cargando texto="Conectando con NEXUS…" alto={400} />;
+  if (config?.login_requerido && !usuario)
+    return (
+      <Suspense fallback={<Cargando alto={400} />}>
+        <Acceso />
+      </Suspense>
+    );
+  return <>{children}</>;
+}
+
 export function App() {
   return (
-    <ProveedorEspacio>
+    <ProveedorSesion>
+      <Puerta>
+        <ProveedorEspacio>
       <ProveedorAvisos>
         <ProveedorComandos>
           <ProveedorGlobales>
@@ -42,6 +60,8 @@ export function App() {
           </ProveedorGlobales>
         </ProveedorComandos>
       </ProveedorAvisos>
-    </ProveedorEspacio>
+        </ProveedorEspacio>
+      </Puerta>
+    </ProveedorSesion>
   );
 }
