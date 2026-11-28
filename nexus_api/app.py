@@ -12,8 +12,8 @@ from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from . import CONTRATO, VERSION, capas as CAPAS, catalogo, estrategias as E022, indicadores as IND, mercados, referencias, riesgo, sesiones as SE, simulacion
-from .contratos import (CalculoRiesgo, CapasReplay, ConfigCorrida, CuentaSimulada, FichaMercado, HorarioMercado, PedidoCuenta, ContextoInvestigacion, CuadroReplay, EstadoOrdenSimulada, Estrategia,
+from . import CONTRATO, VERSION, biblioteca, catalogo, estrategias as E022, indicadores as IND, mercados, referencias, riesgo, sesiones as SE, simulacion
+from .contratos import (DefinicionIndicador, PedidoIndicadores, RespuestaIndicadores, CalculoRiesgo, ConfigCorrida, CuentaSimulada, FichaMercado, HorarioMercado, PedidoCuenta, ContextoInvestigacion, CuadroReplay, EstadoOrdenSimulada, Estrategia,
                         Hipotesis, InformeCalidad, Instrumento, Paso, PedidoOrdenes, PedidoRiesgo, Referencias, Resumen, Salud,
                         Trabajo)
 from .datos import TEMPORALIDADES, DatosNoDisponibles, ServicioDatos
@@ -149,13 +149,18 @@ def crear_app(svc: ServicioDatos | None = None, gestor: GestorTrabajos | None = 
         _, ultimo = svc.extremos(simbolo)
         return dict(limite_ms=lim, avanzo_minutos=0, al_final_de_los_datos=lim >= ultimo)
 
-    @app.get("/api/v1/replay/capas", response_model=CapasReplay)
-    def replay_capas(simbolo: str = "XAUUSD", tf: int = 15, limite_ms: int = Query(...), cantidad: int = 300):
-        """Estructura (pivotes, BOS, CHOCH) y FVG con velas cerradas hasta el límite. Descriptivo, no evidencia de ventaja."""
-        _tf(tf)
-        if not (20 <= cantidad <= 1500):
+    @app.get("/api/v1/indicadores/catalogo", response_model=list[DefinicionIndicador])
+    def catalogo_indicadores():
+        """Biblioteca de indicadores del gráfico: clásicos y Smart Money Concepts [LuxAlgo] (licencia no comercial)."""
+        return biblioteca.catalogo()
+
+    @app.post("/api/v1/indicadores/calcular", response_model=RespuestaIndicadores)
+    def calcular_indicadores(p: PedidoIndicadores):
+        """Calcula los indicadores pedidos solo con velas hasta el límite; las series vienen alineadas con las velas visibles."""
+        _tf(p.tf)
+        if not (20 <= p.cantidad <= 1500):
             raise ValueError("cantidad fuera de rango (20 a 1500)")
-        return CAPAS.capas(svc, simbolo, tf, limite_ms, cantidad)
+        return biblioteca.calcular(svc, p.simbolo, p.tf, p.limite_ms, p.cantidad, [x.model_dump() for x in p.indicadores])
 
     @app.post("/api/v1/replay/cuenta", response_model=CuentaSimulada)
     def replay_cuenta(p: PedidoCuenta):

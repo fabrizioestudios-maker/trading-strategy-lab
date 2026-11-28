@@ -1,10 +1,10 @@
 /**
  * Mapa de niveles: ocupa el lugar del libro de órdenes de la referencia. No hay datos de profundidad (las velas son
  * bid de 1 minuto), así que en vez de inventar un libro se listan los precios que sí se conocen en el límite:
- * niveles del día y la semana anteriores, la sesión diaria, FVG sin mitigar y las órdenes simuladas vivas.
+ * niveles del día y la semana anteriores, la sesión diaria y las órdenes simuladas vivas.
  * Arriba del precio, en rojo; abajo, en dorado; en el medio, el último precio revelado.
  */
-import type { CapasReplay, CuadroReplay, EstadoOrdenSimulada } from '../../api/contrato.gen';
+import type { CuadroReplay, EstadoOrdenSimulada } from '../../api/contrato.gen';
 import type { OrdenGuardada } from '../../app/espacio';
 import { Info } from '../../components/ui';
 import { conSigno, porcentaje, precio, tono } from '../../lib/formato';
@@ -12,25 +12,19 @@ import { conSigno, porcentaje, precio, tono } from '../../lib/formato';
 interface Fila {
   precio: number;
   nombre: string;
-  tipo: 'nivel' | 'sesion' | 'fvg' | 'orden' | 'rango';
+  tipo: 'nivel' | 'sesion' | 'orden';
 }
 
 export function MapaNiveles({
   cuadro,
-  capas,
   ordenes,
   estados,
   dec,
-  mostrarFvg,
-  mostrarRango = false,
 }: {
   cuadro: CuadroReplay;
-  capas: CapasReplay | null;
   ordenes: OrdenGuardada[];
   estados: EstadoOrdenSimulada[];
   dec: number;
-  mostrarFvg: boolean;
-  mostrarRango?: boolean;
 }) {
   const ultimo = cuadro.velas[cuadro.velas.length - 1]?.c ?? 0;
   const corto: Record<string, string> = { pdh: 'Máx. día anterior', pdl: 'Mín. día anterior', pwh: 'Máx. semana anterior', pwl: 'Mín. semana anterior' };
@@ -40,19 +34,6 @@ export function MapaNiveles({
     filas.push({ precio: d.maximo, nombre: 'Máx. de la sesión', tipo: 'sesion' });
     filas.push({ precio: d.minimo, nombre: 'Mín. de la sesión', tipo: 'sesion' });
     filas.push({ precio: d.apertura, nombre: 'Apertura sesión', tipo: 'sesion' });
-  }
-  if (mostrarFvg && capas)
-    for (const z of capas.fvg.filter((x) => x.mitigada_ms === null).slice(-3)) {
-      filas.push({ precio: z.arriba, nombre: `FVG ${z.lado} (techo)`, tipo: 'fvg' });
-      filas.push({ precio: z.abajo, nombre: `FVG ${z.lado} (piso)`, tipo: 'fvg' });
-    }
-  const rg = capas?.rango;
-  if (mostrarRango && rg) {
-    filas.push({ precio: rg.equilibrio, nombre: 'EQ 50 % del tramo', tipo: 'rango' });
-    if (rg.ote_abajo !== null && rg.ote_arriba !== null) {
-      filas.push({ precio: rg.ote_arriba, nombre: `OTE ${rg.sentido === 'alcista' ? '62' : '79'} %`, tipo: 'rango' });
-      filas.push({ precio: rg.ote_abajo, nombre: `OTE ${rg.sentido === 'alcista' ? '79' : '62'} %`, tipo: 'rango' });
-    }
   }
   const vivos = new Set(estados.filter((e) => e.estado === 'abierta' || e.estado === 'esperando_llenado').map((e) => e.id));
   for (const o of ordenes.filter((x) => vivos.has(x.id))) {

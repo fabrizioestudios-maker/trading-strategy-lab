@@ -8,6 +8,8 @@ import { Atribucion, GraficoVelas, type LineaPrecio, type Marca } from '../../co
 import { Icono } from '../../components/iconos';
 import { Menu } from '../../components/Menu';
 import { PanelIndicador } from '../../components/PanelIndicador';
+import { AjustesIndicador, BibliotecaIndicadores, LeyendaIndicador, useCatalogo } from '../../components/Indicadores';
+import { nuevaInstancia, type InstanciaIndicador } from '../../lib/indicadores';
 import { Boton, BotonIcono, Cargando, ErrorEstado, Pestanas, copiarTexto } from '../../components/ui';
 import { entero, entradaNy, etiquetaTf, fechaHora, nombreTf } from '../../lib/formato';
 import { PASOS_N, TEMPORALIDADES, VELOCIDADES, cambiarVelocidad, leerEstadoCompartible } from '../../lib/replay';
@@ -20,18 +22,10 @@ import { useReplay } from './useReplay';
 type Pestana = 'operar' | 'ordenes' | 'decision' | 'eventos';
 
 const CAPAS: [keyof ReturnType<typeof useEspacio>['estado']['prefs']['capas'], string][] = [
-  ['rsi', 'RSI (14)'],
-  ['macd', 'MACD (12, 26, 9)'],
   ['sesiones', 'Sesiones de Nueva York'],
   ['niveles', 'Día y semana anteriores'],
   ['senales', 'Señales de E022'],
   ['ordenes', 'Órdenes simuladas'],
-  ['estructura', 'Estructura: BOS y CHOCH'],
-  ['fvg', 'FVG sin mitigar'],
-  ['barridos', 'Barridos de liquidez'],
-  ['ob', 'Order blocks sin mitigar'],
-  ['ifvg', 'iFVG y BPR vigentes'],
-  ['ote', 'Premium/discount y OTE'],
 ];
 
 export default function Replay({ params }: { params: Record<string, string> }) {
@@ -48,6 +42,9 @@ export default function Replay({ params }: { params: Record<string, string> }) {
   const [fechaFin, setFechaFin] = useState('');
   const [errorSalto, setErrorSalto] = useState<string | null>(null);
   const [saltoAbierto, setSaltoAbierto] = useState(false);
+  const [bibliotecaAbierta, setBibliotecaAbierta] = useState(false);
+  const [ajustesDe, setAjustesDe] = useState<string | null>(null);
+  const catalogo = useCatalogo();
   useEffect(() => {
     if (saltoAbierto) requestAnimationFrame(() => entradaFecha.current?.focus());
   }, [saltoAbierto]);
@@ -109,6 +106,7 @@ export default function Replay({ params }: { params: Record<string, string> }) {
           void r.paso(1, 'minutos');
         },
       },
+      { id: 'rp-indicadores', titulo: 'Agregar indicadores', grupo: 'Replay', atajo: '/', palabras: 'indicators biblioteca rsi macd smc luxalgo', ejecutar: () => setBibliotecaAbierta(true) },
       { id: 'rp-salto', titulo: 'Saltar a una fecha (hora de Nueva York)', grupo: 'Replay', atajo: 'J', ejecutar: () => setSaltoAbierto(true) },
       { id: 'rp-reinicio', titulo: 'Reiniciar el replay (7 días antes del final de los datos)', grupo: 'Replay', atajo: 'Inicio', ejecutar: () => void r.reiniciar() },
       { id: 'rp-vel-mas', titulo: 'Más velocidad', grupo: 'Replay', atajo: '+', ejecutar: () => despachar({ tipo: 'velocidad', velocidad: cambiarVelocidad(velocidad, 1) }) },
@@ -150,41 +148,8 @@ export default function Replay({ params }: { params: Record<string, string> }) {
         l.push({ id: o.id, precio: o.sl, titulo: 'SL', tipo: 'sl' });
         l.push({ id: o.id, precio: o.tp, titulo: 'TP', tipo: 'tp' });
       }
-    if (prefs.capas.fvg && r.capas) {
-      // solo los huecos sin mitigar más recientes (las zonas ya mitigadas no se dibujan para no ensuciar el gráfico)
-      for (const z of r.capas.fvg.filter((x) => x.mitigada_ms === null).slice(-3)) {
-        const flecha = z.lado === 'alcista' ? '▲' : '▼';
-        l.push({ id: `fvg-${z.t}`, precio: z.arriba, titulo: `FVG ${flecha}`, tipo: 'zona' });
-        l.push({ id: `fvg-${z.t}`, precio: z.abajo, titulo: '', tipo: 'zona' });
-      }
-    }
-    if (prefs.capas.ob && r.capas) {
-      for (const ob of r.capas.order_blocks.filter((x) => x.mitigado_ms === null).slice(-2)) {
-        l.push({ id: `ob-${ob.t}`, precio: ob.arriba, titulo: `OB ${ob.lado === 'alcista' ? '▲' : '▼'}`, tipo: 'zona' });
-        l.push({ id: `ob-${ob.t}`, precio: ob.abajo, titulo: '', tipo: 'zona' });
-      }
-    }
-    if (prefs.capas.ifvg && r.capas) {
-      // vigentes: no atravesados de vuelta al límite; los 2 iFVG y el BPR más recientes
-      for (const z of r.capas.ifvg.filter((x) => x.invalidado_ms === null).slice(-2)) {
-        l.push({ id: `ifvg-${z.t}`, precio: z.arriba, titulo: `iFVG ${z.lado === 'alcista' ? '▲' : '▼'}`, tipo: 'zona' });
-        l.push({ id: `ifvg-${z.t}`, precio: z.abajo, titulo: '', tipo: 'zona' });
-      }
-      for (const z of r.capas.bpr.filter((x) => x.invalidado_ms === null).slice(-1)) {
-        l.push({ id: `bpr-${z.t}`, precio: z.arriba, titulo: `BPR ${z.lado === 'alcista' ? '▲' : '▼'}`, tipo: 'zona' });
-        l.push({ id: `bpr-${z.t}`, precio: z.abajo, titulo: '', tipo: 'zona' });
-      }
-    }
-    const rg = r.capas?.rango;
-    if (prefs.capas.ote && rg) {
-      l.push({ id: 'rango', precio: rg.equilibrio, titulo: 'EQ 50 %', tipo: 'rango' });
-      if (rg.ote_abajo !== null && rg.ote_arriba !== null) {
-        l.push({ id: 'ote', precio: rg.ote_arriba, titulo: rg.sentido === 'alcista' ? 'OTE 62 %' : 'OTE 79 %', tipo: 'rango' });
-        l.push({ id: 'ote', precio: rg.ote_abajo, titulo: rg.sentido === 'alcista' ? 'OTE 79 %' : 'OTE 62 %', tipo: 'rango' });
-      }
-    }
     return l;
-  }, [c, prefs.capas.niveles, prefs.capas.ordenes, prefs.capas.fvg, prefs.capas.ob, prefs.capas.ifvg, prefs.capas.ote, r.estadosOrdenes, r.ordenes, r.capas]);
+  }, [c, prefs.capas.niveles, prefs.capas.ordenes, r.estadosOrdenes, r.ordenes]);
 
   const marcas = useMemo<Marca[]>(() => {
     if (!c) return [];
@@ -195,13 +160,8 @@ export default function Replay({ params }: { params: Record<string, string> }) {
         if (e.entrada_ms && e.estado !== 'rechazada' && e.estado !== 'posterior_al_limite') m.push({ t: e.entrada_ms, tipo: 'entrada', texto: 'Entrada' });
         if (e.estado === 'cerrada' && e.salida_ms) m.push({ t: e.salida_ms, tipo: 'salida', texto: e.motivo ?? '' });
       }
-    if (prefs.capas.estructura && r.capas) {
-      for (const p of r.capas.pivotes) m.push({ t: p.t, tipo: p.tipo === 'alto' ? 'pivoteAlto' : 'pivoteBajo', texto: '' });
-      for (const x of r.capas.rupturas) m.push({ t: x.t, tipo: 'ruptura', texto: x.tipo, arriba: x.lado === 'alcista' });
-    }
-    if (prefs.capas.barridos && r.capas) for (const b of r.capas.barridos) m.push({ t: b.t, tipo: 'barrido', texto: 'Barrido', arriba: b.lado === 'arriba' });
     return m;
-  }, [c, prefs.capas.senales, prefs.capas.ordenes, prefs.capas.estructura, prefs.capas.barridos, r.estadosOrdenes, r.capas]);
+  }, [c, prefs.capas.senales, prefs.capas.ordenes, r.estadosOrdenes]);
 
   const pestanas: { id: Pestana; etiqueta: string; contador?: number }[] = [
     { id: 'operar', etiqueta: 'Operar' },
@@ -210,13 +170,49 @@ export default function Replay({ params }: { params: Record<string, string> }) {
     { id: 'eventos', etiqueta: 'Eventos', contador: c?.eventos.length },
   ];
   const capas = prefs.capas;
-  const verRsi = capas.rsi && !!c?.indicadores;
-  const verMacd = capas.macd && !!c?.indicadores;
+  // ---------------------------------------------------------------- indicadores de la biblioteca
+  const instancias = prefs.indicadores;
+  const fijarInstancias = (l: InstanciaIndicador[]) => despachar({ tipo: 'prefs', prefs: { indicadores: l } });
+  const resultados = new Map((r.indicadores?.resultados ?? []).map((x) => [x.instancia, x]));
+  const superpuestos = instancias.filter((x) => x.visible && resultados.get(x.instancia)?.superpuesto).map((x) => resultados.get(x.instancia)!);
+  const paneles = instancias.filter((x) => x.visible && resultados.get(x.instancia) && !resultados.get(x.instancia)!.superpuesto);
+  const enLeyenda = instancias.filter((x) => !x.visible || resultados.get(x.instancia)?.superpuesto || (catalogo.porId.get(x.id)?.superpuesto ?? false));
+  const nombreDe = (x: InstanciaIndicador) => catalogo.porId.get(x.id)?.corto ?? x.id;
+  const leyenda = (x: InstanciaIndicador) => (
+    <LeyendaIndicador
+      key={x.instancia}
+      instancia={x}
+      resultado={resultados.get(x.instancia)}
+      nombre={nombreDe(x)}
+      onVisible={() => fijarInstancias(instancias.map((y) => (y.instancia === x.instancia ? { ...y, visible: !y.visible } : y)))}
+      onAjustes={() => setAjustesDe(x.instancia)}
+      onQuitar={() => fijarInstancias(instancias.filter((y) => y.instancia !== x.instancia))}
+    />
+  );
+  const enAjustes = instancias.find((x) => x.instancia === ajustesDe) ?? null;
   const dinero = useMemo(() => new Map((r.cuenta?.por_orden ?? []).map((x) => [x.id, x.resultado_moneda ?? null])), [r.cuenta]);
   const pestana: Pestana = (['operar', 'ordenes', 'decision', 'eventos'] as Pestana[]).includes(panel.pestana as Pestana) ? (panel.pestana as Pestana) : 'operar';
 
   return (
     <div className="terminal" data-panel={panel.visible ? 'visible' : 'oculto'}>
+      <BibliotecaIndicadores
+        abierto={bibliotecaAbierta}
+        onCerrar={() => setBibliotecaAbierta(false)}
+        activos={instancias}
+        onAgregar={(id) => {
+          fijarInstancias([...instancias, nuevaInstancia(id, instancias)]);
+          setBibliotecaAbierta(false);
+        }}
+      />
+      <AjustesIndicador
+        instancia={enAjustes}
+        definicion={enAjustes ? catalogo.porId.get(enAjustes.id) : undefined}
+        onCerrar={() => setAjustesDe(null)}
+        onGuardar={(p) => {
+          fijarInstancias(instancias.map((y) => (y.instancia === ajustesDe ? { ...y, parametros: p } : y)));
+          setAjustesDe(null);
+        }}
+      />
       <h1 className="visualmente-oculto">Replay de mercado</h1>
       <section className="terminal__central" aria-label="Gráfico">
         <header className="terminal__cabeza">
@@ -238,8 +234,11 @@ export default function Replay({ params }: { params: Record<string, string> }) {
               </button>
             ))}
           </div>
+          <Boton chico className="boton--fantasma" icono="mas" onClick={() => setBibliotecaAbierta(true)} title="Agregar indicadores (/)">
+            Indicadores
+          </Boton>
           <Menu
-            etiqueta="Indicadores y capas"
+            etiqueta="Capas del gráfico"
             items={CAPAS.map(([k, t]) => ({
               id: k,
               texto: (
@@ -254,9 +253,8 @@ export default function Replay({ params }: { params: Record<string, string> }) {
               alElegir: () => despachar({ tipo: 'prefs', prefs: { capas: { ...capas, [k]: !capas[k] } } }),
             }))}
             boton={(p) => (
-              <button type="button" className="boton boton--chico boton--fantasma" {...p}>
+              <button type="button" className="boton-icono" title="Capas del gráfico: sesiones, niveles, señales y órdenes" aria-label="Capas del gráfico" {...p}>
                 <Icono nombre="capas" />
-                Indicadores
               </button>
             )}
           />
@@ -368,13 +366,27 @@ export default function Replay({ params }: { params: Record<string, string> }) {
                   lineas={lineas}
                   marcas={marcas}
                   alto="100%"
-                  ejeTiempo={!verRsi && !verMacd}
+                  ejeTiempo={!paneles.length}
                   onRango={setRango}
+                  superpuestos={superpuestos}
                   etiqueta={`Velas de ${nombreTf(c.temporalidad)} de ${c.simbolo} hasta el límite ${fechaHora(c.limite.limite_ms, 'ny')}`}
-                />
+                >
+                  {enLeyenda.length > 0 && <div className="grafico__indicadores">{enLeyenda.map(leyenda)}</div>}
+                </GraficoVelas>
               </div>
-              {verRsi && <PanelIndicador tipo="rsi" velas={c.velas} ind={c.indicadores!} rango={rango} zona={zona} alto={104} ejeTiempo={!verMacd} />}
-              {verMacd && <PanelIndicador tipo="macd" velas={c.velas} ind={c.indicadores!} rango={rango} zona={zona} alto={verRsi ? 132 : 150} ejeTiempo />}
+              {paneles.map((x, i) => (
+                <PanelIndicador
+                  key={x.instancia}
+                  resultado={resultados.get(x.instancia)!}
+                  velas={c.velas}
+                  rango={rango}
+                  zona={zona}
+                  alto={paneles.length > 2 ? 96 : 118}
+                  ejeTiempo={i === paneles.length - 1}
+                >
+                  {leyenda(x)}
+                </PanelIndicador>
+              ))}
             </>
           ) : r.error ? (
             <ErrorEstado error={r.error} reintentar={r.reintentar} />
@@ -429,7 +441,7 @@ export default function Replay({ params }: { params: Record<string, string> }) {
               <Cargando />
             ) : pestana === 'operar' ? (
               <>
-                <MapaNiveles cuadro={c} capas={r.capas} ordenes={r.ordenes} estados={r.estadosOrdenes} dec={dec} mostrarFvg={capas.fvg} mostrarRango={capas.ote} />
+                <MapaNiveles cuadro={c} ordenes={r.ordenes} estados={r.estadosOrdenes} dec={dec} />
                 <PanelOrdenes cuadro={c} limite={c.limite.limite_ms} ordenes={r.ordenes} estados={r.estadosOrdenes} zona={zona} ladoInicial={ticket} vista="ticket" />
               </>
             ) : pestana === 'ordenes' ? (

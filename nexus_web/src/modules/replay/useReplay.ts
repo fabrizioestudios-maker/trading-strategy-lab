@@ -5,7 +5,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { api, ErrorApi, ESTATICO } from '../../api/cliente';
 import { useAvisos } from '../../app/avisos';
-import type { CapasReplay, CuadroReplay, CuentaSimulada, EstadoOrdenSimulada } from '../../api/contrato.gen';
+import type { RespuestaIndicadores, CuadroReplay, CuentaSimulada, EstadoOrdenSimulada } from '../../api/contrato.gen';
 import { useEspacio, type OrdenGuardada } from '../../app/espacio';
 import { useGlobales } from '../../app/globales';
 
@@ -16,7 +16,8 @@ export interface Replay {
   tf: number;
   limite: number | null;
   cuadro: CuadroReplay | null;
-  capas: CapasReplay | null;
+  /** Indicadores de la biblioteca, alineados con las velas del cuadro (null mientras no coinciden) */
+  indicadores: RespuestaIndicadores | null;
   cuenta: CuentaSimulada | null;
   estadosOrdenes: EstadoOrdenSimulada[];
   ordenes: OrdenGuardada[];
@@ -50,11 +51,11 @@ export function useReplay(): Replay {
   const ordenes = useMemo(() => estado.replay.ordenes.filter((o) => o.simbolo === simbolo), [estado.replay.ordenes, simbolo]);
 
   const [cuadro, setCuadro] = useState<CuadroReplay | null>(null);
-  const [capas, setCapas] = useState<CapasReplay | null>(null);
+  const [indicadores, setIndicadores] = useState<RespuestaIndicadores | null>(null);
+  const pedidoInd = JSON.stringify(estado.prefs.indicadores.filter((x) => x.visible).map(({ instancia, id, parametros }) => ({ instancia, id, parametros })));
   const [cuenta, setCuenta] = useState<CuentaSimulada | null>(null);
   const capital = estado.prefs.capital;
   const apalancamiento = estado.prefs.apalancamiento;
-  const conCapas = estado.prefs.capas.estructura || estado.prefs.capas.fvg || estado.prefs.capas.barridos || estado.prefs.capas.ob || estado.prefs.capas.ifvg || estado.prefs.capas.ote;
   const [estadosOrdenes, setEstadosOrdenes] = useState<EstadoOrdenSimulada[]>([]);
   const [error, setError] = useState<unknown>(null);
   const [cargando, setCargando] = useState(false);
@@ -90,14 +91,16 @@ export function useReplay(): Replay {
     Promise.all([
       api.cuadro(simbolo, tf, limite, cantidad, ctl.signal),
       pedido.length ? api.ordenes({ simbolo, limite_ms: limite, ordenes: pedido }, ctl.signal) : Promise.resolve([] as EstadoOrdenSimulada[]),
-      conCapas ? api.capas(simbolo, tf, limite, cantidad, ctl.signal) : Promise.resolve(null),
       api.cuenta({ simbolo, limite_ms: limite, capital, apalancamiento, ordenes: pedido }, ctl.signal),
+      pedidoInd !== '[]'
+        ? api.indicadores({ simbolo, tf, limite_ms: limite, cantidad, indicadores: JSON.parse(pedidoInd) }, ctl.signal).catch(() => null)
+        : Promise.resolve(null),
     ])
-      .then(([c, eo, cp, cta]) => {
+      .then(([c, eo, cta, ind]) => {
         if (ctl.signal.aborted) return;
         setCuadro(c);
+        setIndicadores(ind);
         setEstadosOrdenes(eo);
-        setCapas(cp);
         setCuenta(cta);
         setError(null);
         setCargando(false);
@@ -116,7 +119,7 @@ export function useReplay(): Replay {
         esperas.current.clear();
       });
     return () => ctl.abort();
-  }, [simbolo, tf, limite, cantidad, ordenes, vuelta, setReplay, conCapas, capital, apalancamiento]);
+  }, [simbolo, tf, limite, cantidad, ordenes, vuelta, setReplay, capital, apalancamiento, pedidoInd]);
 
   // último replay visto (para el Resumen)
   useEffect(() => {
@@ -230,7 +233,10 @@ export function useReplay(): Replay {
     tf,
     limite,
     cuadro: cuadro && cuadro.simbolo === simbolo ? cuadro : null,
-    capas: capas && capas.simbolo === simbolo && capas.temporalidad === tf ? capas : null,
+    indicadores:
+      indicadores && cuadro && indicadores.simbolo === cuadro.simbolo && indicadores.tiempos.length === cuadro.velas.length && indicadores.tiempos[0] === cuadro.velas[0]?.t
+        ? indicadores
+        : null,
     cuenta,
     estadosOrdenes,
     ordenes,

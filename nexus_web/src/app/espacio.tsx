@@ -5,6 +5,7 @@
 import { createContext, useContext, useEffect, useMemo, useReducer, type ReactNode } from 'react';
 import type { OrdenSimuladaEntrada } from '../api/contrato.gen';
 import { guardar, leer } from '../lib/almacen';
+import { INDICADORES_INICIALES, sanearIndicadores, type InstanciaIndicador } from '../lib/indicadores';
 
 export interface Preferencias {
   densidad: 'compacta' | 'comoda';
@@ -20,7 +21,9 @@ export interface Preferencias {
   apalancamiento: number;
   navColapsada: boolean;
   panelReplay: { visible: boolean; ancho: number; pestana: 'operar' | 'ordenes' | 'decision' | 'eventos' };
-  capas: { sesiones: boolean; niveles: boolean; ordenes: boolean; senales: boolean; estructura: boolean; fvg: boolean; barridos: boolean; ob: boolean; ifvg: boolean; ote: boolean; rsi: boolean; macd: boolean };
+  capas: { sesiones: boolean; niveles: boolean; ordenes: boolean; senales: boolean };
+  /** Indicadores agregados desde la biblioteca (orden = orden en el gráfico) */
+  indicadores: InstanciaIndicador[];
 }
 
 export const PREFS_INICIALES: Preferencias = {
@@ -37,7 +40,8 @@ export const PREFS_INICIALES: Preferencias = {
   apalancamiento: 50,
   navColapsada: false,
   panelReplay: { visible: true, ancho: 340, pestana: 'operar' },
-  capas: { sesiones: true, niveles: true, ordenes: true, senales: true, estructura: false, fvg: false, barridos: false, ob: false, ifvg: false, ote: false, rsi: true, macd: true },
+  capas: { sesiones: true, niveles: true, ordenes: true, senales: true },
+  indicadores: INDICADORES_INICIALES,
 };
 
 export interface ReplayReciente {
@@ -98,7 +102,9 @@ export function sanear(x: unknown): EstadoEspacio {
     ...PREFS_INICIALES,
     ...p,
     panelReplay: { ...PREFS_INICIALES.panelReplay, ...(p.panelReplay ?? {}) },
-    capas: { ...PREFS_INICIALES.capas, ...(p.capas ?? {}) },
+    indicadores: sanearIndicadores(p.indicadores),
+    // solo las capas que existen (espacios viejos podían traer otras)
+    capas: Object.fromEntries(Object.keys(PREFS_INICIALES.capas).map((k) => [k, typeof (p.capas as Record<string, unknown> | undefined)?.[k] === 'boolean' ? (p.capas as Record<string, boolean>)[k] : PREFS_INICIALES.capas[k as keyof Preferencias['capas']]])) as Preferencias['capas'],
   };
   prefs.velasPorCuadro = Math.min(800, Math.max(100, Number(prefs.velasPorCuadro) || 300));
   prefs.apalancamiento = Math.min(1000, Math.max(1, Number(prefs.apalancamiento) || 50));

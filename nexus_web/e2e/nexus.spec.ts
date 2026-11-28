@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-const MODULOS = ['Resumen', 'Replay', 'Lab', 'Capas', 'Ejecución', 'Analítica', 'Datos', 'Ajustes'];
+const MODULOS = ['Resumen', 'Replay', 'Lab', 'Indicadores', 'Ejecución', 'Analítica', 'Datos', 'Ajustes'];
 
 function vigilarErrores(page: Page) {
   const errores: string[] = [];
@@ -153,7 +153,7 @@ test('laboratorio: una corrida real pasa por sus estados y termina en la analít
 
 test('ningún gráfico de barras se sale de su caja y no hay errores en ninguna pantalla', async ({ page }) => {
   const errores = vigilarErrores(page);
-  for (const ruta of ['resumen', 'replay', 'laboratorio', 'herramientas', 'ejecucion', 'analitica', 'datos', 'ajustes']) {
+  for (const ruta of ['resumen', 'replay', 'laboratorio', 'indicadores', 'ejecucion', 'analitica', 'datos', 'ajustes']) {
     await page.goto(`/#/${ruta}`);
     await page.waitForLoadState('networkidle');
     const fuera = await page.$$eval('.barras__trazado', (cajas) =>
@@ -203,7 +203,7 @@ test.describe('teléfono', () => {
     const abajo = page.locator('.nav-movil');
     await expect(abajo).toBeVisible();
     await expect(page.locator('.riel')).toBeHidden();
-    for (const ruta of ['resumen', 'replay', 'laboratorio', 'analitica', 'ejecucion', 'datos', 'ajustes', 'herramientas']) {
+    for (const ruta of ['resumen', 'replay', 'laboratorio', 'analitica', 'ejecucion', 'datos', 'ajustes', 'indicadores']) {
       await page.goto(`/#/${ruta}`);
       await page.waitForLoadState('networkidle');
       const desborde = await page.evaluate(() => {

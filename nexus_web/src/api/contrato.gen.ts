@@ -1,12 +1,17 @@
 // Generado por `python -m nexus_api.tipos_ts` desde el contrato OpenAPI. No editar a mano.
 // Contrato: Contrato nexus. Versión de la API: 0.1.0.
 
-export interface Barrido {
-  /** Apertura de la vela que barrió el pivote y cerró de vuelta */
-  t: number;
-  lado: "arriba" | "abajo";
-  nivel: number;
-  pivote_t: number;
+export interface CajaIndicador {
+  t0: number;
+  /** None: llega hasta la última vela */
+  t1: number | null;
+  arriba: number;
+  abajo: number;
+  color: string;
+  borde: string | null;
+  texto: string | null;
+  posicion: string | null;
+  color_texto: string | null;
 }
 
 export interface CalculoRiesgo {
@@ -25,25 +30,6 @@ export interface CalculoRiesgo {
   ganancia_objetivo_moneda: number | null;
   supuestos: Array<string>;
   avisos: Array<string>;
-}
-
-export interface CapasReplay {
-  contrato: string;
-  simbolo: string;
-  temporalidad: number;
-  limite_ms: number;
-  pivotes: Array<Pivote>;
-  rupturas: Array<Ruptura>;
-  /** +1 alcista, -1 bajista, 0 sin rupturas en la ventana */
-  estado_estructura: number;
-  fvg: Array<ZonaFVG>;
-  barridos: Array<Barrido>;
-  order_blocks: Array<OrderBlock>;
-  ifvg: Array<ZonaIFVG>;
-  bpr: Array<ZonaBPR>;
-  rango: RangoOperativo | null;
-  definiciones: Array<string>;
-  nota: string;
 }
 
 export interface ChequeoCalidad {
@@ -147,6 +133,21 @@ export interface DefinicionEstado {
   texto: string;
 }
 
+export interface DefinicionIndicador {
+  id: string;
+  nombre: string;
+  corto: string;
+  categoria: string;
+  /** True: se dibuja sobre el precio; False: en un panel propio */
+  superpuesto: boolean;
+  descripcion: string;
+  autor: string;
+  /** Licencia de terceros (p. ej. CC BY-NC-SA 4.0 de LuxAlgo) */
+  licencia: string | null;
+  fuente: string | null;
+  parametros: Array<ParametroIndicador>;
+}
+
 export interface DefinicionSesion {
   nombre: string;
   desde_ny: string;
@@ -185,6 +186,14 @@ export interface Estrategia {
   fuentes: Array<string>;
   /** Se puede correr desde NEXUS */
   ejecutable: boolean;
+}
+
+export interface EtiquetaIndicador {
+  t: number;
+  precio: number;
+  texto: string;
+  color: string;
+  posicion: string;
 }
 
 export interface Evento {
@@ -252,6 +261,12 @@ export interface Hipotesis {
   fuente: string;
 }
 
+export interface HistogramaIndicador {
+  nombre: string;
+  valores: Array<number | null>;
+  colores: Array<string | null> | null;
+}
+
 export interface HorarioMercado {
   abierto: boolean;
   motivo: string | null;
@@ -316,6 +331,15 @@ export interface LimiteReplay {
   sesion: string;
 }
 
+export interface LineaIndicador {
+  nombre: string;
+  color: string;
+  ancho: number;
+  estilo: "solida" | "guiones" | "puntos";
+  /** Uno por vela visible (None sin valor) */
+  valores: Array<number | null>;
+}
+
 export interface Metrica {
   clave: string;
   nombre: string;
@@ -343,6 +367,11 @@ export interface Nivel {
   conocido_desde_ms: number;
   /** Descriptivo: un nivel dibujado no es evidencia de ventaja */
   nota: string;
+}
+
+export interface NivelIndicador {
+  valor: number;
+  color: string;
 }
 
 export interface Operacion {
@@ -373,18 +402,6 @@ export interface OrdenSimuladaEntrada {
   lotes?: number | null;
 }
 
-export interface OrderBlock {
-  /** Apertura de la vela del order block */
-  t: number;
-  lado: "alcista" | "bajista";
-  arriba: number;
-  abajo: number;
-  ruptura_t: number;
-  /** Cierre de la vela de la ruptura que lo define */
-  conocido_ms: number;
-  mitigado_ms: number | null;
-}
-
 export interface PanelDecision {
   estrategia: string;
   version: string;
@@ -409,6 +426,20 @@ export interface Parametro {
   definicion: string;
 }
 
+export interface ParametroIndicador {
+  id: string;
+  nombre: string;
+  tipo: "entero" | "decimal" | "booleano" | "opcion";
+  defecto: boolean | number | string;
+  minimo: number | null;
+  maximo: number | null;
+  paso: number | null;
+  opciones: Array<string> | null;
+  /** Sección de la ventana de ajustes */
+  grupo: string | null;
+  ayuda: string | null;
+}
+
 export interface Paso {
   limite_ms: number;
   avanzo_minutos: number;
@@ -421,6 +452,21 @@ export interface PedidoCuenta {
   capital: number;
   apalancamiento?: number;
   ordenes: Array<OrdenSimuladaEntrada>;
+}
+
+export interface PedidoIndicador {
+  /** Identificador de esta copia del indicador en el gráfico */
+  instancia: string;
+  id: string;
+  parametros?: Record<string, boolean | number | string>;
+}
+
+export interface PedidoIndicadores {
+  simbolo?: string;
+  tf?: number;
+  limite_ms: number;
+  cantidad?: number;
+  indicadores: Array<PedidoIndicador>;
 }
 
 export interface PedidoOrdenes {
@@ -456,15 +502,6 @@ export interface PerfilCostos {
   swap: string | null;
 }
 
-export interface Pivote {
-  /** Apertura de la vela del pivote */
-  t: number;
-  tipo: "alto" | "bajo";
-  precio: number;
-  /** Cierre de la vela que lo confirma (ya revelado) */
-  confirmado_ms: number;
-}
-
 export interface PliegueAnual {
   desde: string;
   hasta: string;
@@ -472,21 +509,6 @@ export interface PliegueAnual {
   expectativa: number | null;
   r_total: number;
   muestra: "eleccion" | "confirmacion";
-}
-
-export interface RangoOperativo {
-  alto: number;
-  alto_t: number;
-  bajo: number;
-  bajo_t: number;
-  /** Mitad del rango: arriba es premium, abajo discount */
-  equilibrio: number;
-  /** Retroceso de 62–79 % a favor de la estructura (None sin rupturas) */
-  ote_abajo: number | null;
-  ote_arriba: number | null;
-  sentido: "alcista" | "bajista" | null;
-  /** Dónde está el último cierre revelado */
-  zona_precio: "premium" | "discount" | "equilibrio";
 }
 
 export interface Referencias {
@@ -502,6 +524,16 @@ export interface Referencias {
   estados_trabajo: Array<DefinicionEstado>;
 }
 
+export interface RespuestaIndicadores {
+  contrato: string;
+  simbolo: string;
+  temporalidad: number;
+  limite_ms: number;
+  /** Apertura de cada vela visible (ms UTC), la misma que devuelve el cuadro */
+  tiempos: Array<number>;
+  resultados: Array<ResultadoIndicador>;
+}
+
 export interface ResultadoCorrida {
   /** Por muestra: eleccion, confirmacion, total */
   metricas: Record<string, Array<Metrica>>;
@@ -513,6 +545,24 @@ export interface ResultadoCorrida {
   avisos: Array<string>;
   /** Ausente en corridas anteriores a esta versión */
   robustez: Robustez | null;
+}
+
+export interface ResultadoIndicador {
+  instancia: string;
+  id: string;
+  nombre: string;
+  superpuesto: boolean;
+  parametros: Record<string, boolean | number | string>;
+  /** Escala fija del panel (p. ej. 0–100) */
+  rango: Array<number> | null;
+  licencia: string | null;
+  lineas: Array<LineaIndicador>;
+  histogramas: Array<HistogramaIndicador>;
+  niveles: Array<NivelIndicador>;
+  cajas: Array<CajaIndicador>;
+  segmentos: Array<SegmentoIndicador>;
+  etiquetas: Array<EtiquetaIndicador>;
+  colores_velas: Array<string | null> | null;
 }
 
 export interface ResultadoOrden {
@@ -549,21 +599,25 @@ export interface Robustez {
   avisos: Array<string>;
 }
 
-export interface Ruptura {
-  /** Apertura de la vela cuyo cierre rompió el pivote */
-  t: number;
-  tipo: "BOS" | "CHOCH";
-  lado: "alcista" | "bajista";
-  nivel: number;
-  pivote_t: number;
-}
-
 export interface Salud {
   contrato: string;
   version: string;
   datos: Record<string, unknown>;
   pruebas: string;
   hora_servidor_ms: number;
+}
+
+export interface SegmentoIndicador {
+  t0: number;
+  p0: number;
+  t1: number;
+  p1: number;
+  color: string;
+  estilo: "solida" | "guiones" | "puntos";
+  texto: string | null;
+  t_texto: number | null;
+  posicion: string | null;
+  tamano: string | null;
 }
 
 export interface SesionDia {
@@ -624,40 +678,4 @@ export interface VentanaSesion {
   desde_ms: number;
   hasta_ms: number;
   aviso: string | null;
-}
-
-export interface ZonaBPR {
-  /** El FVG más nuevo de los dos (apertura de su tercera vela) */
-  t: number;
-  lado: "alcista" | "bajista";
-  arriba: number;
-  abajo: number;
-  fvg_previo_t: number;
-  conocido_ms: number;
-  invalidado_ms: number | null;
-}
-
-export interface ZonaFVG {
-  /** Apertura de la tercera vela del patrón */
-  t: number;
-  lado: "alcista" | "bajista";
-  arriba: number;
-  abajo: number;
-  conocido_ms: number;
-  /** Cierre de la vela que volvió a tocar el hueco (None: sin mitigar al límite) */
-  mitigada_ms: number | null;
-}
-
-export interface ZonaIFVG {
-  /** Apertura de la vela que atravesó el FVG por cierre */
-  t: number;
-  /** Lado desde el que se lee después de la inversión */
-  lado: "alcista" | "bajista";
-  arriba: number;
-  abajo: number;
-  /** El FVG original (apertura de su tercera vela) */
-  fvg_t: number;
-  conocido_ms: number;
-  /** Cierre de la vela que lo atravesó de vuelta (None: vigente al límite) */
-  invalidado_ms: number | null;
 }

@@ -7,7 +7,7 @@ describe('rutas', () => {
       'Overview',
       'Market Replay',
       'Strategy Lab',
-      'Institutional Toolkit',
+      'Indicators',
       'Execution Engine',
       'Performance Analytics',
       'Data Center',

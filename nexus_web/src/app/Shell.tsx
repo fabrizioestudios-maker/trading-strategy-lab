@@ -18,7 +18,7 @@ export const ICONO_MODULO: Record<Modulo, NombreIcono> = {
   resumen: 'resumen',
   replay: 'replay',
   laboratorio: 'laboratorio',
-  herramientas: 'herramientas',
+  indicadores: 'capas',
   ejecucion: 'ejecucion',
   analitica: 'analitica',
   datos: 'datos',
@@ -59,7 +59,7 @@ function GuardarEspacio({ abierto, onCerrar }: { abierto: boolean; onCerrar: () 
     <Dialogo
       abierto={abierto}
       titulo="Guardar espacio de trabajo"
-      descripcion="Guarda instrumento, temporalidad, límite del replay, órdenes simuladas, capas y preferencias. Queda en este navegador; desde Ajustes se puede exportar."
+      descripcion="Guarda instrumento, temporalidad, límite del replay, órdenes simuladas, indicadores y preferencias. Queda en este navegador; desde Ajustes se puede exportar."
       onCerrar={onCerrar}
       pie={
         <>
@@ -101,7 +101,7 @@ const ETIQUETA_RIEL: Record<Modulo, string> = {
   resumen: 'Resumen',
   replay: 'Replay',
   laboratorio: 'Lab',
-  herramientas: 'Capas',
+  indicadores: 'Indicadores',
   ejecucion: 'Ejecución',
   analitica: 'Analítica',
   datos: 'Datos',

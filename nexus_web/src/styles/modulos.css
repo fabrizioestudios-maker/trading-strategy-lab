@@ -1870,3 +1870,117 @@ input.selector--chico {
   color: var(--gold-claro);
 }
 .salto .campo__ayuda { margin: 4px 0 2px; }
+
+/* ------------------------------------------------------------------ biblioteca de indicadores */
+.grafico__indicadores {
+  position: absolute;
+  z-index: 3;
+  top: 30px;
+  left: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  max-width: calc(100% - 120px);
+}
+.leyenda-ind {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 22px;
+  padding: 0 4px;
+  border-radius: 4px;
+  font-size: var(--fs-1);
+  color: var(--text-2);
+  font-variant-numeric: tabular-nums;
+  pointer-events: auto;
+}
+.leyenda-ind b { font-weight: 500; }
+.leyenda-ind__nombre { color: var(--text); white-space: nowrap; }
+.leyenda-ind.es-oculto .leyenda-ind__nombre { color: var(--text-3); text-decoration: line-through; }
+.leyenda-ind__botones { display: inline-flex; gap: 0; opacity: 0; transition: opacity 0.12s; }
+.leyenda-ind:hover,
+.leyenda-ind:focus-within { background: rgb(13 17 24 / 85%); }
+.leyenda-ind:hover .leyenda-ind__botones,
+.leyenda-ind:focus-within .leyenda-ind__botones,
+.leyenda-ind.es-oculto .leyenda-ind__botones { opacity: 1; }
+.leyenda-ind .boton-icono { width: 22px; height: 22px; }
+.indicador__leyenda { pointer-events: auto; }
+@media (hover: none) {
+  .leyenda-ind__botones { opacity: 1; }
+}
+
+.biblioteca .dialogo__cuerpo { padding-top: 0; }
+.biblioteca__buscar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0 12px;
+  color: var(--text-3);
+  border-bottom: 1px solid var(--line);
+}
+.biblioteca__buscar .entrada { flex: 1; }
+.biblioteca__cuerpo {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
+  gap: 12px;
+  height: min(60vh, 520px);
+  padding-top: 10px;
+}
+.biblioteca__categorias {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-right: 1px solid var(--line);
+  padding-right: 8px;
+  overflow-y: auto;
+}
+.biblioteca__categorias button {
+  text-align: left;
+  padding: 7px 10px;
+  border-radius: 6px;
+  color: var(--text-2);
+  background: none;
+  border: 0;
+  font: inherit;
+  cursor: pointer;
+}
+.biblioteca__categorias button:hover { background: var(--surface-2); color: var(--text); }
+.biblioteca__categorias button.es-activo { background: rgb(232 168 58 / 12%); color: var(--gold); }
+.biblioteca__lista { overflow-y: auto; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.biblioteca__item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: 'nombre mas' 'desc mas';
+  gap: 2px 12px;
+  align-items: center;
+  text-align: left;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+.biblioteca__item:hover:not(:disabled),
+.biblioteca__item:focus-visible { background: var(--surface-2); }
+.biblioteca__item:disabled { opacity: 0.5; cursor: not-allowed; }
+.biblioteca__nombre { grid-area: nombre; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.biblioteca__nombre .tenue { font-size: var(--fs-1); }
+.biblioteca__desc { grid-area: desc; font-size: var(--fs-1); color: var(--text-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.biblioteca__mas { grid-area: mas; color: var(--gold); }
+@media (max-width: 640px) {
+  .biblioteca__cuerpo { grid-template-columns: minmax(0, 1fr); height: 60vh; }
+  .biblioteca__categorias { flex-direction: row; border-right: 0; border-bottom: 1px solid var(--line); padding: 0 0 8px; overflow-x: auto; }
+  .biblioteca__categorias button { white-space: nowrap; }
+}
+
+.ajustes-ind { display: flex; flex-direction: column; gap: 14px; max-height: 62vh; overflow-y: auto; padding-right: 4px; }
+.ajustes-ind__grupo { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.ajustes-ind__grupo legend { font-size: var(--fs-1); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); margin-bottom: 6px; }
+.ajustes-ind__fila { display: grid; grid-template-columns: minmax(0, 1fr) 170px; align-items: center; gap: 12px; }
+.ajustes-ind__fila:has(.casilla) { grid-template-columns: 1fr; }
+.ajustes-ind__fila label { color: var(--text-2); }
+.ajustes-ind__licencia { margin: 0; }
+.espaciador { flex: 1; }

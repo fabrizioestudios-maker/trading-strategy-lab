@@ -12,7 +12,7 @@ const MODULOS: Record<Modulo, LazyExoticComponent<ComponentType<{ params: Record
   resumen: lazy(() => import('../modules/Resumen')),
   replay: lazy(() => import('../modules/replay/Replay')),
   laboratorio: lazy(() => import('../modules/Laboratorio')),
-  herramientas: lazy(() => import('../modules/Herramientas')),
+  indicadores: lazy(() => import('../modules/Indicadores')),
   ejecucion: lazy(() => import('../modules/Ejecucion')),
   analitica: lazy(() => import('../modules/Analitica')),
   datos: lazy(() => import('../modules/CentroDatos')),

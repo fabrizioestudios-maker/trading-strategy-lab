@@ -4,8 +4,10 @@
  */
 import type {
   CalculoRiesgo,
-  CapasReplay,
   CuentaSimulada,
+  DefinicionIndicador,
+  PedidoIndicadores,
+  RespuestaIndicadores,
   FichaMercado,
   HorarioMercado,
   PedidoCuenta,
@@ -146,8 +148,6 @@ export const api = {
   replayInicio: (simbolo: string, s?: AbortSignal) => pedir<Paso>(`/replay/inicio${q({ simbolo })}`, { signal: s }, 120_000),
   cuadro: (simbolo: string, tf: number, limite_ms: number, cantidad: number, s?: AbortSignal) =>
     pedir<CuadroReplay>(`/replay/cuadro${q({ simbolo, tf, limite_ms, cantidad })}`, { signal: s }, 120_000),
-  capas: (simbolo: string, tf: number, limite_ms: number, cantidad: number, s?: AbortSignal) =>
-    pedir<CapasReplay>(`/replay/capas${q({ simbolo, tf, limite_ms, cantidad })}`, { signal: s }, 60_000),
   paso: (simbolo: string, tf: number, limite_ms: number, n: number, unidad: 'velas' | 'minutos' = 'velas', s?: AbortSignal) =>
     pedir<Paso>(`/replay/paso${q({ simbolo, tf, limite_ms, n, unidad })}`, { signal: s }),
   fecha: (simbolo: string, fecha_ny: string, s?: AbortSignal) => pedir<Paso>(`/replay/fecha${q({ simbolo, fecha_ny })}`, { signal: s }),
@@ -160,5 +160,7 @@ export const api = {
   trabajo: (id: string, s?: AbortSignal) => pedir<Trabajo>(`/trabajos/${encodeURIComponent(id)}`, { signal: s }),
   enviar: (cfg: ConfigCorrida_Input) => pedir<Trabajo>('/trabajos', post(cfg)),
   cancelar: (id: string) => pedir<Trabajo>(`/trabajos/${encodeURIComponent(id)}/cancelar`, { method: 'POST' }),
+  catalogoIndicadores: (s?: AbortSignal) => pedir<DefinicionIndicador[]>('/indicadores/catalogo', { signal: s }),
+  indicadores: (p: PedidoIndicadores, s?: AbortSignal) => pedir<RespuestaIndicadores>('/indicadores/calcular', post(p, s), 60_000),
   riesgo: (p: PedidoRiesgo, s?: AbortSignal) => pedir<CalculoRiesgo>('/riesgo', post(p, s)),
 };

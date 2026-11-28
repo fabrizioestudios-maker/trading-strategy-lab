@@ -1,38 +1,94 @@
 {
  "components": {
   "schemas": {
-   "Barrido": {
+   "CajaIndicador": {
     "additionalProperties": false,
     "properties": {
-     "lado": {
-      "enum": [
-       "arriba",
-       "abajo"
-      ],
-      "title": "Lado",
-      "type": "string"
-     },
-     "nivel": {
-      "title": "Nivel",
+     "abajo": {
+      "title": "Abajo",
       "type": "number"
      },
-     "pivote_t": {
-      "title": "Pivote T",
+     "arriba": {
+      "title": "Arriba",
+      "type": "number"
+     },
+     "borde": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Borde"
+     },
+     "color": {
+      "title": "Color",
+      "type": "string"
+     },
+     "color_texto": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Color Texto"
+     },
+     "posicion": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Posicion"
+     },
+     "t0": {
+      "title": "T0",
       "type": "integer"
      },
-     "t": {
-      "description": "Apertura de la vela que barrió el pivote y cerró de vuelta",
-      "title": "T",
-      "type": "integer"
+     "t1": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "None: llega hasta la última vela",
+      "title": "T1"
+     },
+     "texto": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Texto"
      }
     },
     "required": [
-     "t",
-     "lado",
-     "nivel",
-     "pivote_t"
+     "t0",
+     "t1",
+     "arriba",
+     "abajo",
+     "color",
+     "borde",
+     "texto",
+     "posicion",
+     "color_texto"
     ],
-    "title": "Barrido",
+    "title": "CajaIndicador",
     "type": "object"
    },
    "CalculoRiesgo": {
@@ -130,122 +186,6 @@
      "avisos"
     ],
     "title": "CalculoRiesgo",
-    "type": "object"
-   },
-   "CapasReplay": {
-    "additionalProperties": false,
-    "properties": {
-     "barridos": {
-      "items": {
-       "$ref": "#/components/schemas/Barrido"
-      },
-      "title": "Barridos",
-      "type": "array"
-     },
-     "bpr": {
-      "items": {
-       "$ref": "#/components/schemas/ZonaBPR"
-      },
-      "title": "Bpr",
-      "type": "array"
-     },
-     "contrato": {
-      "default": "nexus.v1",
-      "title": "Contrato",
-      "type": "string"
-     },
-     "definiciones": {
-      "items": {
-       "type": "string"
-      },
-      "title": "Definiciones",
-      "type": "array"
-     },
-     "estado_estructura": {
-      "description": "+1 alcista, -1 bajista, 0 sin rupturas en la ventana",
-      "title": "Estado Estructura",
-      "type": "integer"
-     },
-     "fvg": {
-      "items": {
-       "$ref": "#/components/schemas/ZonaFVG"
-      },
-      "title": "Fvg",
-      "type": "array"
-     },
-     "ifvg": {
-      "items": {
-       "$ref": "#/components/schemas/ZonaIFVG"
-      },
-      "title": "Ifvg",
-      "type": "array"
-     },
-     "limite_ms": {
-      "title": "Limite Ms",
-      "type": "integer"
-     },
-     "nota": {
-      "title": "Nota",
-      "type": "string"
-     },
-     "order_blocks": {
-      "items": {
-       "$ref": "#/components/schemas/OrderBlock"
-      },
-      "title": "Order Blocks",
-      "type": "array"
-     },
-     "pivotes": {
-      "items": {
-       "$ref": "#/components/schemas/Pivote"
-      },
-      "title": "Pivotes",
-      "type": "array"
-     },
-     "rango": {
-      "anyOf": [
-       {
-        "$ref": "#/components/schemas/RangoOperativo"
-       },
-       {
-        "type": "null"
-       }
-      ]
-     },
-     "rupturas": {
-      "items": {
-       "$ref": "#/components/schemas/Ruptura"
-      },
-      "title": "Rupturas",
-      "type": "array"
-     },
-     "simbolo": {
-      "title": "Simbolo",
-      "type": "string"
-     },
-     "temporalidad": {
-      "title": "Temporalidad",
-      "type": "integer"
-     }
-    },
-    "required": [
-     "contrato",
-     "simbolo",
-     "temporalidad",
-     "limite_ms",
-     "pivotes",
-     "rupturas",
-     "estado_estructura",
-     "fvg",
-     "barridos",
-     "order_blocks",
-     "ifvg",
-     "bpr",
-     "rango",
-     "definiciones",
-     "nota"
-    ],
-    "title": "CapasReplay",
     "type": "object"
    },
    "ChequeoCalidad": {
@@ -823,6 +763,84 @@
     "title": "DefinicionEstado",
     "type": "object"
    },
+   "DefinicionIndicador": {
+    "additionalProperties": false,
+    "properties": {
+     "autor": {
+      "title": "Autor",
+      "type": "string"
+     },
+     "categoria": {
+      "title": "Categoria",
+      "type": "string"
+     },
+     "corto": {
+      "title": "Corto",
+      "type": "string"
+     },
+     "descripcion": {
+      "title": "Descripcion",
+      "type": "string"
+     },
+     "fuente": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Fuente"
+     },
+     "id": {
+      "title": "Id",
+      "type": "string"
+     },
+     "licencia": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Licencia de terceros (p. ej. CC BY-NC-SA 4.0 de LuxAlgo)",
+      "title": "Licencia"
+     },
+     "nombre": {
+      "title": "Nombre",
+      "type": "string"
+     },
+     "parametros": {
+      "items": {
+       "$ref": "#/components/schemas/ParametroIndicador"
+      },
+      "title": "Parametros",
+      "type": "array"
+     },
+     "superpuesto": {
+      "description": "True: se dibuja sobre el precio; False: en un panel propio",
+      "title": "Superpuesto",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "id",
+     "nombre",
+     "corto",
+     "categoria",
+     "superpuesto",
+     "descripcion",
+     "autor",
+     "licencia",
+     "fuente",
+     "parametros"
+    ],
+    "title": "DefinicionIndicador",
+    "type": "object"
+   },
    "DefinicionSesion": {
     "additionalProperties": false,
     "properties": {
@@ -1075,6 +1093,40 @@
      "ejecutable"
     ],
     "title": "Estrategia",
+    "type": "object"
+   },
+   "EtiquetaIndicador": {
+    "additionalProperties": false,
+    "properties": {
+     "color": {
+      "title": "Color",
+      "type": "string"
+     },
+     "posicion": {
+      "title": "Posicion",
+      "type": "string"
+     },
+     "precio": {
+      "title": "Precio",
+      "type": "number"
+     },
+     "t": {
+      "title": "T",
+      "type": "integer"
+     },
+     "texto": {
+      "title": "Texto",
+      "type": "string"
+     }
+    },
+    "required": [
+     "t",
+     "precio",
+     "texto",
+     "color",
+     "posicion"
+    ],
+    "title": "EtiquetaIndicador",
     "type": "object"
    },
    "Evento": {
@@ -1545,6 +1597,57 @@
     "title": "Hipotesis",
     "type": "object"
    },
+   "HistogramaIndicador": {
+    "additionalProperties": false,
+    "properties": {
+     "colores": {
+      "anyOf": [
+       {
+        "items": {
+         "anyOf": [
+          {
+           "type": "string"
+          },
+          {
+           "type": "null"
+          }
+         ]
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Colores"
+     },
+     "nombre": {
+      "title": "Nombre",
+      "type": "string"
+     },
+     "valores": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "title": "Valores",
+      "type": "array"
+     }
+    },
+    "required": [
+     "nombre",
+     "valores",
+     "colores"
+    ],
+    "title": "HistogramaIndicador",
+    "type": "object"
+   },
    "HorarioMercado": {
     "additionalProperties": false,
     "properties": {
@@ -1892,6 +1995,56 @@
     "title": "LimiteReplay",
     "type": "object"
    },
+   "LineaIndicador": {
+    "additionalProperties": false,
+    "properties": {
+     "ancho": {
+      "title": "Ancho",
+      "type": "integer"
+     },
+     "color": {
+      "title": "Color",
+      "type": "string"
+     },
+     "estilo": {
+      "enum": [
+       "solida",
+       "guiones",
+       "puntos"
+      ],
+      "title": "Estilo",
+      "type": "string"
+     },
+     "nombre": {
+      "title": "Nombre",
+      "type": "string"
+     },
+     "valores": {
+      "description": "Uno por vela visible (None sin valor)",
+      "items": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "title": "Valores",
+      "type": "array"
+     }
+    },
+    "required": [
+     "nombre",
+     "color",
+     "ancho",
+     "estilo",
+     "valores"
+    ],
+    "title": "LineaIndicador",
+    "type": "object"
+   },
    "Metrica": {
     "additionalProperties": false,
     "properties": {
@@ -2031,6 +2184,25 @@
      "nota"
     ],
     "title": "Nivel",
+    "type": "object"
+   },
+   "NivelIndicador": {
+    "additionalProperties": false,
+    "properties": {
+     "color": {
+      "title": "Color",
+      "type": "string"
+     },
+     "valor": {
+      "title": "Valor",
+      "type": "number"
+     }
+    },
+    "required": [
+     "valor",
+     "color"
+    ],
+    "title": "NivelIndicador",
     "type": "object"
    },
    "Operacion": {
@@ -2187,63 +2359,6 @@
     "title": "OrdenSimuladaEntrada",
     "type": "object"
    },
-   "OrderBlock": {
-    "additionalProperties": false,
-    "properties": {
-     "abajo": {
-      "title": "Abajo",
-      "type": "number"
-     },
-     "arriba": {
-      "title": "Arriba",
-      "type": "number"
-     },
-     "conocido_ms": {
-      "description": "Cierre de la vela de la ruptura que lo define",
-      "title": "Conocido Ms",
-      "type": "integer"
-     },
-     "lado": {
-      "enum": [
-       "alcista",
-       "bajista"
-      ],
-      "title": "Lado",
-      "type": "string"
-     },
-     "mitigado_ms": {
-      "anyOf": [
-       {
-        "type": "integer"
-       },
-       {
-        "type": "null"
-       }
-      ],
-      "title": "Mitigado Ms"
-     },
-     "ruptura_t": {
-      "title": "Ruptura T",
-      "type": "integer"
-     },
-     "t": {
-      "description": "Apertura de la vela del order block",
-      "title": "T",
-      "type": "integer"
-     }
-    },
-    "required": [
-     "t",
-     "lado",
-     "arriba",
-     "abajo",
-     "ruptura_t",
-     "conocido_ms",
-     "mitigado_ms"
-    ],
-    "title": "OrderBlock",
-    "type": "object"
-   },
    "PanelDecision": {
     "additionalProperties": false,
     "properties": {
@@ -2394,6 +2509,130 @@
     "title": "Parametro",
     "type": "object"
    },
+   "ParametroIndicador": {
+    "additionalProperties": false,
+    "properties": {
+     "ayuda": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ayuda"
+     },
+     "defecto": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "integer"
+       },
+       {
+        "type": "number"
+       },
+       {
+        "type": "string"
+       }
+      ],
+      "title": "Defecto"
+     },
+     "grupo": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Sección de la ventana de ajustes",
+      "title": "Grupo"
+     },
+     "id": {
+      "title": "Id",
+      "type": "string"
+     },
+     "maximo": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Maximo"
+     },
+     "minimo": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Minimo"
+     },
+     "nombre": {
+      "title": "Nombre",
+      "type": "string"
+     },
+     "opciones": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Opciones"
+     },
+     "paso": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Paso"
+     },
+     "tipo": {
+      "enum": [
+       "entero",
+       "decimal",
+       "booleano",
+       "opcion"
+      ],
+      "title": "Tipo",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "nombre",
+     "tipo",
+     "defecto",
+     "minimo",
+     "maximo",
+     "paso",
+     "opciones",
+     "grupo",
+     "ayuda"
+    ],
+    "title": "ParametroIndicador",
+    "type": "object"
+   },
    "Paso": {
     "additionalProperties": false,
     "properties": {
@@ -2457,6 +2696,83 @@
      "ordenes"
     ],
     "title": "PedidoCuenta",
+    "type": "object"
+   },
+   "PedidoIndicador": {
+    "additionalProperties": false,
+    "properties": {
+     "id": {
+      "title": "Id",
+      "type": "string"
+     },
+     "instancia": {
+      "description": "Identificador de esta copia del indicador en el gráfico",
+      "title": "Instancia",
+      "type": "string"
+     },
+     "parametros": {
+      "additionalProperties": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "integer"
+        },
+        {
+         "type": "number"
+        },
+        {
+         "type": "string"
+        }
+       ]
+      },
+      "title": "Parametros",
+      "type": "object"
+     }
+    },
+    "required": [
+     "instancia",
+     "id"
+    ],
+    "title": "PedidoIndicador",
+    "type": "object"
+   },
+   "PedidoIndicadores": {
+    "additionalProperties": false,
+    "properties": {
+     "cantidad": {
+      "default": 300,
+      "title": "Cantidad",
+      "type": "integer"
+     },
+     "indicadores": {
+      "items": {
+       "$ref": "#/components/schemas/PedidoIndicador"
+      },
+      "title": "Indicadores",
+      "type": "array"
+     },
+     "limite_ms": {
+      "title": "Limite Ms",
+      "type": "integer"
+     },
+     "simbolo": {
+      "default": "XAUUSD",
+      "title": "Simbolo",
+      "type": "string"
+     },
+     "tf": {
+      "default": 15,
+      "title": "Tf",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "limite_ms",
+     "indicadores"
+    ],
+    "title": "PedidoIndicadores",
     "type": "object"
    },
    "PedidoOrdenes": {
@@ -2631,41 +2947,6 @@
     "title": "PerfilCostos",
     "type": "object"
    },
-   "Pivote": {
-    "additionalProperties": false,
-    "properties": {
-     "confirmado_ms": {
-      "description": "Cierre de la vela que lo confirma (ya revelado)",
-      "title": "Confirmado Ms",
-      "type": "integer"
-     },
-     "precio": {
-      "title": "Precio",
-      "type": "number"
-     },
-     "t": {
-      "description": "Apertura de la vela del pivote",
-      "title": "T",
-      "type": "integer"
-     },
-     "tipo": {
-      "enum": [
-       "alto",
-       "bajo"
-      ],
-      "title": "Tipo",
-      "type": "string"
-     }
-    },
-    "required": [
-     "t",
-     "tipo",
-     "precio",
-     "confirmado_ms"
-    ],
-    "title": "Pivote",
-    "type": "object"
-   },
    "PliegueAnual": {
     "additionalProperties": false,
     "properties": {
@@ -2714,93 +2995,6 @@
      "muestra"
     ],
     "title": "PliegueAnual",
-    "type": "object"
-   },
-   "RangoOperativo": {
-    "additionalProperties": false,
-    "properties": {
-     "alto": {
-      "title": "Alto",
-      "type": "number"
-     },
-     "alto_t": {
-      "title": "Alto T",
-      "type": "integer"
-     },
-     "bajo": {
-      "title": "Bajo",
-      "type": "number"
-     },
-     "bajo_t": {
-      "title": "Bajo T",
-      "type": "integer"
-     },
-     "equilibrio": {
-      "description": "Mitad del rango: arriba es premium, abajo discount",
-      "title": "Equilibrio",
-      "type": "number"
-     },
-     "ote_abajo": {
-      "anyOf": [
-       {
-        "type": "number"
-       },
-       {
-        "type": "null"
-       }
-      ],
-      "description": "Retroceso de 62–79 % a favor de la estructura (None sin rupturas)",
-      "title": "Ote Abajo"
-     },
-     "ote_arriba": {
-      "anyOf": [
-       {
-        "type": "number"
-       },
-       {
-        "type": "null"
-       }
-      ],
-      "title": "Ote Arriba"
-     },
-     "sentido": {
-      "anyOf": [
-       {
-        "enum": [
-         "alcista",
-         "bajista"
-        ],
-        "type": "string"
-       },
-       {
-        "type": "null"
-       }
-      ],
-      "title": "Sentido"
-     },
-     "zona_precio": {
-      "description": "Dónde está el último cierre revelado",
-      "enum": [
-       "premium",
-       "discount",
-       "equilibrio"
-      ],
-      "title": "Zona Precio",
-      "type": "string"
-     }
-    },
-    "required": [
-     "alto",
-     "alto_t",
-     "bajo",
-     "bajo_t",
-     "equilibrio",
-     "ote_abajo",
-     "ote_arriba",
-     "sentido",
-     "zona_precio"
-    ],
-    "title": "RangoOperativo",
     "type": "object"
    },
    "Referencias": {
@@ -2871,6 +3065,53 @@
      "estados_trabajo"
     ],
     "title": "Referencias",
+    "type": "object"
+   },
+   "RespuestaIndicadores": {
+    "additionalProperties": false,
+    "properties": {
+     "contrato": {
+      "default": "nexus.v1",
+      "title": "Contrato",
+      "type": "string"
+     },
+     "limite_ms": {
+      "title": "Limite Ms",
+      "type": "integer"
+     },
+     "resultados": {
+      "items": {
+       "$ref": "#/components/schemas/ResultadoIndicador"
+      },
+      "title": "Resultados",
+      "type": "array"
+     },
+     "simbolo": {
+      "title": "Simbolo",
+      "type": "string"
+     },
+     "temporalidad": {
+      "title": "Temporalidad",
+      "type": "integer"
+     },
+     "tiempos": {
+      "description": "Apertura de cada vela visible (ms UTC), la misma que devuelve el cuadro",
+      "items": {
+       "type": "integer"
+      },
+      "title": "Tiempos",
+      "type": "array"
+     }
+    },
+    "required": [
+     "contrato",
+     "simbolo",
+     "temporalidad",
+     "limite_ms",
+     "tiempos",
+     "resultados"
+    ],
+    "title": "RespuestaIndicadores",
     "type": "object"
    },
    "ResultadoCorrida": {
@@ -2951,6 +3192,154 @@
      "robustez"
     ],
     "title": "ResultadoCorrida",
+    "type": "object"
+   },
+   "ResultadoIndicador": {
+    "additionalProperties": false,
+    "properties": {
+     "cajas": {
+      "items": {
+       "$ref": "#/components/schemas/CajaIndicador"
+      },
+      "title": "Cajas",
+      "type": "array"
+     },
+     "colores_velas": {
+      "anyOf": [
+       {
+        "items": {
+         "anyOf": [
+          {
+           "type": "string"
+          },
+          {
+           "type": "null"
+          }
+         ]
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Colores Velas"
+     },
+     "etiquetas": {
+      "items": {
+       "$ref": "#/components/schemas/EtiquetaIndicador"
+      },
+      "title": "Etiquetas",
+      "type": "array"
+     },
+     "histogramas": {
+      "items": {
+       "$ref": "#/components/schemas/HistogramaIndicador"
+      },
+      "title": "Histogramas",
+      "type": "array"
+     },
+     "id": {
+      "title": "Id",
+      "type": "string"
+     },
+     "instancia": {
+      "title": "Instancia",
+      "type": "string"
+     },
+     "licencia": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Licencia"
+     },
+     "lineas": {
+      "items": {
+       "$ref": "#/components/schemas/LineaIndicador"
+      },
+      "title": "Lineas",
+      "type": "array"
+     },
+     "niveles": {
+      "items": {
+       "$ref": "#/components/schemas/NivelIndicador"
+      },
+      "title": "Niveles",
+      "type": "array"
+     },
+     "nombre": {
+      "title": "Nombre",
+      "type": "string"
+     },
+     "parametros": {
+      "additionalProperties": {
+       "anyOf": [
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "integer"
+        },
+        {
+         "type": "number"
+        },
+        {
+         "type": "string"
+        }
+       ]
+      },
+      "title": "Parametros",
+      "type": "object"
+     },
+     "rango": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "number"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Escala fija del panel (p. ej. 0–100)",
+      "title": "Rango"
+     },
+     "segmentos": {
+      "items": {
+       "$ref": "#/components/schemas/SegmentoIndicador"
+      },
+      "title": "Segmentos",
+      "type": "array"
+     },
+     "superpuesto": {
+      "title": "Superpuesto",
+      "type": "boolean"
+     }
+    },
+    "required": [
+     "instancia",
+     "id",
+     "nombre",
+     "superpuesto",
+     "parametros",
+     "rango",
+     "licencia",
+     "lineas",
+     "histogramas",
+     "niveles",
+     "cajas",
+     "segmentos",
+     "etiquetas",
+     "colores_velas"
+    ],
+    "title": "ResultadoIndicador",
     "type": "object"
    },
    "ResultadoOrden": {
@@ -3137,49 +3526,6 @@
     "title": "Robustez",
     "type": "object"
    },
-   "Ruptura": {
-    "additionalProperties": false,
-    "properties": {
-     "lado": {
-      "enum": [
-       "alcista",
-       "bajista"
-      ],
-      "title": "Lado",
-      "type": "string"
-     },
-     "nivel": {
-      "title": "Nivel",
-      "type": "number"
-     },
-     "pivote_t": {
-      "title": "Pivote T",
-      "type": "integer"
-     },
-     "t": {
-      "description": "Apertura de la vela cuyo cierre rompió el pivote",
-      "title": "T",
-      "type": "integer"
-     },
-     "tipo": {
-      "enum": [
-       "BOS",
-       "CHOCH"
-      ],
-      "title": "Tipo",
-      "type": "string"
-     }
-    },
-    "required": [
-     "t",
-     "tipo",
-     "lado",
-     "nivel",
-     "pivote_t"
-    ],
-    "title": "Ruptura",
-    "type": "object"
-   },
    "Salud": {
     "additionalProperties": false,
     "properties": {
@@ -3214,6 +3560,98 @@
      "hora_servidor_ms"
     ],
     "title": "Salud",
+    "type": "object"
+   },
+   "SegmentoIndicador": {
+    "additionalProperties": false,
+    "properties": {
+     "color": {
+      "title": "Color",
+      "type": "string"
+     },
+     "estilo": {
+      "enum": [
+       "solida",
+       "guiones",
+       "puntos"
+      ],
+      "title": "Estilo",
+      "type": "string"
+     },
+     "p0": {
+      "title": "P0",
+      "type": "number"
+     },
+     "p1": {
+      "title": "P1",
+      "type": "number"
+     },
+     "posicion": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Posicion"
+     },
+     "t0": {
+      "title": "T0",
+      "type": "integer"
+     },
+     "t1": {
+      "title": "T1",
+      "type": "integer"
+     },
+     "t_texto": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "T Texto"
+     },
+     "tamano": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Tamano"
+     },
+     "texto": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Texto"
+     }
+    },
+    "required": [
+     "t0",
+     "p0",
+     "t1",
+     "p1",
+     "color",
+     "estilo",
+     "texto",
+     "t_texto",
+     "posicion",
+     "tamano"
+    ],
+    "title": "SegmentoIndicador",
     "type": "object"
    },
    "SesionDia": {
@@ -3541,173 +3979,6 @@
     ],
     "title": "VentanaSesion",
     "type": "object"
-   },
-   "ZonaBPR": {
-    "additionalProperties": false,
-    "properties": {
-     "abajo": {
-      "title": "Abajo",
-      "type": "number"
-     },
-     "arriba": {
-      "title": "Arriba",
-      "type": "number"
-     },
-     "conocido_ms": {
-      "title": "Conocido Ms",
-      "type": "integer"
-     },
-     "fvg_previo_t": {
-      "title": "Fvg Previo T",
-      "type": "integer"
-     },
-     "invalidado_ms": {
-      "anyOf": [
-       {
-        "type": "integer"
-       },
-       {
-        "type": "null"
-       }
-      ],
-      "title": "Invalidado Ms"
-     },
-     "lado": {
-      "enum": [
-       "alcista",
-       "bajista"
-      ],
-      "title": "Lado",
-      "type": "string"
-     },
-     "t": {
-      "description": "El FVG más nuevo de los dos (apertura de su tercera vela)",
-      "title": "T",
-      "type": "integer"
-     }
-    },
-    "required": [
-     "t",
-     "lado",
-     "arriba",
-     "abajo",
-     "fvg_previo_t",
-     "conocido_ms",
-     "invalidado_ms"
-    ],
-    "title": "ZonaBPR",
-    "type": "object"
-   },
-   "ZonaFVG": {
-    "additionalProperties": false,
-    "properties": {
-     "abajo": {
-      "title": "Abajo",
-      "type": "number"
-     },
-     "arriba": {
-      "title": "Arriba",
-      "type": "number"
-     },
-     "conocido_ms": {
-      "title": "Conocido Ms",
-      "type": "integer"
-     },
-     "lado": {
-      "enum": [
-       "alcista",
-       "bajista"
-      ],
-      "title": "Lado",
-      "type": "string"
-     },
-     "mitigada_ms": {
-      "anyOf": [
-       {
-        "type": "integer"
-       },
-       {
-        "type": "null"
-       }
-      ],
-      "description": "Cierre de la vela que volvió a tocar el hueco (None: sin mitigar al límite)",
-      "title": "Mitigada Ms"
-     },
-     "t": {
-      "description": "Apertura de la tercera vela del patrón",
-      "title": "T",
-      "type": "integer"
-     }
-    },
-    "required": [
-     "t",
-     "lado",
-     "arriba",
-     "abajo",
-     "conocido_ms",
-     "mitigada_ms"
-    ],
-    "title": "ZonaFVG",
-    "type": "object"
-   },
-   "ZonaIFVG": {
-    "additionalProperties": false,
-    "properties": {
-     "abajo": {
-      "title": "Abajo",
-      "type": "number"
-     },
-     "arriba": {
-      "title": "Arriba",
-      "type": "number"
-     },
-     "conocido_ms": {
-      "title": "Conocido Ms",
-      "type": "integer"
-     },
-     "fvg_t": {
-      "description": "El FVG original (apertura de su tercera vela)",
-      "title": "Fvg T",
-      "type": "integer"
-     },
-     "invalidado_ms": {
-      "anyOf": [
-       {
-        "type": "integer"
-       },
-       {
-        "type": "null"
-       }
-      ],
-      "description": "Cierre de la vela que lo atravesó de vuelta (None: vigente al límite)",
-      "title": "Invalidado Ms"
-     },
-     "lado": {
-      "description": "Lado desde el que se lee después de la inversión",
-      "enum": [
-       "alcista",
-       "bajista"
-      ],
-      "title": "Lado",
-      "type": "string"
-     },
-     "t": {
-      "description": "Apertura de la vela que atravesó el FVG por cierre",
-      "title": "T",
-      "type": "integer"
-     }
-    },
-    "required": [
-     "t",
-     "lado",
-     "arriba",
-     "abajo",
-     "fvg_t",
-     "conocido_ms",
-     "invalidado_ms"
-    ],
-    "title": "ZonaIFVG",
-    "type": "object"
    }
   }
  },
@@ -3799,6 +4070,68 @@
      }
     },
     "summary": "Hipotesis"
+   }
+  },
+  "/api/v1/indicadores/calcular": {
+   "post": {
+    "description": "Calcula los indicadores pedidos solo con velas hasta el límite; las series vienen alineadas con las velas visibles.",
+    "operationId": "calcular_indicadores_api_v1_indicadores_calcular_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PedidoIndicadores"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RespuestaIndicadores"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Calcular Indicadores"
+   }
+  },
+  "/api/v1/indicadores/catalogo": {
+   "get": {
+    "description": "Biblioteca de indicadores del gráfico: clásicos y Smart Money Concepts [LuxAlgo] (licencia no comercial).",
+    "operationId": "catalogo_indicadores_api_v1_indicadores_catalogo_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "items": {
+          "$ref": "#/components/schemas/DefinicionIndicador"
+         },
+         "title": "Response Catalogo Indicadores Api V1 Indicadores Catalogo Get",
+         "type": "array"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Catalogo Indicadores"
    }
   },
   "/api/v1/instrumentos": {
@@ -3945,76 +4278,6 @@
      }
     },
     "summary": "Refs"
-   }
-  },
-  "/api/v1/replay/capas": {
-   "get": {
-    "description": "Estructura (pivotes, BOS, CHOCH) y FVG con velas cerradas hasta el límite. Descriptivo, no evidencia de ventaja.",
-    "operationId": "replay_capas_api_v1_replay_capas_get",
-    "parameters": [
-     {
-      "in": "query",
-      "name": "simbolo",
-      "required": false,
-      "schema": {
-       "default": "XAUUSD",
-       "title": "Simbolo",
-       "type": "string"
-      }
-     },
-     {
-      "in": "query",
-      "name": "tf",
-      "required": false,
-      "schema": {
-       "default": 15,
-       "title": "Tf",
-       "type": "integer"
-      }
-     },
-     {
-      "in": "query",
-      "name": "limite_ms",
-      "required": true,
-      "schema": {
-       "title": "Limite Ms",
-       "type": "integer"
-      }
-     },
-     {
-      "in": "query",
-      "name": "cantidad",
-      "required": false,
-      "schema": {
-       "default": 300,
-       "title": "Cantidad",
-       "type": "integer"
-      }
-     }
-    ],
-    "responses": {
-     "200": {
-      "content": {
-       "application/json": {
-        "schema": {
-         "$ref": "#/components/schemas/CapasReplay"
-        }
-       }
-      },
-      "description": "Successful Response"
-     },
-     "422": {
-      "content": {
-       "application/json": {
-        "schema": {
-         "$ref": "#/components/schemas/HTTPValidationError"
-        }
-       }
-      },
-      "description": "Validation Error"
-     }
-    },
-    "summary": "Replay Capas"
    }
   },
   "/api/v1/replay/cuadro": {

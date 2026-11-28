@@ -17,7 +17,11 @@ import {
   type SeriesMarker,
   type Time,
   type UTCTimestamp,
+  type WhitespaceData,
 } from 'lightweight-charts';
+import type { ReactNode } from 'react';
+import type { ResultadoIndicador } from '../api/contrato.gen';
+import { PrimitivaIndicadores } from './primitivaIndicadores';
 import { useEffect, useRef, useState } from 'react';
 import type { Vela, VentanaSesion } from '../api/contrato.gen';
 import { fechaHora, hora, partes, precio, type Zona } from '../lib/formato';
@@ -32,7 +36,7 @@ export interface LineaPrecio {
 
 export interface Marca {
   t: number;
-  tipo: 'compra' | 'venta' | 'salida' | 'entrada' | 'pivoteAlto' | 'pivoteBajo' | 'ruptura' | 'barrido';
+  tipo: 'compra' | 'venta' | 'salida' | 'entrada';
   texto: string;
   arriba?: boolean;
 }
@@ -77,6 +81,8 @@ export function GraficoVelas({
   etiqueta,
   ejeTiempo = true,
   onRango,
+  superpuestos = [],
+  children,
 }: {
   velas: Vela[];
   tf: number;
@@ -93,6 +99,10 @@ export function GraficoVelas({
   ejeTiempo?: boolean;
   /** Rango lógico visible, para sincronizar los paneles de indicadores */
   onRango?: (r: { from: number; to: number } | null) => void;
+  /** Indicadores que se dibujan sobre el precio (líneas, cajas, segmentos, etiquetas, color de velas) */
+  superpuestos?: ResultadoIndicador[];
+  /** Controles encima del gráfico (leyenda de indicadores) */
+  children?: ReactNode;
 }) {
   const caja = useRef<HTMLDivElement>(null);
   const grafico = useRef<IChartApi | null>(null);
@@ -107,6 +117,8 @@ export function GraficoVelas({
   sesionesRef.current = sesiones;
   const [geo, setGeo] = useState<Geometria>({ limiteX: null, anchoTrazado: 0, altoTrazado: 0, sesiones: [] });
   const [leyenda, setLeyenda] = useState<Vela | null>(null);
+  const primitiva = useRef(new PrimitivaIndicadores());
+  const seriesInd = useRef(new Map<string, { firma: string; series: ISeriesApi<'Line' | 'Histogram'>[] }>());
 
   // ---------------------------------------------------------------- creación
   useEffect(() => {
@@ -139,6 +151,7 @@ export function GraficoVelas({
     });
     grafico.current = g;
     serie.current = s;
+    s.attachPrimitive(primitiva.current);
 
     let vivo = true;
     const recalcular = () => {
@@ -198,6 +211,7 @@ export function GraficoVelas({
       grafico.current = null;
       serie.current = null;
       lineasRef.current.clear();
+      seriesInd.current.clear();
     };
   }, []);
 
@@ -232,10 +246,12 @@ export function GraficoVelas({
     const ts = g.timeScale();
     const pegadoALaDerecha = ts.scrollPosition() > 2;
     const cambioTf = estadoRef.current.tf !== tf;
+    const colores = superpuestos.find((r) => r.colores_velas && r.colores_velas.length === velas.length)?.colores_velas ?? null;
     s.setData(
-      velas.map((v) => {
+      velas.map((v, i) => {
         const base = { time: (v.t / 1000) as UTCTimestamp, open: v.o, high: v.h, low: v.l, close: v.c };
-        if (!v.parcial) return base;
+        const cv = colores?.[i];
+        if (!v.parcial) return cv ? { ...base, color: cv, borderColor: cv, wickColor: cv } : base;
         const c = v.c >= v.o ? pos : neg;
         return { ...base, color: conAlfa(c, 0.35), borderColor: conAlfa(c, 0.75), wickColor: conAlfa(c, 0.75) };
       }),
@@ -248,7 +264,59 @@ export function GraficoVelas({
     }
     estadoRef.current = { tf, n: velas.length };
     (g as unknown as { __recalcular: () => void }).__recalcular?.();
-  }, [velas, tf]);
+  }, [velas, tf, superpuestos]);
+
+  // ---------------------------------------------------------------- indicadores superpuestos
+  useEffect(() => {
+    const g = grafico.current;
+    if (!g) return;
+    const tiempo = (i: number) => (velas[i].t / 1000) as UTCTimestamp;
+    const vivos = new Set<string>();
+    for (const r of superpuestos) {
+      if (r.lineas.length + r.histogramas.length === 0) continue;
+      const alineado = r.lineas.every((l) => l.valores.length === velas.length);
+      if (!alineado) continue;
+      vivos.add(r.instancia);
+      const firma = [...r.lineas.map((l) => `${l.nombre}|${l.color}|${l.estilo}|${l.ancho}`), ...r.histogramas.map((h) => `h:${h.nombre}`)].join(';');
+      let ent = seriesInd.current.get(r.instancia);
+      if (!ent || ent.firma !== firma) {
+        ent?.series.forEach((x) => g.removeSeries(x));
+        const nuevas: ISeriesApi<'Line' | 'Histogram'>[] = [];
+        for (let k = 0; k < r.histogramas.length; k++) nuevas.push(g.addHistogramSeries({ priceLineVisible: false, lastValueVisible: false, title: '' }) as ISeriesApi<'Histogram'>);
+        for (const l of r.lineas)
+          nuevas.push(
+            g.addLineSeries({
+              color: l.color,
+              lineWidth: Math.max(1, Math.min(4, l.ancho)) as 1 | 2 | 3 | 4,
+              lineStyle: l.estilo === 'guiones' ? LineStyle.Dashed : LineStyle.Solid,
+              lineVisible: l.estilo !== 'puntos',
+              pointMarkersVisible: l.estilo === 'puntos',
+              pointMarkersRadius: 1.5,
+              priceLineVisible: false,
+              lastValueVisible: true,
+              crosshairMarkerVisible: false,
+            }) as ISeriesApi<'Line'>,
+          );
+        ent = { firma, series: nuevas };
+        seriesInd.current.set(r.instancia, ent);
+      }
+      const datos = (vals: (number | null)[], colores?: (string | null)[] | null) =>
+        vals.map((v, i) =>
+          v === null || v === undefined ? ({ time: tiempo(i) } as WhitespaceData<Time>) : { time: tiempo(i), value: v, ...(colores?.[i] ? { color: colores[i] as string } : {}) },
+        );
+      let k = 0;
+      for (const h of r.histogramas) ent.series[k++].setData(datos(h.valores, h.colores));
+      for (const l of r.lineas) ent.series[k++].setData(datos(l.valores));
+    }
+    for (const [id, ent] of seriesInd.current) {
+      if (vivos.has(id)) continue;
+      ent.series.forEach((x) => g.removeSeries(x));
+      seriesInd.current.delete(id);
+    }
+    primitiva.current.fijar(
+      superpuestos.length && velas.length ? { tiempos: velas.map((v) => v.t), tfMs: tf * 60_000, resultados: superpuestos } : null,
+    );
+  }, [superpuestos, velas, tf]);
 
   useEffect(() => {
     (grafico.current as unknown as { __recalcular?: () => void } | null)?.__recalcular?.();
@@ -299,10 +367,6 @@ export function GraficoVelas({
       if (x.tipo === 'compra') m.push({ time, position: 'belowBar', shape: 'arrowUp', color: pos, text: x.texto });
       else if (x.tipo === 'venta') m.push({ time, position: 'aboveBar', shape: 'arrowDown', color: neg, text: x.texto });
       else if (x.tipo === 'entrada') m.push({ time, position: 'belowBar', shape: 'circle', color: txt, text: x.texto });
-      else if (x.tipo === 'pivoteAlto') m.push({ time, position: 'aboveBar', shape: 'circle', color: css('--text-3'), text: x.texto, size: 0.5 });
-      else if (x.tipo === 'pivoteBajo') m.push({ time, position: 'belowBar', shape: 'circle', color: css('--text-3'), text: x.texto, size: 0.5 });
-      else if (x.tipo === 'barrido') m.push({ time, position: x.arriba ? 'aboveBar' : 'belowBar', shape: 'circle', color: css('--text-2'), text: x.texto, size: 0.6 });
-      else if (x.tipo === 'ruptura') m.push({ time, position: x.arriba ? 'aboveBar' : 'belowBar', shape: 'square', color: css('--gold'), text: x.texto, size: 0.6 });
       else m.push({ time, position: 'aboveBar', shape: 'square', color: txt, text: x.texto });
     }
     m.sort((a, b) => (a.time as number) - (b.time as number));
@@ -318,6 +382,7 @@ export function GraficoVelas({
   return (
     <div className="grafico" style={{ height: alto }} role="img" aria-label={etiqueta}>
       <div ref={caja} className="grafico__lienzo" />
+      {children}
       {v && (
         <div className="grafico__leyenda" aria-hidden="true">
           <span>

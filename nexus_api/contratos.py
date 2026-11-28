@@ -440,98 +440,6 @@ class Referencias(Modelo):
 
 
 # --------------------------------------------------------------------------------------------- capas del toolkit
-class Pivote(Modelo):
-    t: int = Field(description="Apertura de la vela del pivote")
-    tipo: Literal["alto", "bajo"]
-    precio: float
-    confirmado_ms: int = Field(description="Cierre de la vela que lo confirma (ya revelado)")
-
-
-class Ruptura(Modelo):
-    t: int = Field(description="Apertura de la vela cuyo cierre rompió el pivote")
-    tipo: Literal["BOS", "CHOCH"]
-    lado: Literal["alcista", "bajista"]
-    nivel: float
-    pivote_t: int
-
-
-class ZonaFVG(Modelo):
-    t: int = Field(description="Apertura de la tercera vela del patrón")
-    lado: Literal["alcista", "bajista"]
-    arriba: float
-    abajo: float
-    conocido_ms: int
-    mitigada_ms: Optional[int] = Field(description="Cierre de la vela que volvió a tocar el hueco (None: sin mitigar al límite)")
-
-
-class Barrido(Modelo):
-    t: int = Field(description="Apertura de la vela que barrió el pivote y cerró de vuelta")
-    lado: Literal["arriba", "abajo"]
-    nivel: float
-    pivote_t: int
-
-
-class OrderBlock(Modelo):
-    t: int = Field(description="Apertura de la vela del order block")
-    lado: Literal["alcista", "bajista"]
-    arriba: float
-    abajo: float
-    ruptura_t: int
-    conocido_ms: int = Field(description="Cierre de la vela de la ruptura que lo define")
-    mitigado_ms: Optional[int]
-
-
-class ZonaIFVG(Modelo):
-    t: int = Field(description="Apertura de la vela que atravesó el FVG por cierre")
-    lado: Literal["alcista", "bajista"] = Field(description="Lado desde el que se lee después de la inversión")
-    arriba: float
-    abajo: float
-    fvg_t: int = Field(description="El FVG original (apertura de su tercera vela)")
-    conocido_ms: int
-    invalidado_ms: Optional[int] = Field(description="Cierre de la vela que lo atravesó de vuelta (None: vigente al límite)")
-
-
-class ZonaBPR(Modelo):
-    t: int = Field(description="El FVG más nuevo de los dos (apertura de su tercera vela)")
-    lado: Literal["alcista", "bajista"]
-    arriba: float
-    abajo: float
-    fvg_previo_t: int
-    conocido_ms: int
-    invalidado_ms: Optional[int]
-
-
-class RangoOperativo(Modelo):
-    alto: float
-    alto_t: int
-    bajo: float
-    bajo_t: int
-    equilibrio: float = Field(description="Mitad del rango: arriba es premium, abajo discount")
-    ote_abajo: Optional[float] = Field(description="Retroceso de 62–79 % a favor de la estructura (None sin rupturas)")
-    ote_arriba: Optional[float]
-    sentido: Optional[Literal["alcista", "bajista"]]
-    zona_precio: Literal["premium", "discount", "equilibrio"] = Field(description="Dónde está el último cierre revelado")
-
-
-class CapasReplay(Modelo):
-    contrato: str = CONTRATO
-    simbolo: str
-    temporalidad: int
-    limite_ms: int
-    pivotes: list[Pivote]
-    rupturas: list[Ruptura]
-    estado_estructura: int = Field(description="+1 alcista, -1 bajista, 0 sin rupturas en la ventana")
-    fvg: list[ZonaFVG]
-    barridos: list[Barrido] = Field(default_factory=list)
-    order_blocks: list[OrderBlock] = Field(default_factory=list)
-    ifvg: list[ZonaIFVG] = Field(default_factory=list)
-    bpr: list[ZonaBPR] = Field(default_factory=list)
-    rango: Optional[RangoOperativo] = None
-    definiciones: list[str]
-    nota: str
-
-
-# --------------------------------------------------------------------------------------------- cuenta simulada
 class PedidoCuenta(Modelo):
     simbolo: str = "XAUUSD"
     limite_ms: int
@@ -593,3 +501,125 @@ class HorarioMercado(Modelo):
     texto: str
     ahora_ms: int
     nota: str
+
+
+# --------------------------------------------------------------------------------------------- biblioteca de indicadores
+ValorParametro = bool | int | float | str
+
+
+class ParametroIndicador(Modelo):
+    id: str
+    nombre: str
+    tipo: Literal["entero", "decimal", "booleano", "opcion"]
+    defecto: ValorParametro
+    minimo: Optional[float] = None
+    maximo: Optional[float] = None
+    paso: Optional[float] = None
+    opciones: Optional[list[str]] = None
+    grupo: Optional[str] = Field(default=None, description="Sección de la ventana de ajustes")
+    ayuda: Optional[str] = None
+
+
+class DefinicionIndicador(Modelo):
+    id: str
+    nombre: str
+    corto: str
+    categoria: str
+    superpuesto: bool = Field(description="True: se dibuja sobre el precio; False: en un panel propio")
+    descripcion: str
+    autor: str
+    licencia: Optional[str] = Field(default=None, description="Licencia de terceros (p. ej. CC BY-NC-SA 4.0 de LuxAlgo)")
+    fuente: Optional[str] = None
+    parametros: list[ParametroIndicador]
+
+
+class PedidoIndicador(Modelo):
+    instancia: str = Field(description="Identificador de esta copia del indicador en el gráfico")
+    id: str
+    parametros: dict[str, ValorParametro] = Field(default_factory=dict)
+
+
+class PedidoIndicadores(Modelo):
+    simbolo: str = "XAUUSD"
+    tf: int = 15
+    limite_ms: int
+    cantidad: int = 300
+    indicadores: list[PedidoIndicador]
+
+
+class LineaIndicador(Modelo):
+    nombre: str
+    color: str
+    ancho: int
+    estilo: Literal["solida", "guiones", "puntos"]
+    valores: list[Optional[float]] = Field(description="Uno por vela visible (None sin valor)")
+
+
+class HistogramaIndicador(Modelo):
+    nombre: str
+    valores: list[Optional[float]]
+    colores: Optional[list[Optional[str]]] = None
+
+
+class NivelIndicador(Modelo):
+    valor: float
+    color: str
+
+
+class CajaIndicador(Modelo):
+    t0: int
+    t1: Optional[int] = Field(description="None: llega hasta la última vela")
+    arriba: float
+    abajo: float
+    color: str
+    borde: Optional[str] = None
+    texto: Optional[str] = None
+    posicion: Optional[str] = None
+    color_texto: Optional[str] = None
+
+
+class SegmentoIndicador(Modelo):
+    t0: int
+    p0: float
+    t1: int
+    p1: float
+    color: str
+    estilo: Literal["solida", "guiones", "puntos"]
+    texto: Optional[str] = None
+    t_texto: Optional[int] = None
+    posicion: Optional[str] = None
+    tamano: Optional[str] = None
+
+
+class EtiquetaIndicador(Modelo):
+    t: int
+    precio: float
+    texto: str
+    color: str
+    posicion: str
+
+
+class ResultadoIndicador(Modelo):
+    instancia: str
+    id: str
+    nombre: str
+    superpuesto: bool
+    parametros: dict[str, ValorParametro]
+    rango: Optional[list[float]] = Field(description="Escala fija del panel (p. ej. 0–100)")
+    licencia: Optional[str]
+    lineas: list[LineaIndicador]
+    histogramas: list[HistogramaIndicador]
+    niveles: list[NivelIndicador]
+    cajas: list[CajaIndicador]
+    segmentos: list[SegmentoIndicador]
+    etiquetas: list[EtiquetaIndicador]
+    colores_velas: Optional[list[Optional[str]]]
+
+
+class RespuestaIndicadores(Modelo):
+    contrato: str = CONTRATO
+    simbolo: str
+    temporalidad: int
+    limite_ms: int
+    tiempos: list[int] = Field(description="Apertura de cada vela visible (ms UTC), la misma que devuelve el cuadro")
+    resultados: list[ResultadoIndicador]

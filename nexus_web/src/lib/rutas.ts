@@ -1,5 +1,5 @@
 /** Rutas por hash: «#/replay?s=XAUUSD&tf=15&t=1795057140000». Un estado de replay se comparte copiando el enlace. */
-export type Modulo = 'resumen' | 'replay' | 'laboratorio' | 'herramientas' | 'ejecucion' | 'analitica' | 'datos' | 'ajustes';
+export type Modulo = 'resumen' | 'replay' | 'laboratorio' | 'indicadores' | 'ejecucion' | 'analitica' | 'datos' | 'ajustes';
 
 export interface DefModulo {
   id: Modulo;
@@ -13,7 +13,7 @@ export const MODULOS: DefModulo[] = [
   { id: 'resumen', nombre: 'Resumen', ingles: 'Overview', tecla: 'o', descripcion: 'Estado de los datos, la candidata y la actividad reciente' },
   { id: 'replay', nombre: 'Replay de mercado', ingles: 'Market Replay', tecla: 'r', descripcion: 'Reproducir el histórico minuto a minuto, sin datos futuros' },
   { id: 'laboratorio', nombre: 'Laboratorio', ingles: 'Strategy Lab', tecla: 'l', descripcion: 'Estrategias, hipótesis registradas y corridas reproducibles' },
-  { id: 'herramientas', nombre: 'Herramientas', ingles: 'Institutional Toolkit', tecla: 't', descripcion: 'Capas descriptivas: sesiones, niveles, estructura y FVG' },
+  { id: 'indicadores', nombre: 'Indicadores', ingles: 'Indicators', tecla: 'i', descripcion: 'Biblioteca de indicadores del gráfico: clásicos y Smart Money Concepts [LuxAlgo]' },
   { id: 'ejecucion', nombre: 'Ejecución', ingles: 'Execution Engine', tecla: 'e', descripcion: 'Tamaño de posición, costos y órdenes simuladas' },
   { id: 'analitica', nombre: 'Analítica', ingles: 'Performance Analytics', tecla: 'a', descripcion: 'Métricas con período, muestra, costos y definición' },
   { id: 'datos', nombre: 'Centro de datos', ingles: 'Data Center', tecla: 'd', descripcion: 'Cobertura, procedencia y calidad de los datos' },
