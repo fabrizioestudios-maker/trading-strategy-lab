@@ -108,9 +108,12 @@ servidor, más tipos de gráfico (Renko, Kagi, Line break), volumen si el provee
 
 ## 6. Decisiones de Fabrizio (28/11/2026)
 
-1. **Datos en vivo: OANDA** (cuenta demo gratis). Fabrizio crea la cuenta; el token se pide con el formulario seguro
+1. **Datos en vivo: OANDA** — 28/11: Fabrizio tiene problemas para registrarse; queda en pausa, buscar alternativa
+   (Twelve Data, Finnhub, Polygon/Massive o el feed de un bróker con API). Antes: OANDA (cuenta demo gratis). Fabrizio crea la cuenta; el token se pide con el formulario seguro
    (`request_credential`, host `api-fxpractice.oanda.com` y `stream-fxpractice.oanda.com`), nunca por chat.
-2. **LuxAlgo:** Fabrizio puede crear una cuenta para acceder al código completo de la Biblioteca.
+2. **LuxAlgo:** cuenta creada el 28/11. Falta vincularla al conector de LuxAlgo en https://claude.ai/customize/connectors
+   (iniciar sesión con OAuth) y abrir una sesión nueva; hasta entonces `luxalgo_account` falla y algunas fuentes llegan
+   incompletas.
 3. **Importar todo lo importable** de LuxAlgo, TradingView, FluxCharts y Algoryze («más datos = mejores resultados»).
 4. **Misión del laboratorio (sin cambios):** estrategia de scalping con RR 1:2 y acierto ≥ 50 % en los últimos 5 años,
    usando todos los indicadores y parámetros; con los parámetros encontrados se arma el EA y se pone a operar.
