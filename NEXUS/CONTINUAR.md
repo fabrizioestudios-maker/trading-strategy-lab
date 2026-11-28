@@ -106,7 +106,20 @@ Varios gráficos por pantalla, alertas (precio e indicador), guardar gráficos/d
 servidor, más tipos de gráfico (Renko, Kagi, Line break), volumen si el proveedor lo da, screener, calendario y noticias
 (proveedor), editor de Pine (que sale casi gratis con la Fase A).
 
-## 6. Decisiones pendientes de Fabrizio
+## 6. Decisiones de Fabrizio (28/11/2026)
+
+1. **Datos en vivo: OANDA** (cuenta demo gratis). Fabrizio crea la cuenta; el token se pide con el formulario seguro
+   (`request_credential`, host `api-fxpractice.oanda.com` y `stream-fxpractice.oanda.com`), nunca por chat.
+2. **LuxAlgo:** Fabrizio puede crear una cuenta para acceder al código completo de la Biblioteca.
+3. **Importar todo lo importable** de LuxAlgo, TradingView, FluxCharts y Algoryze («más datos = mejores resultados»).
+4. **Misión del laboratorio (sin cambios):** estrategia de scalping con RR 1:2 y acierto ≥ 50 % en los últimos 5 años,
+   usando todos los indicadores y parámetros; con los parámetros encontrados se arma el EA y se pone a operar.
+   Condiciones que no se negocian: cada búsqueda cuenta sus pruebas (Deflated Sharpe / pruebas múltiples), validación
+   fuera de muestra y prueba a futuro en demo antes de cualquier dinero real; operar con dinero real necesita un «sí»
+   explícito de Fabrizio (regla: no ejecutar operaciones financieras). Antecedente: F7 ya buscó WR ≥ 50 % con RR 1:2 en
+   5 años y nada pasó los controles (ver BITACORA.md).
+
+## 6b. Decisiones pendientes (antiguas, ya respondidas arriba)
 
 1. **Proveedor de datos en vivo** (y crear la cuenta): OANDA demo es la opción gratis más completa para XAUUSD.
 2. ¿Tiene cuenta de LuxAlgo? Algunas fuentes completas de la Biblioteca piden sesión.
