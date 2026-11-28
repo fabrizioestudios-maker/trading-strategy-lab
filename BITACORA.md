@@ -1700,3 +1700,27 @@ negativo.
   - ticks con spread real para medir de verdad el costo del scalping;
   - volumen o flujo de órdenes;
   - posicionamiento en opciones (gamma) del oro.
+
+---
+
+## 2026-11-28 02:30 UTC — Entrada 39: NEXUS pasa a ser la plataforma personal de Fabrizio (estado y plan)
+
+**Contexto.** Esta entrada es de producto, no de investigación. El detalle para continuar está en `NEXUS/CONTINUAR.md`.
+
+**Hecho (27–28/11/2026), rama `nexus/rebuild-ux-foundation`:**
+- SMC/ICT solo como indicador: Smart Money Concepts [LuxAlgo] portado del Pine original (CC BY-NC-SA 4.0; uso personal).
+- Biblioteca de indicadores (15 clásicos + SMC), tipos de gráfico, dibujo, lista de seguimiento.
+- Probador de estrategias cuantitativo con validación reservada, azar, Deflated Sharpe por usuario y Monte Carlo.
+- Cuentas (correo + Google), panel de administración, despliegue Docker con HTTPS (probado).
+- Versión de muestra: artifact privado https://claude.ai/artifact/2fZHfU51DGT5riCLTK6XQq.
+
+**Pedido del 28/11/2026:** uso personal; indicadores 100 % iguales al original; gráfico en vivo; importar todas las
+librerías de LuxAlgo, TradingView, FluxCharts y Algoryze; lo máximo de TradingView.
+
+**Plan:** (A) motor de Pine Script en NEXUS (PineTS o PyneCore) con prueba de paridad por indicador; (B) importar
+LuxAlgo (853 indicadores por el conector), built-ins de TradingView y lo que sea de código abierto de FluxCharts y
+Algoryze (lo pago/protegido no se puede); (C) datos en vivo con un proveedor que elija Fabrizio; (D) más funciones de
+TradingView.
+
+**Límites honestos:** «idéntico» solo se puede afirmar con una prueba contra valores de referencia del original y con
+las mismas velas; los scripts protegidos no se pueden importar; el vivo necesita cuenta en un proveedor.
