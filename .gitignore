@@ -11,3 +11,6 @@ resultados/E026/C_E023/
 resultados/E026/C_E025/
 resultados/E028/b_operaciones.npz
 registro/nexus/
+
+# configuración local del despliegue (secretos)
+.env

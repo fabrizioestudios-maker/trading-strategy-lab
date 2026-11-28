@@ -1,0 +1,12 @@
+# NEXUS (API + motor del laboratorio). Versiones fijas: las mismas con las que pasan las pruebas.
+numpy==2.5.3
+pandas==3.0.5
+numba==0.68.1
+scipy==1.18.1
+fastapi==0.165.0
+uvicorn==0.54.0
+pydantic==2.13.5
+starlette==1.7.0
+httpx==0.29.0
+google-auth==2.38.0
+requests==2.32.3

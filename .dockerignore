@@ -1,0 +1,11 @@
+.git
+data/*.npz
+data/.cache*
+registro/nexus
+nexus_web/node_modules
+nexus_web/dist
+nexus_web/dist-estatico
+nexus_web/test-results
+**/__pycache__
+**/*.pyc
+.env

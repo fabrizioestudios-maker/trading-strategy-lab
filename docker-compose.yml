@@ -1,0 +1,36 @@
+# NEXUS con HTTPS automático (Caddy pide y renueva el certificado de Let's Encrypt).
+# Uso: copiar .env.example a .env, completarlo y correr `docker compose up -d --build` (ver DEPLOY.md).
+services:
+  nexus:
+    build:
+      context: .
+      args:
+        NEXUS_COMMIT: ${NEXUS_COMMIT:-}
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NEXUS_LOGIN: "1"
+      NEXUS_COOKIE_SEGURA: "1"
+    volumes:
+      - ./data:/app/data            # datos de mercado (data/*.npz y MANIFIESTO.csv)
+      - nexus_registro:/app/registro/nexus   # cuentas, sesiones, corridas y pruebas del probador
+    expose:
+      - "8800"
+  caddy:
+    image: caddy:2.8.4
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMINIO: ${DOMINIO}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_datos:/data
+      - caddy_config:/config
+    depends_on:
+      - nexus
+volumes:
+  nexus_registro:
+  caddy_datos:
+  caddy_config:
