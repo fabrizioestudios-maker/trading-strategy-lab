@@ -69,7 +69,7 @@ Fabrizio pidió, textual en espíritu:
 
 ### Plan acordado (en este orden)
 
-**Fase A — Motor de Pine Script dentro de NEXUS (la base de todo lo demás).**
+**Fase A — Motor de Pine Script dentro de NEXUS (la base de todo lo demás).** ✅ Prueba de concepto superada el 28/11/2026 con PineTS: ver `NEXUS/pine_runtime/README.md`.
 Portar a mano 850+ indicadores no es viable ni garantiza igualdad. La forma de lograr «100 % igual» es ejecutar el
 **código Pine original** dentro de NEXUS:
 - Candidatos: **PineTS** (npm `pinets` 0.13.1, AGPL-3.0, transpila y corre Pine en el navegador/Node) y **PyneCore**
