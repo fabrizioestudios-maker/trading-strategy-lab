@@ -191,9 +191,11 @@ test('accesibilidad: todos los botones tienen nombre y el foco se ve', async ({ 
   }
   // al cambiar de pantalla la app enfoca el contenido principal; recién después se navega con Tab
   await expect.poll(() => page.evaluate(() => document.activeElement?.id)).toBe('contenido');
+  // lo que se prueba acá es que el anillo de foco se vea: se parte siempre del contenido principal
+  await page.focus('#contenido');
   await page.keyboard.press('Tab');
-  const foco = await page.evaluate(() => getComputedStyle(document.activeElement as Element).boxShadow);
-  expect(foco).not.toBe('none');
+  // el anillo de foco entra con una transición corta: se espera a que termine en vez de leerlo en el primer cuadro
+  await expect.poll(() => page.evaluate(() => getComputedStyle(document.activeElement as Element).boxShadow)).not.toBe('none');
 });
 
 test.describe('teléfono', () => {
