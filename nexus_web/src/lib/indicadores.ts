@@ -1,3 +1,4 @@
+import { ESTATICO } from '../api/cliente';
 /** Instancias de indicadores en el gráfico (lo que el usuario agregó desde la biblioteca), guardadas en el espacio. */
 export type ValorParametro = boolean | number | string;
 
@@ -10,7 +11,9 @@ export interface InstanciaIndicador {
 
 export const MAX_INDICADORES = 12;
 
+/** En la versión publicada (respuestas grabadas) el gráfico arranca con Smart Money Concepts para mostrarlo. */
 export const INDICADORES_INICIALES: InstanciaIndicador[] = [
+  ...(ESTATICO ? [{ instancia: 'luxalgo_smc-1', id: 'luxalgo_smc', parametros: { fvg: true, premium: true }, visible: true }] : []),
   { instancia: 'rsi-1', id: 'rsi', parametros: {}, visible: true },
   { instancia: 'macd-1', id: 'macd', parametros: {}, visible: true },
 ];

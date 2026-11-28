@@ -58,9 +58,10 @@ puede leer respuestas grabadas en lugar de llamar a la API:
 1. Con la API corriendo (`python -m nexus_api`), grabar: `npm run grabar -- http://127.0.0.1:8800 dist-estatico 200`.
    Recorre todos los módulos y 200 velas del replay de XAUUSD 15m, y guarda cada respuesta en
    `dist-estatico/instantanea/<clave>.json` (clave de `src/api/clave.ts`).
-2. Construir: `npm run build:estatico` (`VITE_ESTATICO=1`, salida en `dist-estatico/`). Vite no borra
+2. Empaquetar en 16 fragmentos: `node scripts/empaquetar-instantanea.mjs dist-estatico`.
+3. Construir: `npm run build:estatico` (`VITE_ESTATICO=1`, salida en `dist-estatico/`). Vite no borra
    `instantanea/` si se graba después del build; si se construye después, volver a grabar o copiarla.
-3. Subir `dist-estatico/` tal cual.
+4. Subir `dist-estatico/` tal cual.
 
 Lo que no está grabado (órdenes simuladas, otras fechas o temporalidades del replay, corridas nuevas) muestra
 «Disponible en la versión completa». Al final del tramo grabado el replay se detiene con un aviso.

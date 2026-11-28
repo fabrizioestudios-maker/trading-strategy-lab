@@ -1,5 +1,24 @@
 # NEXUS — Progress log
 
+## 2026-11-28 — Plataforma de gráficos, probador cuantitativo, cuentas y despliegue
+
+### Completed
+- **SMC/ICT solo a través de su indicador:** se quitaron las capas sueltas (estructura, FVG, iFVG/BPR, order blocks,
+  barridos, OTE). Los conceptos SMC llegan con **Smart Money Concepts [LuxAlgo]**, portado vela por vela del Pine
+  original (CC BY-NC-SA 4.0, uso no comercial; `nexus_api/biblioteca/LICENCIA_LUXALGO.md`).
+- **Biblioteca de indicadores** como en una plataforma de gráficos: 15 clásicos + SMC, buscador (tecla /), ajustes
+  generados desde los parámetros, leyenda con ocultar/ajustes/quitar, paneles propios para osciladores.
+- **Gráfico:** velas, Heikin Ashi, barras, línea, área; escala log; dibujo (tendencia, rayo, horizontal, rectángulo,
+  Fibonacci); lista de seguimiento.
+- **Probador de estrategias cuantitativo** (`nexus_api/probador.py`, módulo Probador): reglas con indicadores, motor del
+  laboratorio minuto a minuto, costos por perfil, validación reservada, azar, Deflated Sharpe con las pruebas de cada
+  usuario, Monte Carlo y seis controles con veredicto.
+- **Cuentas** (correo + Google) y **panel de administración** (`nexus_api/usuarios.py`, `nexus_api/admin.py`).
+- **Despliegue:** `Dockerfile`, `docker-compose.yml` con HTTPS (Caddy), `.env.example`, `DEPLOY.md`. La imagen se probó
+  acá con datos reales y cuentas activadas.
+- Mapa de funciones frente a una plataforma de gráficos: `NEXUS/FUNCIONES.md`.
+- Tests: pytest NEXUS **61 passed**; Vitest **35 passed**; Playwright **11 passed** (10 corridas seguidas).
+
 ## 2026-11-27 — Published static version, consistency pass, new layers and replay range
 
 ### Completed

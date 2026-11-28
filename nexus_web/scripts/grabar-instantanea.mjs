@@ -69,11 +69,16 @@ const ir = async (hash) => {
   await p.goto(`${API}/${hash}`);
   await quieto();
 };
-// todas las capas activas, para que el replay grabado tenga estructura, FVG, barridos y order blocks
+// los mismos indicadores con los que arranca la versión publicada (src/lib/indicadores.ts con VITE_ESTATICO=1)
+const INDICADORES = [
+  { instancia: 'luxalgo_smc-1', id: 'luxalgo_smc', parametros: { fvg: true, premium: true }, visible: true },
+  { instancia: 'rsi-1', id: 'rsi', parametros: {}, visible: true },
+  { instancia: 'macd-1', id: 'macd', parametros: {}, visible: true },
+];
 // (la app lee el espacio al cargar: se recarga la página después de escribirlo)
 const espacio = async (extra) => {
   await p.evaluate((e) => localStorage.setItem('nexus.espacio.v1', JSON.stringify(e)), {
-    prefs: { capas: { sesiones: true, niveles: true, ordenes: true, senales: true, estructura: true, fvg: true, barridos: true, ob: true, ifvg: true, ote: true, rsi: true, macd: true } },
+    prefs: { capas: { sesiones: true, niveles: true, ordenes: true, senales: true }, indicadores: INDICADORES },
     ...extra,
   });
   await p.reload();
@@ -87,7 +92,16 @@ for (const s of instrumentos) {
   for (const m of ['resumen', 'datos']) await ir(`#/${m}`);
 }
 await espacio({ simbolo: 'XAUUSD' });
-for (const m of ['laboratorio', 'herramientas', 'ejecucion', 'analitica', 'ajustes']) await ir(`#/${m}`);
+for (const m of ['laboratorio', 'indicadores', 'probador', 'ejecucion', 'analitica', 'ajustes', 'admin']) await ir(`#/${m}`);
+// panel de administración: cada pestaña y cada documento
+for (const t of ['Usuarios', 'Actividad', 'Documentos', 'Sistema']) {
+  await p.getByRole('tab', { name: t }).click();
+  await quieto();
+}
+const docs = await (await fetch(`${API}/api/v1/admin/documentos`)).json();
+await p.evaluate(async (rutas) => {
+  for (const r of rutas) await fetch(`/api/v1/admin/documento?ruta=${encodeURIComponent(r)}`, { headers: { Accept: 'application/json' } });
+}, docs.map((d) => d.ruta));
 // cada corrida guardada (Analítica permite elegirla)
 const trabajos = await (await fetch(`${API}/api/v1/trabajos`)).json();
 await p.evaluate(async (ids) => {

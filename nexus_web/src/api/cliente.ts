@@ -97,23 +97,38 @@ function detalleDe(cuerpo: unknown): string {
   return 'Sin detalle';
 }
 
+// las respuestas grabadas van en 16 fragmentos (por el primer carácter de la clave): pocos archivos y cada uno se baja una vez
+const fragmentos = new Map<string, Promise<Record<string, unknown>>>();
+function fragmento(c: string): Promise<Record<string, unknown>> {
+  let f = fragmentos.get(c);
+  if (!f) {
+    f = fetch(`instantanea/${c}.json`).then((r) => (r.ok ? (r.json() as Promise<Record<string, unknown>>) : {}));
+    f.catch(() => fragmentos.delete(c));
+    fragmentos.set(c, f);
+  }
+  return f;
+}
+
 async function pedirGrabado<T>(ruta: string, init: RequestInit): Promise<T> {
   const metodo = init.method ?? 'GET';
   const cuerpo = typeof init.body === 'string' ? init.body : null;
-  let r: Response;
+  const clave = claveRespuesta(metodo, BASE + ruta, cuerpo);
+  let mapa: Record<string, unknown>;
   try {
-    r = await fetch(`instantanea/${claveRespuesta(metodo, BASE + ruta, cuerpo)}.json`, { signal: init.signal });
+    mapa = await fragmento(clave[0]);
   } catch {
     if (init.signal?.aborted) throw new ErrorApi('cancelado', 'Pedido cancelado');
     throw new ErrorApi('sin_conexion', 'No se pudieron leer los datos publicados');
   }
-  if (!r.ok)
+  if (init.signal?.aborted) throw new ErrorApi('cancelado', 'Pedido cancelado');
+  if (clave in mapa) return mapa[clave] as T;
+  {
     throw new ErrorApi(
       'solo_completa',
       'Esta es la versión publicada, con datos grabados: el replay recorre un tramo fijo de XAUUSD en 15 minutos. Las órdenes simuladas, otras fechas o temporalidades y las corridas nuevas necesitan NEXUS corriendo en una computadora (python -m nexus_api).',
       404,
     );
-  return (await r.json()) as T;
+  }
 }
 
 export async function pedir<T>(ruta: string, init: RequestInit = {}, espera = 30_000): Promise<T> {
